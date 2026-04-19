@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic AI UX — Pattern Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0A0F1E;
+  --surface:#111827;
+  --surface2:#1A2336;
+  --border:rgba(255,255,255,0.07);
+  --border2:rgba(255,255,255,0.12);
+  --blue:#3B82F6;--blue-d:#1D4ED8;--blue-l:rgba(59,130,246,0.12);
+  --green:#10B981;--green-d:#065F46;--green-l:rgba(16,185,129,0.12);
+  --red:#EF4444;--red-d:#991B1B;--red-l:rgba(239,68,68,0.12);
+  --amber:#F59E0B;--amber-d:#92400E;--amber-l:rgba(245,158,11,0.12);
+  --teal:#0D9488;--teal-l:rgba(13,148,136,0.12);
+  --purple:#8B5CF6;--purple-l:rgba(139,92,246,0.12);
+  --text:#F1F5F9;--text2:#94A3B8;--text3:#475569;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+
+/* ── App shell ── */
+#app{display:flex;flex-direction:column;height:100vh}
+
+/* Top nav */
+.top-nav{display:flex;align-items:center;gap:16px;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;z-index:100}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--text);letter-spacing:-0.02em;display:flex;align-items:center;gap:8px}
+.nav-logo-dot{width:8px;height:8px;border-radius:50%;background:var(--blue)}
+.nav-breadcrumb{display:flex;align-items:center;gap:6px;margin-left:8px}
+.nav-crumb{font-size:12px;color:var(--text3);font-weight:500}
+.nav-crumb.active{color:var(--text2)}
+.nav-sep{color:var(--text3);font-size:12px}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.nav-pattern-badge{padding:3px 10px;background:var(--blue-l);border:1px solid rgba(59,130,246,0.3);border-radius:100px;font-size:11px;font-weight:600;color:#93C5FD;font-family:'DM Mono',monospace}
+
+/* Step indicator */
+.step-bar{display:flex;align-items:center;padding:10px 24px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;gap:4px;overflow-x:auto}
+.step-item{display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;cursor:pointer;white-space:nowrap;transition:all 0.15s}
+.step-item:hover{background:rgba(255,255,255,0.04)}
+.step-item.active{background:var(--blue-l)}
+.step-dot{width:20px;height:20px;border-radius:50%;background:var(--surface2);border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--text3);flex-shrink:0;font-family:'DM Mono',monospace}
+.step-dot.done{background:var(--green-l);border-color:rgba(16,185,129,0.4);color:var(--green)}
+.step-dot.active{background:var(--blue-l);border-color:var(--blue);color:var(--blue)}
+.step-label{font-size:11px;font-weight:600;color:var(--text3)}
+.step-label.active{color:var(--text2)}
+.step-sep{color:var(--border2);font-size:14px;padding:0 2px}
+
+/* Main content area */
+.main{flex:1;overflow:hidden;position:relative}
+.screen{position:absolute;inset:0;overflow-y:auto;padding:32px 40px;opacity:0;pointer-events:none;transform:translateY(8px);transition:all 0.25s ease}
+.screen.active{opacity:1;pointer-events:all;transform:translateY(0)}
+
+/* Cards */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.card-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text)}
+.card-sub{font-size:12px;color:var(--text3);margin-top:1px}
+.card-body{padding:20px}
+.card-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;align-items:center;gap:8px}
+
+/* Buttons */
+.btn{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{filter:brightness(1.1)}
+.btn-primary{background:var(--blue);color:white}
+.btn-green{background:var(--green);color:white}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
+.btn-danger{background:var(--red-l);color:#FCA5A5;border:1px solid rgba(239,68,68,0.3)}
+.btn-amber{background:var(--amber-l);color:#FDE68A;border:1px solid rgba(245,158,11,0.3)}
+.btn-sm{padding:5px 12px;font-size:11px}
+
+/* Pills */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600;white-space:nowrap}
+.pill-blue{background:var(--blue-l);color:#93C5FD}
+.pill-green{background:var(--green-l);color:#6EE7B7}
+.pill-red{background:var(--red-l);color:#FCA5A5}
+.pill-amber{background:var(--amber-l);color:#FDE68A}
+.pill-gray{background:rgba(255,255,255,0.06);color:var(--text3)}
+.pill-teal{background:var(--teal-l);color:#5EEAD4}
+.pulse{display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* Progress bar */
+.pbar{height:4px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:100px;transition:width 0.6s ease}
+
+/* Section label */
+.sec-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:10px}
+
+/* ── P-000 Instruction Input ── */
+.scope-tabs{display:flex;gap:6px;margin-bottom:12px}
+.scope-tab{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border2);color:var(--text3);background:transparent;transition:all 0.15s}
+.scope-tab.active{background:var(--blue-l);border-color:var(--blue);color:#93C5FD}
+.tag-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.tag-chip{padding:5px 12px;border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border2);color:var(--text2);background:transparent;transition:all 0.15s}
+.tag-chip.selected{background:var(--blue);border-color:var(--blue);color:white}
+.scope-summary{padding:8px 12px;background:var(--blue-l);border:1px solid rgba(59,130,246,0.2);border-radius:8px;font-size:12px;color:#93C5FD;font-weight:500;margin-top:8px}
+textarea.instruction-field{width:100%;background:var(--surface2);border:1.5px solid var(--border2);border-radius:10px;padding:14px 16px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);resize:none;outline:none;line-height:1.6;transition:border-color 0.15s}
+textarea.instruction-field:focus{border-color:var(--blue)}
+
+/* Clarity check */
+.clarity-inline{background:var(--surface2);border:1.5px solid var(--green);border-radius:10px;padding:16px;margin-top:12px;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.clarity-item{display:flex;gap:8px;align-items:flex-start;font-size:13px;color:var(--text2);margin-bottom:8px;line-height:1.4}
+.clarity-item:last-child{margin-bottom:0}
+
+/* ── Modal overlay ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s;backdrop-filter:blur(4px)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--surface);border:1px solid var(--border2);border-radius:16px;width:560px;max-height:85vh;overflow-y:auto;transform:scale(0.96) translateY(8px);transition:transform 0.2s;box-shadow:0 24px 64px rgba(0,0,0,0.5)}
+.modal-overlay.open .modal-box{transform:translateX(0) !important}
+
+/* ── Drawer overlay ── */
+.drawer-overlay{position:fixed;inset:0;z-index:200;display:flex;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.drawer-overlay.open{opacity:1;pointer-events:all}
+.drawer-dim{flex:1;background:rgba(0,0,0,0.5)}
+.drawer-panel{width:420px;background:var(--surface);border-left:1px solid var(--border2);overflow-y:auto;transform:translateX(100%);transition:transform 0.25s ease;box-shadow:-16px 0 48px rgba(0,0,0,0.4)}
+.drawer-overlay.open .drawer-panel{transform:translateX(0)}
+
+/* ── Side panel (P-007) ── */
+.side-panel-layout{display:grid;grid-template-columns:280px 1fr;gap:0;height:100%;min-height:calc(100vh - 120px)}
+.side-list{border-right:1px solid var(--border);overflow-y:auto;padding:16px}
+.side-detail{overflow-y:auto;padding:24px}
+.side-list-item{padding:12px 14px;border-radius:10px;cursor:pointer;margin-bottom:6px;border:1.5px solid transparent;transition:all 0.15s}
+.side-list-item:hover{background:rgba(255,255,255,0.03)}
+.side-list-item.active{background:var(--teal-l);border-color:rgba(13,148,136,0.3)}
+.side-list-item.approved{border-color:rgba(16,185,129,0.2)}
+.side-list-item.rejected{border-color:rgba(239,68,68,0.2)}
+.side-list-item.editing{border-color:rgba(245,158,11,0.2)}
+
+/* ── Status grid ── */
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.agent-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px}
+.agent-card-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px}
+.agent-card-detail{font-size:11px;color:var(--text3);margin-bottom:10px}
+.agent-card-count{display:flex;align-items:baseline;gap:4px;margin-bottom:8px}
+.agent-card-num{font-size:28px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)}
+.agent-card-total{font-size:14px;color:var(--text3);font-family:'DM Mono',monospace}
+
+/* Inline error row */
+.product-row{padding:12px 16px;border-radius:8px;border:1px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all 0.15s}
+.product-row:hover{border-color:var(--border2)}
+.product-row.expanded{border-color:rgba(239,68,68,0.4);background:rgba(239,68,68,0.04)}
+.product-row-header{display:flex;align-items:center;gap:10px}
+.product-row-name{font-size:13px;font-weight:600;color:var(--text);flex:1}
+.error-expand{padding:12px;margin-top:10px;background:var(--red-l);border-radius:8px;animation:fadeIn 0.2s ease}
+
+/* Banner */
+.reengagement-banner{background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(16,185,129,0.06));border:1px solid rgba(16,185,129,0.25);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px;animation:slideDown 0.3s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Table */
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{padding:8px 14px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);text-align:left;background:var(--surface2);border-bottom:1px solid var(--border)}
+.data-table td{padding:11px 14px;font-size:13px;color:var(--text2);border-bottom:1px solid var(--border);vertical-align:middle}
+.data-table tr:hover td{background:rgba(255,255,255,0.02)}
+.data-table tr:last-child td{border-bottom:none}
+
+/* Form elements */
+.form-input{background:var(--surface2);border:1.5px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;width:100%;transition:border-color 0.15s}
+.form-input:focus{border-color:var(--blue)}
+
+/* Page titles */
+.page-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--text);letter-spacing:-0.02em;margin-bottom:4px}
+.page-sub{font-size:14px;color:var(--text3);margin-bottom:24px;line-height:1.5}
+
+/* Agent sequence steps */
+.agent-step{display:flex;gap:12px;margin-bottom:14px;position:relative}
+.agent-step::before{content:'';position:absolute;left:13px;top:28px;bottom:-14px;width:1px;background:var(--border)}
+.agent-step:last-child::before{display:none}
+.step-circle{width:28px;height:28px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text3);flex-shrink:0;background:var(--surface2);position:relative;z-index:1}
+.step-circle.blue{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
+.step-circle.amber{border-color:var(--amber);color:var(--amber);background:var(--amber-l)}
+.step-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;display:flex;align-items:center;gap:6px}
+.step-desc{font-size:12px;color:var(--text3);line-height:1.4}
+
+/* QA score row */
+.qa-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)}
+.qa-row:last-child{border-bottom:none}
+.qa-label{font-size:12px;color:var(--text3)}
+.qa-val{font-size:12px;font-weight:700;font-family:'DM Mono',monospace}
+
+/* Completion */
+.completion-ring{width:80px;height:80px;border-radius:50%;background:var(--green-l);border:3px solid rgba(16,185,129,0.4);display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px}
+
+/* Stat row */
+.stat-row{display:flex;gap:16px;margin-bottom:20px}
+.stat{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px 18px;flex:1;text-align:center}
+.stat-num{font-size:26px;font-weight:700;font-family:'DM Mono',monospace;margin-bottom:2px}
+.stat-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text3)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+
+/* Checkbox */
+.checkbox-row{display:flex;align-items:flex-start;gap:10px;padding:10px;background:var(--amber-l);border:1px solid rgba(245,158,11,0.3);border-radius:8px;cursor:pointer;margin-bottom:12px}
+.checkbox{width:16px;height:16px;border:2px solid var(--amber);border-radius:4px;flex-shrink:0;margin-top:1px;transition:all 0.15s;display:flex;align-items:center;justify-content:center}
+.checkbox.checked{background:var(--amber);border-color:var(--amber)}
+
+/* Edit note */
+.edit-note-area{width:100%;background:var(--surface2);border:1.5px solid var(--amber);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);resize:none;outline:none;margin-top:8px}
+
+/* Handoff card styling */
+.handoff-section{padding:14px 16px;border-bottom:1px solid var(--border)}
+.evidence-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--surface2);border-radius:6px;margin-bottom:6px}
+.evidence-row:last-child{margin-bottom:0}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Top nav -->
+  <nav class="top-nav">
+    <div class="nav-logo"><div class="nav-logo-dot"></div>Meridian</div>
+    <div style="width:1px;height:16px;background:var(--border);margin:0 4px"></div>
+    <div class="nav-breadcrumb" id="breadcrumb">
+      <span class="nav-crumb">Products</span>
+      <span class="nav-sep">/</span>
+      <span class="nav-crumb active" id="bc-current">New Agent Run</span>
+    </div>
+    <div class="nav-right">
+      <span class="nav-pattern-badge" id="pattern-badge">P-000</span>
+    </div>
+  </nav>
+
+  <!-- Step bar -->
+  <div class="step-bar">
+    <div class="step-item active" id="step-0" onclick="goTo(0)">
+      <div class="step-dot active" id="sd-0">0</div>
+      <span class="step-label active">Instruction</span>
+    </div>
+    <span class="step-sep">›</span>
+    <div class="step-item" id="step-1" onclick="goTo(1)">
+      <div class="step-dot" id="sd-1">1</div>
+      <span class="step-label">Pre-flight</span>
+    </div>
+    <span class="step-sep">›</span>
+    <div class="step-item" id="step-2" onclick="goTo(2)">
+      <div class="step-dot" id="sd-2">2</div>
+      <span class="step-label">Status Grid</span>
+    </div>
+    <span class="step-sep">›</span>
+    <div class="step-item" id="step-3">
+      <div class="step-dot" id="sd-3">3</div>
+      <span class="step-label">Handoff</span>
+    </div>
+    <span class="step-sep">›</span>
+    <div class="step-item" id="step-4">
+      <div class="step-dot" id="sd-4">4</div>
+      <span class="step-label">Error</span>
+    </div>
+    <span class="step-sep">›</span>
+    <div class="step-item" id="step-5">
+      <div class="step-dot" id="sd-5">5</div>
+      <span class="step-label">Pause</span>
+    </div>
+    <span class="step-sep">›</span>
+    <div class="step-item" id="step-6">
+      <div class="step-dot" id="sd-6">6</div>
+      <span class="step-label">Re-engage</span>
+    </div>
+    <span class="step-sep">›</span>
+    <div class="step-item" id="step-7">
+      <div class="step-dot" id="sd-7">7</div>
+      <span class="step-label">Checkpoint</span>
+    </div>
+    <span class="step-sep">›</span>
+    <div class="step-item" id="step-8">
+      <div class="step-dot" id="sd-8">✓</div>
+      <span class="step-label">Done</span>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- SCREEN 0 — P-000 INSTRUCTION INPUT -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="screen active" id="screen-0">
+      <div style="max-width:640px;margin:0 auto">
+        <div class="page-title">New Agent Run</div>
+        <div class="page-sub">Tell agents what to do and which products to work on. AI will check your instruction before starting.</div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background:linear-gradient(135deg,var(--blue),var(--purple))">✦</div>
+            <div>
+              <div class="card-title">Instruction Input</div>
+              <div class="card-sub">P-000 · Full Page · Entry point</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Scope -->
+            <div class="sec-label">Which products</div>
+            <div class="scope-tabs">
+              <button class="scope-tab" onclick="switchTab(this,'Collection')">Collection</button>
+              <button class="scope-tab active" onclick="switchTab(this,'Category')">Category</button>
+              <button class="scope-tab" onclick="switchTab(this,'Tag')">Tag</button>
+            </div>
+            <div class="tag-grid" id="tag-grid">
+              <button class="tag-chip selected" onclick="toggleTag(this)">Footwear</button>
+              <button class="tag-chip selected" onclick="toggleTag(this)">Running</button>
+              <button class="tag-chip" onclick="toggleTag(this)">Apparel</button>
+              <button class="tag-chip" onclick="toggleTag(this)">Accessories</button>
+              <button class="tag-chip" onclick="toggleTag(this)">New Arrivals</button>
+              <button class="tag-chip" onclick="toggleTag(this)">Sale</button>
+            </div>
+            <div class="scope-summary" id="scope-summary">✓ 10 products selected across Footwear and Running</div>
+
+            <!-- Instruction -->
+            <div class="sec-label" style="margin-top:20px">What should agents do</div>
+            <textarea class="instruction-field" id="instruction-text" rows="4" placeholder="e.g. Generate product videos and descriptions, run QA, then pause for my approval before publishing">Generate videos, write descriptions, run QA and publish for all selected products</textarea>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <span style="padding:3px 9px;background:rgba(255,255,255,0.05);border-radius:100px;font-size:11px;color:var(--text3);cursor:pointer">+ Add constraint</span>
+                <span style="padding:3px 9px;background:rgba(255,255,255,0.05);border-radius:100px;font-size:11px;color:var(--text3);cursor:pointer">+ Specify tone</span>
+              </div>
+              <span style="font-size:11px;color:var(--text3)" id="char-count">67 / 500</span>
+            </div>
+
+            <!-- Clarity check result (hidden initially) -->
+            <div id="clarity-result" style="display:none">
+              <div class="clarity-inline">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                  <div style="width:24px;height:24px;background:var(--green-l);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--green);flex-shrink:0">✓</div>
+                  <span style="font-size:13px;font-weight:600;color:#6EE7B7">Instruction understood — loading Pre-flight Plan</span>
+                </div>
+                <div class="clarity-item"><span style="color:var(--green);flex-shrink:0">✓</span>Generate a 30-second product video for each of the 10 selected products</div>
+                <div class="clarity-item"><span style="color:var(--green);flex-shrink:0">✓</span>Write a product description in your brand voice for each</div>
+                <div class="clarity-item"><span style="color:var(--green);flex-shrink:0">✓</span>Run QA review against your 85% quality threshold</div>
+                <div class="clarity-item"><span style="color:var(--green);flex-shrink:0">✓</span>Pause for your approval before publishing anything live</div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span style="font-size:12px;color:var(--text3)">10 products · 4 agents · ~40 tasks</span>
+            <div style="margin-left:auto;display:flex;gap:8px">
+              <button class="btn btn-ghost btn-sm">Clear</button>
+              <button class="btn btn-primary btn-sm" id="submit-btn" onclick="submitInstruction()">Submit → <span style="font-size:10px;opacity:0.7">AI will check</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════ -->
+    <!-- SCREEN 2 — P-002 STATUS GRID    -->
+    <!-- ════════════════════════════════ -->
+    <div class="screen" id="screen-2">
+      <div style="max-width:880px;margin:0 auto">
+        <!-- Re-engagement banner (for screen 6 demo) -->
+        <div class="reengagement-banner" id="reengagement-banner" style="display:none">
+          <div style="width:32px;height:32px;background:var(--green-l);border:1.5px solid rgba(16,185,129,0.3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">👋</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;color:#6EE7B7;margin-bottom:2px">Welcome back — here's what happened while you were away (47 min)</div>
+            <div style="font-size:12px;color:var(--text3)">2 products need attention · 3 awaiting approval · 5 completed</div>
+          </div>
+          <button class="btn btn-green btn-sm" onclick="document.getElementById('reengagement-banner').style.display='none'">View issues →</button>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+          <div>
+            <div class="page-title">Summer Collection 2026</div>
+            <div class="page-sub" style="margin-bottom:0">P-002 · Item Status Grid · Full Page · Central hub</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn btn-amber btn-sm" onclick="showDrawer()">⏸ Graceful Handoff →</button>
+            <button class="btn btn-danger btn-sm" onclick="showInlineError()">⚠ Error Recovery →</button>
+            <button class="btn btn-ghost btn-sm" onclick="showPauseModal()">⏸ Pause agents</button>
+          </div>
+        </div>
+
+        <!-- Agent cards -->
+        <div class="status-grid">
+          <div class="agent-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <div class="agent-card-name">🎬 Video Agent</div>
+              <span class="pill pill-blue"><span class="pulse"></span>Running</span>
+            </div>
+            <div class="agent-card-detail">Generating 30-second product videos</div>
+            <div class="agent-card-count"><span class="agent-card-num" id="vid-count">7</span><span class="agent-card-total">/10</span></div>
+            <div class="pbar"><div class="pbar-fill" id="vid-bar" style="width:70%;background:var(--blue)"></div></div>
+          </div>
+          <div class="agent-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <div class="agent-card-name">✍️ Description Agent</div>
+              <span class="pill pill-blue"><span class="pulse"></span>Running</span>
+            </div>
+            <div class="agent-card-detail">Writing product descriptions</div>
+            <div class="agent-card-count"><span class="agent-card-num" id="desc-count">5</span><span class="agent-card-total">/10</span></div>
+            <div class="pbar"><div class="pbar-fill" id="desc-bar" style="width:50%;background:var(--blue)"></div></div>
+          </div>
+          <div class="agent-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <div class="agent-card-name">✅ QA Agent</div>
+              <span class="pill pill-blue"><span class="pulse"></span>Running</span>
+            </div>
+            <div class="agent-card-detail">Reviewing against 85% threshold</div>
+            <div class="agent-card-count"><span class="agent-card-num" id="qa-count">3</span><span class="agent-card-total">/10</span></div>
+            <div class="pbar"><div class="pbar-fill" id="qa-bar" style="width:30%;background:var(--blue)"></div></div>
+          </div>
+          <div class="agent-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <div class="agent-card-name">🚀 Publish Agent</div>
+              <span class="pill pill-amber">⏸ Waiting</span>
+            </div>
+            <div class="agent-card-detail">Will pause for your approval</div>
+            <div class="agent-card-count"><span class="agent-card-num">0</span><span class="agent-card-total">/10</span></div>
+            <div class="pbar"><div class="pbar-fill" style="width:0%;background:var(--amber)"></div></div>
+          </div>
+        </div>
+
+        <!-- Product table -->
+        <div class="card">
+          <div class="card-header">
+            <div style="font-size:14px;font-weight:600;color:var(--text)">Products <span style="color:var(--text3);font-weight:400">· 10 items</span></div>
+            <div style="margin-left:auto;display:flex;gap:6px">
+              <select class="form-input" style="width:auto;padding:4px 10px;font-size:12px">
+                <option>All products</option><option>Stuck only</option><option>Running</option>
+              </select>
+            </div>
+          </div>
+          <div style="padding:12px 16px">
+            <!-- Inline error demo product -->
+            <div class="product-row" id="error-product-row" onclick="toggleInlineError()" style="display:none">
+              <div class="product-row-header">
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0"></div>
+                <div class="product-row-name">Jordan 1 Retro <span style="font-size:11px;color:var(--text3);font-weight:400;font-family:'DM Mono',monospace">SKU-0078</span></div>
+                <span class="pill pill-red">⚠ Stuck</span>
+                <span style="color:var(--text3);font-size:12px;margin-left:8px">▾</span>
+              </div>
+              <div class="error-expand" id="inline-error-body" style="display:none">
+                <div style="font-size:12px;font-weight:700;color:#FCA5A5;margin-bottom:8px">P-004 · Error Recovery · Inline expansion</div>
+                <div style="background:var(--green-l);border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:12px;color:#6EE7B7">✓ Video output preserved from prior agent</div>
+                <div style="font-size:12px;color:#FCA5A5;margin-bottom:8px">✕ Description Agent failed — source file jordan1_data.json not found</div>
+                <div style="font-size:12px;color:var(--text3);margin-bottom:10px">⊘ QA and Publish blocked until fixed</div>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-primary btn-sm" onclick="fixError(event)">Fix & Resume →</button>
+                  <button class="btn btn-ghost btn-sm" onclick="skipError(event)">Skip product</button>
+                </div>
+              </div>
+            </div>
+
+            <table class="data-table" style="width:100%">
+              <thead><tr><th>Product</th><th>Video</th><th>Description</th><th>QA</th><th>Publish</th></tr></thead>
+              <tbody>
+                <tr><td><div style="font-weight:600;color:var(--text)">Air Max 2026</div><div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">SKU-0011</div></td><td><span class="pill pill-green">✓</span></td><td><span class="pill pill-green">✓</span></td><td><span class="pill pill-blue"><span class="pulse"></span>Running</span></td><td><span class="pill pill-gray">—</span></td></tr>
+                <tr><td><div style="font-weight:600;color:var(--text)">Air Force 1</div><div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">SKU-0019</div></td><td><span class="pill pill-green">✓</span></td><td><span class="pill pill-green">✓</span></td><td><span class="pill pill-green">✓</span></td><td><span class="pill pill-amber">⏸ Waiting</span></td></tr>
+                <tr><td><div style="font-weight:600;color:var(--text)">Dunk Low</div><div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">SKU-0033</div></td><td><span class="pill pill-green">✓</span></td><td><span class="pill pill-blue"><span class="pulse"></span>Running</span></td><td><span class="pill pill-gray">—</span></td><td><span class="pill pill-gray">—</span></td></tr>
+                <tr><td><div style="font-weight:600;color:var(--text)">Air Max Lite</div><div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">SKU-0042</div></td><td><span class="pill pill-blue"><span class="pulse"></span>Running</span></td><td><span class="pill pill-gray">—</span></td><td><span class="pill pill-gray">—</span></td><td><span class="pill pill-gray">—</span></td></tr>
+                <tr><td><div style="font-weight:600;color:var(--text)">Pegasus Trail</div><div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">SKU-0091</div></td><td><span class="pill pill-green">✓</span></td><td><span class="pill pill-green">✓</span></td><td><span class="pill pill-green">✓</span></td><td><span class="pill pill-amber">⏸ Waiting</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;text-align:center">
+          <button class="btn btn-primary" onclick="goTo(7)" style="padding:10px 24px">Publishing Agent ready → Go to Decision Checkpoint</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════ -->
+    <!-- SCREEN 7 — P-007 DECISION CHECKPOINT -->
+    <!-- ════════════════════════════════ -->
+    <div class="screen" id="screen-7">
+      <div style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--teal-l);border:1px solid rgba(13,148,136,0.3);border-radius:10px">
+          <div style="width:32px;height:32px;background:var(--teal);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;flex-shrink:0">⏸</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#5EEAD4">P-007 · Decision Checkpoint · Side Panel · As agreed in Pre-flight Plan</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:1px">Publishing Agent paused · Other agents continuing · Review all 10 products before publishing</div>
+          </div>
+          <div style="margin-left:auto;display:flex;gap:16px;text-align:center">
+            <div><div style="font-size:18px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace" id="approved-count">0</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">Approved</div></div>
+            <div><div style="font-size:18px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace" id="editing-count">0</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">Editing</div></div>
+            <div><div style="font-size:18px;font-weight:700;color:var(--red);font-family:'DM Mono',monospace" id="rejected-count">0</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">Rejected</div></div>
+            <div><div style="font-size:18px;font-weight:700;color:var(--text3);font-family:'DM Mono',monospace" id="pending-count">10</div><div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em">Pending</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="side-panel-layout" style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+        <div class="side-list">
+          <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text3);margin-bottom:12px">10 Products</div>
+          <div id="product-list"></div>
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+            <button class="btn btn-green" style="width:100%;justify-content:center" id="publish-all-btn" onclick="publishAll()">Publish approved →</button>
+          </div>
+        </div>
+        <div class="side-detail" id="product-detail">
+          <div style="text-align:center;padding:60px 20px;color:var(--text3)">
+            <div style="font-size:32px;margin-bottom:12px">←</div>
+            <div style="font-size:14px">Select a product to review</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════ -->
+    <!-- SCREEN 8 — COMPLETION           -->
+    <!-- ════════════════════════════════ -->
+    <div class="screen" id="screen-8">
+      <div style="max-width:560px;margin:0 auto;text-align:center;padding-top:40px">
+        <div class="completion-ring">✓</div>
+        <div class="page-title" style="text-align:center;margin-bottom:8px">Run Complete</div>
+        <div style="font-size:14px;color:var(--text3);margin-bottom:32px">Summer Collection 2026 · All agents finished</div>
+        <div class="stat-row">
+          <div class="stat"><div class="stat-num" style="color:var(--green)">8</div><div class="stat-label">Published</div></div>
+          <div class="stat"><div class="stat-num" style="color:var(--amber)">1</div><div class="stat-label">Edited</div></div>
+          <div class="stat"><div class="stat-num" style="color:var(--red)">1</div><div class="stat-label">Rejected</div></div>
+        </div>
+        <div class="card" style="text-align:left;margin-bottom:20px">
+          <div class="card-body">
+            <div class="sec-label">What agents did</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green)">✓</span>40 agent tasks completed across 10 products</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green)">✓</span>10 videos generated · 10 descriptions written</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green)">✓</span>All QA checks passed at 85%+ threshold</div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green)">✓</span>8 products approved and published live</div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <button class="btn btn-primary" onclick="goTo(0)">Start new run →</button>
+          <button class="btn btn-ghost" onclick="goTo(2)">View status grid</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end main -->
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- MODAL — P-001 PRE-FLIGHT PLAN           -->
+  <!-- ════════════════════════════════════════ -->
+  <div class="modal-overlay" id="preflight-modal" style="align-items:stretch;justify-content:flex-end">
+    <div class="modal-box" style="width:520px;max-height:100vh;height:100%;border-radius:0;margin:0;transform:translateX(100%);transition:transform 0.25s ease">
+      <div class="card-header" style="background:linear-gradient(135deg,rgba(59,130,246,0.1),transparent)">
+        <div class="card-icon" style="background:linear-gradient(135deg,var(--blue),var(--purple))">✦</div>
+        <div><div class="card-title">Agent Plan</div><div class="card-sub">P-001 · Pre-flight Plan · Side Panel · Review before starting</div></div>
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="closeModal('preflight-modal')">✕</button>
+      </div>
+      <div style="padding:16px 20px;background:var(--blue-l);border-bottom:1px solid var(--border)">
+        <div class="sec-label">Your instruction</div>
+        <div style="font-size:13px;color:var(--text2);font-style:italic;line-height:1.5">"Generate videos, write descriptions, run QA and publish for all selected products"</div>
+      </div>
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+        <div class="sec-label">Agent sequence</div>
+        <div class="agent-step">
+          <div class="step-circle blue">1</div>
+          <div><div class="step-name">Video Agent</div><div class="step-desc">Generates one 30-second product video per item using Brand Kit v3</div></div>
+        </div>
+        <div class="agent-step">
+          <div class="step-circle blue">2</div>
+          <div><div class="step-name">Description Agent</div><div class="step-desc">Writes product descriptions in Professional tone</div></div>
+        </div>
+        <div class="agent-step">
+          <div class="step-circle blue">3</div>
+          <div><div class="step-name">QA Agent</div><div class="step-desc">Reviews against your 85% quality threshold</div></div>
+        </div>
+        <div class="agent-step">
+          <div class="step-circle amber">4</div>
+          <div><div class="step-name">Publishing Agent <span style="background:var(--amber-l);color:#FDE68A;font-size:10px;padding:1px 6px;border-radius:4px;font-weight:600">⚠ Needs approval</span></div><div class="step-desc">Will pause for your review before publishing anything live</div></div>
+        </div>
+      </div>
+      <div style="padding:12px 20px;border-bottom:1px solid var(--border);display:flex;gap:24px;background:var(--surface2)">
+        <div><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Items</div><div style="font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)">10</div></div>
+        <div><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Tasks</div><div style="font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)">40</div></div>
+        <div><div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Est. Time</div><div style="font-size:16px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)">4–6 min</div></div>
+      </div>
+      <div style="padding:12px 20px;border-bottom:1px solid var(--border);background:var(--amber-l)">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#FDE68A;font-weight:500">
+          <span>⏸</span>If an agent gets stuck: <strong>Keep others running</strong> (set in your preferences)
+        </div>
+      </div>
+      <div style="padding:14px 20px;display:flex;gap:8px;align-items:center">
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('preflight-modal')">Cancel</button>
+        <button class="btn btn-ghost btn-sm" style="margin-right:auto">Edit parameters</button>
+        <button class="btn btn-primary" onclick="startAgents()">Start agents →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- MODAL — P-005 INTERRUPTION & PAUSE      -->
+  <!-- ════════════════════════════════════════ -->
+  <div class="modal-overlay" id="pause-modal">
+    <div class="modal-box" style="width:460px">
+      <div class="card-header" style="background:linear-gradient(135deg,var(--amber-l),transparent)">
+        <div class="card-icon" style="background:var(--amber)">⏸</div>
+        <div><div class="card-title">All agents paused</div><div class="card-sub">P-005 · Interruption & Pause · Modal · Clean stop</div></div>
+      </div>
+      <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+        <div class="sec-label">Snapshot — where everything paused</div>
+        <table class="data-table" style="width:100%">
+          <tbody>
+            <tr><td style="font-weight:600;color:var(--text)">Video Agent</td><td style="color:var(--text3);font-size:12px">After Air Force 1</td><td><span class="pill pill-green" style="font-size:10px">8/10</span></td></tr>
+            <tr><td style="font-weight:600;color:var(--text)">Description Agent</td><td style="color:var(--text3);font-size:12px">After Dunk Low</td><td><span class="pill pill-green" style="font-size:10px">5/10</span></td></tr>
+            <tr><td style="font-weight:600;color:var(--text)">QA Agent</td><td style="color:var(--text3);font-size:12px">After Air Max 2026</td><td><span class="pill pill-green" style="font-size:10px">3/10</span></td></tr>
+            <tr><td style="font-weight:600;color:var(--text)">Publish Agent</td><td style="color:var(--text3);font-size:12px">Not started</td><td><span class="pill pill-gray" style="font-size:10px">0/10</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="padding:14px 20px;background:var(--blue-l);border-bottom:1px solid var(--border)">
+        <div class="sec-label" style="color:#93C5FD">Update before resuming</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0">
+          <span style="font-size:12px;color:#93C5FD">QA Threshold</span>
+          <div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px;font-weight:600;color:#93C5FD;font-family:'DM Mono',monospace">85%</span><span style="font-size:11px;color:var(--blue);cursor:pointer">Edit</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0">
+          <span style="font-size:12px;color:#93C5FD">Tone of voice</span>
+          <div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px;font-weight:600;color:#93C5FD;font-family:'DM Mono',monospace">Professional</span><span style="font-size:11px;color:var(--blue);cursor:pointer">Edit</span></div>
+        </div>
+      </div>
+      <div style="padding:14px 20px;display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="resumeAgents()">▶ Resume</button>
+        <button class="btn btn-danger" onclick="cancelRun()">✕ Cancel run</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <!-- DRAWER — P-003 GRACEFUL HANDOFF         -->
+  <!-- ════════════════════════════════════════ -->
+  <div class="drawer-overlay" id="handoff-drawer">
+    <div class="drawer-dim" onclick="closeDrawer('handoff-drawer')"></div>
+    <div class="drawer-panel">
+      <div class="card-header" style="background:linear-gradient(135deg,var(--amber-l),transparent)">
+        <div class="card-icon" style="background:var(--amber)">⏸</div>
+        <div><div class="card-title">Agent needs your input</div><div class="card-sub">P-003 · Graceful Handoff · Drawer · Slides over Status Grid</div></div>
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="closeDrawer('handoff-drawer')">✕</button>
+      </div>
+      <div class="handoff-section">
+        <div class="sec-label">QA Agent · Air Max Lite · Stage 3 of 4</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--blue);flex-shrink:0">📍</span>Reviewing Air Max Lite at QA stage</div>
+          <div style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--blue);flex-shrink:0">🎯</span>Your threshold is <strong style="color:var(--text)">85% minimum</strong></div>
+          <div style="display:flex;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--amber);flex-shrink:0">📊</span>This product scored <strong style="color:var(--amber)">84%</strong> — just below</div>
+        </div>
+      </div>
+      <div class="handoff-section" style="background:var(--surface2)">
+        <div class="sec-label">Evidence</div>
+        <div class="evidence-row"><span style="font-size:12px;color:var(--text3)">Video resolution</span><span style="font-size:12px;font-weight:700;font-family:'DM Mono',monospace;color:var(--amber)">84%</span></div>
+        <div class="evidence-row"><span style="font-size:12px;color:var(--text3)">Brand voice</span><span style="font-size:12px;font-weight:700;font-family:'DM Mono',monospace;color:var(--green)">96%</span></div>
+        <div class="evidence-row"><span style="font-size:12px;color:var(--text3)">Description accuracy</span><span style="font-size:12px;font-weight:700;font-family:'DM Mono',monospace;color:var(--green)">91%</span></div>
+      </div>
+      <div class="handoff-section" style="background:var(--amber-l)">
+        <div class="sec-label" style="color:#FDE68A">Your decision needed</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);line-height:1.5">Approve at 84%, or regenerate the video to meet the 85% threshold?</div>
+      </div>
+      <div class="handoff-section">
+        <div style="display:flex;gap:6px;align-items:flex-start"><span style="font-size:13px">💡</span><div style="font-size:12px;color:var(--text3);line-height:1.4"><strong style="color:var(--text2)">Agent recommendation:</strong> The difference is minimal and unlikely to be noticeable to customers. Approving is low risk.</div></div>
+      </div>
+      <div style="padding:10px 16px;border-bottom:1px solid var(--border);background:var(--blue-l);display:flex;align-items:center;gap:8px">
+        <span class="pulse" style="color:var(--blue)"></span>
+        <span style="font-size:12px;color:#93C5FD">Other agents continuing on remaining 9 products</span>
+      </div>
+      <div style="padding:14px 16px;display:flex;gap:6px">
+        <button class="btn btn-green btn-sm" style="flex:1" onclick="resolveHandoff('approve')">✓ Approve</button>
+        <button class="btn btn-amber btn-sm" style="flex:1" onclick="resolveHandoff('regen')">↻ Regenerate</button>
+        <button class="btn btn-danger btn-sm" style="flex:1" onclick="resolveHandoff('reject')">✕ Reject</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end app -->
+
+<script>
+// ── State ──
+let currentScreen = 0;
+let selectedTags = ['Footwear','Running'];
+let checkpointProducts = [
+  {id:'SKU-0011',name:'Air Max 2026',qa:94,status:'pending'},
+  {id:'SKU-0019',name:'Air Force 1',qa:91,status:'pending'},
+  {id:'SKU-0033',name:'Dunk Low',qa:88,status:'pending'},
+  {id:'SKU-0042',name:'Air Max Lite',qa:92,status:'pending'},
+  {id:'SKU-0091',name:'Pegasus Trail',qa:89,status:'pending'},
+  {id:'SKU-0078',name:'Jordan 1 Retro',qa:86,status:'pending'},
+  {id:'SKU-0015',name:'Blazer Mid',qa:93,status:'pending'},
+  {id:'SKU-0022',name:'Cortez',qa:90,status:'pending'},
+  {id:'SKU-0055',name:'Dunk High',qa:87,status:'pending'},
+  {id:'SKU-0071',name:'React 270',qa:95,status:'pending'},
+];
+let selectedProduct = null;
+let progressInterval = null;
+let agentCounts = {vid:7,desc:5,qa:3};
+let inlineErrorOpen = false;
+
+// ── Navigation ──
+function goTo(n){
+  // Update screens
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const target = document.getElementById('screen-'+n);
+  if(target) target.classList.add('active');
+
+  // Update steps
+  document.querySelectorAll('.step-item').forEach((s,i)=>{
+    s.classList.remove('active');
+    const dot = document.getElementById('sd-'+i);
+    if(!dot) return;
+    if(i < n){ dot.classList.remove('active'); dot.classList.add('done'); dot.textContent='✓'; s.querySelector('.step-label').classList.remove('active'); }
+    else if(i === n){ dot.classList.add('active'); dot.classList.remove('done'); dot.textContent=i; s.classList.add('active'); s.querySelector('.step-label').classList.add('active'); }
+    else{ dot.classList.remove('active','done'); dot.textContent=i; s.querySelector('.step-label').classList.remove('active'); }
+  });
+
+  currentScreen = n;
+
+  // Update badge and breadcrumb
+  const badges = ['P-000','P-001','P-002','P-003','P-004','P-005','P-006','P-007','Complete'];
+  const names = ['Instruction Input','Pre-flight Plan','Status Grid','Graceful Handoff','Error Recovery','Interruption & Pause','Re-engagement','Decision Checkpoint','Done'];
+  const badge = document.getElementById('pattern-badge');
+  const bc = document.getElementById('bc-current');
+  if(badge) badge.textContent = badges[n] || '—';
+  if(bc) bc.textContent = names[n] || '';
+
+  // Screen-specific init
+  if(n === 2) startProgressAnimation();
+  if(n === 3){ startProgressAnimation(); setTimeout(showDrawer,400); }
+  if(n === 4){ startProgressAnimation(); setTimeout(showInlineError,400); }
+  if(n === 5){ startProgressAnimation(); setTimeout(showPauseModal,400); }
+  if(n === 6){ startProgressAnimation(); showReengagement(); }
+  if(n === 7) initCheckpoint();
+}
+
+// ── Screen 0 ──
+function switchTab(el,name){ document.querySelectorAll('.scope-tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); }
+function toggleTag(el){ el.classList.toggle('selected'); updateScopeCount(); }
+function updateScopeCount(){
+  const count = document.querySelectorAll('.tag-chip.selected').length * 5;
+  const names = Array.from(document.querySelectorAll('.tag-chip.selected')).map(t=>t.textContent).join(' and ');
+  document.getElementById('scope-summary').textContent = '✓ '+count+' products selected across '+names;
+}
+
+// Submit + clarity check
+function submitInstruction(){
+  const btn = document.getElementById('submit-btn');
+  btn.textContent = 'Checking...';
+  btn.disabled = true;
+  setTimeout(()=>{
+    document.getElementById('clarity-result').style.display='block';
+    setTimeout(()=>{ openModal('preflight-modal'); btn.textContent='Submit →'; btn.disabled=false; }, 1800);
+  }, 800);
+}
+
+// ── Modals ──
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ── Drawers ──
+function showDrawer(){ document.getElementById('handoff-drawer').classList.add('open'); markStep(3); }
+function closeDrawer(id){ document.getElementById(id).classList.remove('open'); }
+
+// ── P-001 ──
+function startAgents(){
+  closeModal('preflight-modal');
+  goTo(2);
+}
+
+// ── P-002 progress animation ──
+function startProgressAnimation(){
+  if(progressInterval) clearInterval(progressInterval);
+  agentCounts = {vid:7,desc:5,qa:3};
+  updateAgentUI();
+  progressInterval = setInterval(()=>{
+    if(agentCounts.vid < 10) agentCounts.vid++;
+    if(agentCounts.desc < 10 && agentCounts.vid > agentCounts.desc+1) agentCounts.desc++;
+    if(agentCounts.qa < 10 && agentCounts.desc > agentCounts.qa+1) agentCounts.qa++;
+    updateAgentUI();
+    if(agentCounts.vid>=10 && agentCounts.desc>=10 && agentCounts.qa>=10) clearInterval(progressInterval);
+  }, 2000);
+}
+function updateAgentUI(){
+  const vc=document.getElementById('vid-count'); const vb=document.getElementById('vid-bar');
+  const dc=document.getElementById('desc-count'); const db=document.getElementById('desc-bar');
+  const qc=document.getElementById('qa-count'); const qb=document.getElementById('qa-bar');
+  if(vc) vc.textContent=agentCounts.vid;
+  if(vb) vb.style.width=(agentCounts.vid*10)+'%';
+  if(dc) dc.textContent=agentCounts.desc;
+  if(db) db.style.width=(agentCounts.desc*10)+'%';
+  if(qc) qc.textContent=agentCounts.qa;
+  if(qb) qb.style.width=(agentCounts.qa*10)+'%';
+}
+
+// ── P-003 Graceful Handoff ──
+function resolveHandoff(action){
+  closeDrawer('handoff-drawer');
+  markStep(3);
+}
+
+// ── P-004 Error Recovery ──
+function showInlineError(){
+  const row = document.getElementById('error-product-row');
+  if(row){ row.style.display='block'; markStep(4); }
+}
+function toggleInlineError(){
+  const body = document.getElementById('inline-error-body');
+  if(body){ inlineErrorOpen=!inlineErrorOpen; body.style.display=inlineErrorOpen?'block':'none'; }
+}
+function fixError(e){ e.stopPropagation(); const row=document.getElementById('error-product-row'); if(row) row.style.display='none'; inlineErrorOpen=false; }
+function skipError(e){ e.stopPropagation(); const row=document.getElementById('error-product-row'); if(row) row.style.display='none'; inlineErrorOpen=false; }
+
+// ── P-005 Pause ──
+function showPauseModal(){ openModal('pause-modal'); markStep(5); }
+function resumeAgents(){ closeModal('pause-modal'); }
+function cancelRun(){ closeModal('pause-modal'); goTo(8); }
+
+// ── P-006 Re-engagement ──
+function showReengagement(){
+  markStep(6);
+  const banner = document.getElementById('reengagement-banner');
+  if(banner) banner.style.display='flex';
+}
+
+// ── P-007 Decision Checkpoint ──
+function initCheckpoint(){
+  checkpointProducts.forEach(p=>p.status='pending');
+  selectedProduct=null;
+  renderProductList();
+  document.getElementById('product-detail').innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--text3)"><div style="font-size:32px;margin-bottom:12px">←</div><div style="font-size:14px">Select a product to review</div></div>`;
+  updateCheckpointCounts();
+}
+
+function renderProductList(){
+  const list = document.getElementById('product-list');
+  if(!list) return;
+  list.innerHTML = checkpointProducts.map((p,i)=>{
+    const statusColors = {pending:'',approved:'approved',rejected:'rejected',editing:'editing'};
+    const statusBadge = {
+      pending:`<span class="pill pill-gray" style="font-size:10px">— Pending</span>`,
+      approved:`<span class="pill pill-green" style="font-size:10px">✓ Approved</span>`,
+      rejected:`<span class="pill pill-red" style="font-size:10px">✕ Rejected</span>`,
+      editing:`<span class="pill pill-amber" style="font-size:10px">↻ Editing</span>`,
+    };
+    const isActive = selectedProduct === i;
+    return `<div class="side-list-item ${statusColors[p.status]} ${isActive?'active':''}" onclick="selectProduct(${i})">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+        <div style="font-size:13px;font-weight:600;color:var(--text)">${p.name}</div>
+        <div style="font-size:11px;font-weight:600;font-family:'DM Mono',monospace;color:${p.qa>=90?'var(--green)':p.qa>=85?'var(--amber)':'var(--red)'}">${p.qa}%</div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">${p.id}</div>
+        ${statusBadge[p.status]}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function selectProduct(i){
+  selectedProduct = i;
+  const p = checkpointProducts[i];
+  renderProductList();
+
+  const detail = document.getElementById('product-detail');
+  detail.innerHTML = `
+    <div style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--text)">${p.name}</div>
+        <div style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace">${p.id}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        ${i>0?`<button class="btn btn-ghost btn-sm" onclick="selectProduct(${i-1})">← Prev</button>`:''}
+        ${i<checkpointProducts.length-1?`<button class="btn btn-ghost btn-sm" onclick="selectProduct(${i+1})">Next →</button>`:''}
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+        <div class="sec-label">Preview — as it will appear live</div>
+        <div style="background:var(--surface2);border-radius:8px;height:100px;display:flex;align-items:center;justify-content:center;margin-bottom:10px">
+          <div style="text-align:center;color:var(--text3)"><div style="font-size:24px;margin-bottom:4px">🎬</div><div style="font-size:11px">30-second product video</div></div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:12px;font-size:13px;color:var(--text2);line-height:1.5">"The ${p.name} delivers all-day comfort with premium materials and superior craftsmanship. Designed for performance and style in equal measure."</div>
+      </div>
+      <div style="padding:12px 16px;background:var(--surface2)">
+        <div class="sec-label">QA Scores</div>
+        <div class="qa-row"><span class="qa-label">Video resolution</span><span class="qa-val" style="color:${p.qa>=90?'var(--green)':'var(--amber)'}">${p.qa}%</span></div>
+        <div class="qa-row"><span class="qa-label">Brand voice</span><span class="qa-val" style="color:var(--green)">96%</span></div>
+        <div class="qa-row"><span class="qa-label">Description accuracy</span><span class="qa-val" style="color:var(--green)">91%</span></div>
+        <div class="qa-row"><span class="qa-label">Overall QA</span><span class="qa-val" style="color:${p.qa>=90?'var(--green)':'var(--amber)'}">${p.qa}%</span></div>
+      </div>
+    </div>
+
+    ${p.status === 'editing' ? `
+    <div class="card" style="margin-bottom:14px;border-color:rgba(245,158,11,0.3)">
+      <div style="padding:12px 16px">
+        <div class="sec-label" style="color:#FDE68A">Edit requested</div>
+        <div style="font-size:13px;color:var(--text2);font-style:italic">"Shorten the description to 2 sentences max."</div>
+        <div style="margin-top:8px;font-size:12px;color:var(--text3)">Agent is fixing this and will return for re-review.</div>
+      </div>
+    </div>` : ''}
+
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-green" style="flex:1;justify-content:center" onclick="checkpointAction(${i},'approved')">✓ Approve</button>
+      <button class="btn btn-amber" style="flex:1;justify-content:center" onclick="showEditNote(${i})">↻ Request edit</button>
+      <button class="btn btn-danger" style="flex:1;justify-content:center" onclick="checkpointAction(${i},'rejected')">✕ Reject</button>
+    </div>
+
+    <div id="edit-note-${i}" style="display:none;margin-top:10px">
+      <textarea class="edit-note-area" rows="3" placeholder="Tell the agent exactly what to fix..." id="edit-text-${i}"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-amber btn-sm" onclick="checkpointAction(${i},'editing')">Send to agent →</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('edit-note-${i}').style.display='none'">Cancel</button>
+      </div>
+    </div>
+  `;
+}
+
+function showEditNote(i){
+  const note = document.getElementById('edit-note-'+i);
+  if(note) note.style.display = note.style.display==='none' ? 'block' : 'none';
+}
+
+function checkpointAction(i, status){
+  checkpointProducts[i].status = status;
+  updateCheckpointCounts();
+  renderProductList();
+  // Auto-advance to next pending
+  const next = checkpointProducts.findIndex((p,idx)=>idx>i && p.status==='pending');
+  if(next !== -1) selectProduct(next);
+  else selectProduct(i);
+  // Check if all decided
+  const allDone = checkpointProducts.every(p=>p.status!=='pending');
+  if(allDone){
+    document.getElementById('publish-all-btn').style.background='var(--green)';
+    document.getElementById('publish-all-btn').textContent='✓ All reviewed — Publish approved products →';
+  }
+}
+
+function updateCheckpointCounts(){
+  const counts = checkpointProducts.reduce((a,p)=>{ a[p.status]=(a[p.status]||0)+1; return a; },{});
+  const el = (id,n) => { const e=document.getElementById(id); if(e) e.textContent=n||0; };
+  el('approved-count', counts.approved);
+  el('editing-count', counts.editing);
+  el('rejected-count', counts.rejected);
+  el('pending-count', counts.pending);
+}
+
+function publishAll(){ goTo(8); }
+
+// ── Helpers ──
+function markStep(n){
+  const dot = document.getElementById('sd-'+n);
+  if(dot && !dot.classList.contains('active')){
+    // just highlight subtly
+  }
+}
+
+// ── Keyboard nav ──
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight' && currentScreen < 8) goTo(currentScreen+1);
+  if(e.key==='ArrowLeft' && currentScreen > 0) goTo(currentScreen-1);
+  if(e.key==='Escape'){
+    closeModal('preflight-modal');
+    closeModal('pause-modal');
+    closeDrawer('handoff-drawer');
+  }
+});
+</script>
+</body>
+</html>

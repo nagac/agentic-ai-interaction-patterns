@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P-000a Prompt Refinement</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F8FAFC;--surface:#FFFFFF;--surface2:#F1F5F9;
+  --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.12);
+  --blue:#2563EB;--blue-d:#1D4ED8;--blue-l:#EFF6FF;--blue-mid:#BFDBFE;
+  --green:#059669;--green-l:#ECFDF5;--green-d:#065F46;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;
+  --gray-400:#9CA3AF;--gray-500:#6B7280;--gray-700:#374151;--gray-900:#111827;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--gray-900)}
+
+.page{min-height:100vh;display:flex;flex-direction:column}
+
+.top-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:52px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.top-bar-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--gray-900);display:flex;align-items:center;gap:7px}
+.top-bar-dot{width:7px;height:7px;border-radius:50%;background:var(--blue)}
+.top-bar-sep{width:1px;height:16px;background:var(--gray-200)}
+.top-bar-label{font-size:12px;color:var(--gray-500)}
+.top-bar-badge{margin-left:auto;padding:3px 10px;background:var(--blue-l);border:1px solid var(--blue-mid);border-radius:100px;font-size:11px;font-weight:600;color:var(--blue);font-family:'DM Mono',monospace}
+
+.main{flex:1;display:flex;gap:0;overflow:hidden}
+
+/* ── Left: documentation ── */
+.doc-panel{width:340px;border-right:1px solid var(--border);background:var(--surface);overflow-y:auto;flex-shrink:0;padding:28px 24px}
+.doc-tag{display:inline-flex;align-items:center;gap:5px;background:var(--blue-l);border:1px solid var(--blue-mid);color:var(--blue);font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;padding:3px 9px;border-radius:100px;margin-bottom:14px}
+.doc-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--gray-900);letter-spacing:-0.02em;margin-bottom:6px;line-height:1.2}
+.doc-question{font-size:13px;color:var(--gray-500);line-height:1.6;margin-bottom:20px;font-style:italic}
+.doc-oneliner{background:var(--blue-l);border:1px solid var(--blue-mid);border-radius:8px;padding:11px 14px;margin-bottom:20px;font-size:12px;color:var(--blue);line-height:1.5;font-weight:500}
+
+.doc-section{margin-bottom:20px}
+.doc-section-title{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-400);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--gray-100)}
+.doc-item{display:flex;gap:8px;margin-bottom:10px;font-size:12px;color:var(--gray-700);line-height:1.5}
+.doc-item:last-child{margin-bottom:0}
+.doc-item-num{width:20px;height:20px;border-radius:50%;background:var(--blue-l);color:var(--blue);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.doc-item-name{font-weight:600;color:var(--gray-900);display:block;margin-bottom:2px}
+
+.doc-rule{display:flex;gap:7px;font-size:11px;color:var(--gray-700);line-height:1.4;margin-bottom:7px}
+.doc-rule:last-child{margin-bottom:0}
+
+.doc-meta-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.doc-meta-item{display:flex;flex-direction:column;gap:2px}
+.doc-meta-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray-400)}
+.doc-meta-value{font-size:12px;font-weight:600;color:var(--gray-700)}
+.doc-meta-value.green{color:var(--green)}
+
+.when-grid{display:flex;flex-direction:column;gap:8px}
+.when-item{padding:10px 12px;border-radius:8px;border:1px solid var(--gray-200)}
+.when-item.use{background:var(--green-l);border-color:rgba(5,150,105,0.2)}
+.when-item.notuse{background:var(--red-l);border-color:rgba(220,38,38,0.2)}
+.when-item-title{font-size:11px;font-weight:700;color:var(--gray-900);margin-bottom:3px}
+.when-item-desc{font-size:11px;color:var(--gray-500);line-height:1.4}
+
+/* ── Right: live demo ── */
+.demo-panel{flex:1;overflow-y:auto;padding:32px;display:flex;flex-direction:column;align-items:center}
+.demo-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-400);margin-bottom:16px;text-align:center}
+
+/* Dialog */
+.dialog{background:var(--surface);border:1px solid var(--gray-200);border-radius:18px;width:100%;max-width:580px;box-shadow:0 16px 56px rgba(0,0,0,0.1),0 2px 8px rgba(0,0,0,0.06);overflow:hidden}
+.dialog-header{padding:18px 22px 0;display:flex;align-items:center;gap:10px}
+.dialog-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;color:white;flex-shrink:0}
+.dialog-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--gray-900)}
+.dialog-sub{font-size:11px;color:var(--gray-400);margin-top:1px}
+.dialog-close{margin-left:auto;width:26px;height:26px;border-radius:6px;background:var(--gray-100);border:none;cursor:pointer;font-size:12px;color:var(--gray-400);display:flex;align-items:center;justify-content:center}
+
+.dialog-body{padding:14px 22px}
+
+/* Scope */
+.scope-row{margin-bottom:12px}
+.field-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);margin-bottom:6px}
+.scope-tags{display:flex;gap:5px;flex-wrap:wrap}
+.scope-tag{padding:4px 10px;border-radius:100px;font-size:11px;font-weight:500;cursor:pointer;border:1.5px solid var(--gray-200);color:var(--gray-600);background:transparent;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.scope-tag.on{background:var(--blue);border-color:var(--blue);color:white}
+.scope-summary-sm{margin-top:6px;font-size:11px;color:var(--blue);font-weight:500}
+
+/* Instruction field */
+.instruction-row{margin-bottom:0}
+.instruction-field{width:100%;background:var(--gray-50,#FAFAFA);border:1.5px solid var(--gray-200);border-radius:10px;padding:12px 14px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--gray-900);resize:none;outline:none;line-height:1.6;transition:all 0.2s;min-height:88px}
+.instruction-field:focus{border-color:var(--blue);background:white;box-shadow:0 0 0 3px rgba(37,99,235,0.08)}
+
+/* ── PROMPT REFINEMENT PANEL ── */
+.refinement-panel{margin-top:8px;border:1.5px solid var(--gray-200);border-radius:10px;overflow:hidden;transition:all 0.3s ease;display:none}
+.refinement-panel.visible{display:block;animation:slideDown 0.25s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+/* Score bar */
+.score-section{padding:12px 14px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:12px}
+.score-label{font-size:11px;font-weight:600;color:var(--gray-700);flex-shrink:0}
+.score-bar-wrap{flex:1;height:6px;background:var(--gray-100);border-radius:100px;overflow:hidden}
+.score-bar-fill{height:100%;border-radius:100px;transition:width 0.5s ease,background 0.5s ease}
+.score-value{font-size:12px;font-weight:700;font-family:'DM Mono',monospace;flex-shrink:0;min-width:36px;text-align:right}
+
+/* Missing elements */
+.missing-section{padding:10px 14px;border-bottom:1px solid var(--gray-100);background:var(--amber-l)}
+.missing-title{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--amber);margin-bottom:7px}
+.missing-items{display:flex;flex-direction:column;gap:5px}
+.missing-item{display:flex;gap:7px;font-size:11px;color:var(--amber);line-height:1.4;align-items:flex-start}
+.missing-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--amber);display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;margin-top:1px}
+
+/* Suggested additions */
+.suggestions-section{padding:10px 14px}
+.suggestions-title{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);margin-bottom:7px}
+.suggestion-chips{display:flex;flex-wrap:wrap;gap:6px}
+.suggestion-chip{padding:5px 11px;border:1.5px solid var(--blue-mid);background:var(--blue-l);border-radius:100px;font-size:11px;font-weight:500;color:var(--blue);cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px}
+.suggestion-chip:hover{background:var(--blue);color:white;border-color:var(--blue)}
+.suggestion-chip.added{background:var(--green-l);border-color:rgba(5,150,105,0.4);color:var(--green);cursor:default}
+.suggestion-chip .chip-plus{font-size:13px;font-weight:700}
+
+/* All good state */
+.all-good-section{padding:12px 14px;background:var(--green-l);display:flex;align-items:center;gap:10px}
+.all-good-icon{width:22px;height:22px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;flex-shrink:0}
+.all-good-text{font-size:12px;font-weight:600;color:var(--green-d)}
+.all-good-sub{font-size:11px;color:var(--green);margin-top:1px}
+
+/* Footer */
+.dialog-footer{padding:12px 22px;border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between}
+.footer-meta{font-size:11px;color:var(--gray-400)}
+.footer-actions{display:flex;gap:7px}
+.btn{padding:8px 18px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.btn-ghost{background:transparent;color:var(--gray-500);border:1px solid var(--gray-200)}
+.btn-primary{background:var(--blue);color:white}
+.btn-primary:hover{background:var(--blue-d)}
+.btn-primary:disabled{background:var(--gray-300);cursor:not-allowed}
+
+/* State selector (for demo) */
+.state-selector{background:white;border:1px solid var(--gray-200);border-radius:10px;padding:14px 16px;max-width:580px;width:100%;margin-bottom:20px}
+.state-selector-title{font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--gray-400);margin-bottom:10px}
+.state-btns{display:flex;gap:6px;flex-wrap:wrap}
+.state-btn{padding:5px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--gray-200);color:var(--gray-600);background:white;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.state-btn.active{background:var(--blue);border-color:var(--blue);color:white}
+.state-btn:hover:not(.active){border-color:var(--blue-mid);color:var(--blue)}
+
+/* Pulse animation for score bar */
+.score-bar-fill.analyzing{animation:scoreGrow 0.8s ease forwards}
+@keyframes scoreGrow{from{width:0%}to{width:var(--target-width)}}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="top-bar">
+  <div class="top-bar-logo"><div class="top-bar-dot"></div>Meridian</div>
+  <div class="top-bar-sep"></div>
+  <span class="top-bar-label">Agentic AI Pattern Library</span>
+  <span class="top-bar-badge">P-000a · Prompt Refinement</span>
+</div>
+
+<div class="main">
+
+  <!-- ── Documentation panel ── -->
+  <div class="doc-panel">
+    <div class="doc-tag">⬡ New Pattern</div>
+    <div class="doc-title">Prompt Refinement</div>
+    <div class="doc-question">How do you help the user write a prompt that agents can act on correctly — before they submit?</div>
+    <div class="doc-oneliner">Real-time guidance that scores the instruction, surfaces what is missing, and suggests additions — so the user gets it right before Pre-flight loads.</div>
+
+    <div class="doc-meta-row">
+      <div class="doc-meta-item"><div class="doc-meta-label">Pattern ID</div><div class="doc-meta-value">P-000a</div></div>
+      <div class="doc-meta-item"><div class="doc-meta-label">Parent</div><div class="doc-meta-value">P-000</div></div>
+      <div class="doc-meta-item"><div class="doc-meta-label">Trigger</div><div class="doc-meta-value">Debounced 500ms</div></div>
+      <div class="doc-meta-item"><div class="doc-meta-label">Status</div><div class="doc-meta-value green">● Proposed</div></div>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">Why this pattern exists</div>
+      <div style="font-size:12px;color:var(--gray-700);line-height:1.6">The clarity check in P-000 catches ambiguity after the user submits. But by then they have already committed to an instruction. Prompt Refinement catches it earlier — while they are still writing. The earlier ambiguity is caught, the less it costs.</div>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">Anatomy — 3 elements inline</div>
+      <div class="doc-item"><div class="doc-item-num">1</div><div><span class="doc-item-name">Prompt quality score</span>A live completeness bar showing how actionable the instruction is. Updates 500ms after the user stops typing. Green when ready, amber when missing elements, red when too vague.</div></div>
+      <div class="doc-item"><div class="doc-item-num">2</div><div><span class="doc-item-name">Missing elements</span>Specific things the instruction still needs. Plain language, never technical. Each one is a gap an agent would struggle with.</div></div>
+      <div class="doc-item"><div class="doc-item-num">3</div><div><span class="doc-item-name">Suggested additions</span>Tap-to-add chips that append the missing element directly into the instruction. User does not need to retype — one tap fills the gap.</div></div>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">When to use</div>
+      <div class="when-grid">
+        <div class="when-item use"><div class="when-item-title">✓ First-time users</div><div class="when-item-desc">Users who have never written an agent instruction before need active guidance to understand what makes a good prompt.</div></div>
+        <div class="when-item use"><div class="when-item-title">✓ High-scale runs</div><div class="when-item-desc">When agents will act on 50+ items, the cost of a vague instruction multiplies. Refinement is especially valuable here.</div></div>
+        <div class="when-item use"><div class="when-item-title">✓ Complex agent chains</div><div class="when-item-desc">4+ agents in sequence means more parameters to specify. Refinement surfaces what each agent will need.</div></div>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">When NOT to use</div>
+      <div class="when-grid">
+        <div class="when-item notuse"><div class="when-item-title">✗ Power users, familiar task</div><div class="when-item-desc">Returning users running a known task type find refinement guidance patronising. Make it dismissible or off by default for them.</div></div>
+        <div class="when-item notuse"><div class="when-item-title">✗ Template or form input</div><div class="when-item-desc">If the user selected a template or used the structured form, the instruction is already well-formed. Do not run refinement on these.</div></div>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">Hard stops</div>
+      <div class="doc-rule"><span style="color:var(--red);flex-shrink:0">✕</span>Never block submit — refinement is guidance, not a gate</div>
+      <div class="doc-rule"><span style="color:var(--red);flex-shrink:0">✕</span>Never rewrite the user's instruction — only suggest additions</div>
+      <div class="doc-rule"><span style="color:var(--red);flex-shrink:0">✕</span>Never show refinement for voice, file, URL, or form input types</div>
+      <div class="doc-rule"><span style="color:var(--red);flex-shrink:0">✕</span>Never show more than 3 missing elements at once — prioritise</div>
+      <div class="doc-rule"><span style="color:var(--red);flex-shrink:0">✕</span>Never keep showing refinement after user dismisses it</div>
+    </div>
+
+    <div class="doc-section">
+      <div class="doc-section-title">Relationship to other patterns</div>
+      <div style="font-size:12px;color:var(--gray-700);line-height:1.6;margin-bottom:8px"><strong style="color:var(--gray-900)">P-000</strong> — Prompt Refinement lives inside P-000. It is a sub-pattern of Instruction Input, not a standalone screen.</div>
+      <div style="font-size:12px;color:var(--gray-700);line-height:1.6;margin-bottom:8px"><strong style="color:var(--gray-900)">Clarity check (P-000)</strong> — Refinement does not replace the clarity check. It reduces how often the clarity check needs to flag something. Both always run.</div>
+      <div style="font-size:12px;color:var(--gray-700);line-height:1.6"><strong style="color:var(--gray-900)">P-001 Pre-flight Plan</strong> — A well-refined instruction produces a Pre-flight Plan the user recognises and approves quickly. Fewer surprises, higher approval rates.</div>
+    </div>
+  </div>
+
+  <!-- ── Live demo panel ── -->
+  <div class="demo-panel">
+    <div class="demo-label">Live interactive demo — try typing in the instruction field</div>
+
+    <!-- State selector -->
+    <div class="state-selector">
+      <div class="state-selector-title">Demo states — click to see each state</div>
+      <div class="state-btns">
+        <button class="state-btn active" onclick="setDemoState('empty',this)">Empty</button>
+        <button class="state-btn" onclick="setDemoState('vague',this)">Vague — score low</button>
+        <button class="state-btn" onclick="setDemoState('partial',this)">Partial — score medium</button>
+        <button class="state-btn" onclick="setDemoState('good',this)">Good — score high</button>
+        <button class="state-btn" onclick="setDemoState('perfect',this)">Perfect — all good</button>
+      </div>
+    </div>
+
+    <!-- Dialog -->
+    <div class="dialog">
+      <div class="dialog-header">
+        <div class="dialog-icon">✦</div>
+        <div>
+          <div class="dialog-title">New Agent Run</div>
+          <div class="dialog-sub">P-000 · Instruction Input with Prompt Refinement</div>
+        </div>
+        <button class="dialog-close">✕</button>
+      </div>
+
+      <div class="dialog-body">
+
+        <!-- Scope -->
+        <div class="scope-row">
+          <div class="field-label">Which products</div>
+          <div class="scope-tags">
+            <button class="scope-tag on" onclick="this.classList.toggle('on')">Footwear</button>
+            <button class="scope-tag on" onclick="this.classList.toggle('on')">Running</button>
+            <button class="scope-tag" onclick="this.classList.toggle('on')">Apparel</button>
+            <button class="scope-tag" onclick="this.classList.toggle('on')">Accessories</button>
+          </div>
+          <div class="scope-summary-sm">✓ 10 products selected</div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <!-- Instruction field -->
+        <div class="instruction-row">
+          <div class="field-label">What should agents do</div>
+          <textarea class="instruction-field" id="instruction-field" rows="3" placeholder="e.g. Generate content for all selected items, apply a quality check, then pause for my approval before completing" oninput="handleInput(this)"></textarea>
+
+          <!-- Prompt Refinement Panel -->
+          <div class="refinement-panel" id="refinement-panel">
+
+            <!-- Score bar -->
+            <div class="score-section" id="score-section">
+              <span class="score-label">Prompt quality</span>
+              <div class="score-bar-wrap">
+                <div class="score-bar-fill" id="score-bar" style="width:0%;background:var(--red)"></div>
+              </div>
+              <span class="score-value" id="score-value" style="color:var(--red)">0%</span>
+            </div>
+
+            <!-- Missing elements -->
+            <div class="missing-section" id="missing-section">
+              <div class="missing-title">What the instruction still needs</div>
+              <div class="missing-items" id="missing-items"></div>
+            </div>
+
+            <!-- Suggestions -->
+            <div class="suggestions-section" id="suggestions-section">
+              <div class="suggestions-title">Tap to add to your instruction</div>
+              <div class="suggestion-chips" id="suggestion-chips"></div>
+            </div>
+
+            <!-- All good -->
+            <div class="all-good-section" id="all-good-section" style="display:none">
+              <div class="all-good-icon">✓</div>
+              <div>
+                <div class="all-good-text">Instruction is clear and complete</div>
+                <div class="all-good-sub">Agents have everything they need. Ready to submit.</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="dialog-footer">
+        <div class="footer-meta" id="footer-meta">10 products · 4 agents · ~40 tasks</div>
+        <div class="footer-actions">
+          <button class="btn btn-ghost">Clear</button>
+          <button class="btn btn-primary" id="submit-btn">Submit → AI will check</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Explanation of what just happened -->
+    <div style="max-width:580px;width:100%;margin-top:20px;background:white;border:1px solid var(--gray-200);border-radius:12px;padding:16px 20px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--gray-400);margin-bottom:12px">How it works</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+        <div style="padding:10px 12px;background:var(--gray-50,#FAFAFA);border-radius:8px;border-left:3px solid var(--blue)">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-900);margin-bottom:4px">1. User types</div>
+          <div style="font-size:11px;color:var(--gray-500);line-height:1.4">Guidance appears 500ms after they stop typing. Not while they are mid-sentence.</div>
+        </div>
+        <div style="padding:10px 12px;background:var(--gray-50,#FAFAFA);border-radius:8px;border-left:3px solid var(--amber)">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-900);margin-bottom:4px">2. Gaps surfaced</div>
+          <div style="font-size:11px;color:var(--gray-500);line-height:1.4">Missing elements shown in plain language. Maximum 3 at a time — most important first.</div>
+        </div>
+        <div style="padding:10px 12px;background:var(--gray-50,#FAFAFA);border-radius:8px;border-left:3px solid var(--green)">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-900);margin-bottom:4px">3. One tap to fix</div>
+          <div style="font-size:11px;color:var(--gray-500);line-height:1.4">Suggestion chips append directly to the instruction. User does not need to retype anything.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+// ── Demo states ──
+const states = {
+  empty: {
+    text: '',
+    score: 0,
+    missing: [],
+    suggestions: [],
+    allGood: false
+  },
+  vague: {
+    text: 'process the items',
+    score: 15,
+    missing: [
+      'What should agents do to each item? Be specific about the action.',
+      'What happens after agents finish? Should they pause for review or proceed automatically?',
+      'What standard or threshold should agents apply when checking quality?'
+    ],
+    suggestions: [
+      'Generate content for each item',
+      'Pause for my approval before completing',
+      'Apply quality check at 85% threshold',
+      'Use a professional tone throughout'
+    ],
+    allGood: false
+  },
+  partial: {
+    text: 'Generate content for all selected items',
+    score: 52,
+    missing: [
+      'What happens after agents finish? Should they pause for your approval?',
+      'What quality standard should agents apply to the output?'
+    ],
+    suggestions: [
+      'Pause for my approval before completing',
+      'Apply a minimum quality threshold of 85%',
+      'Use the latest brand guidelines'
+    ],
+    allGood: false
+  },
+  good: {
+    text: 'Generate content for all selected items, apply a quality check at 85%, then pause for my approval before finishing',
+    score: 84,
+    missing: [
+      'Which guidelines or reference material should agents use when generating content?'
+    ],
+    suggestions: [
+      'Use the latest brand guidelines',
+      'Follow the style guide on file'
+    ],
+    allGood: false
+  },
+  perfect: {
+    text: 'Generate content for all selected items following the latest brand guidelines, apply a quality check at 85% minimum, then pause for my approval before completing anything',
+    score: 100,
+    missing: [],
+    suggestions: [],
+    allGood: true
+  }
+};
+
+let debounceTimer = null;
+let currentState = null;
+
+function setDemoState(stateName, btn) {
+  document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const state = states[stateName];
+  const field = document.getElementById('instruction-field');
+  field.value = state.text;
+  if (state.text) {
+    applyState(state);
+  } else {
+    document.getElementById('refinement-panel').classList.remove('visible');
+  }
+}
+
+function handleInput(field) {
+  clearTimeout(debounceTimer);
+  const panel = document.getElementById('refinement-panel');
+  if (!field.value.trim()) { panel.classList.remove('visible'); return; }
+  debounceTimer = setTimeout(() => { analyzeInstruction(field.value); }, 500);
+}
+
+function analyzeInstruction(text) {
+  const words = text.toLowerCase();
+  let score = 0;
+  const missing = [];
+  const suggestions = [];
+
+  // Score based on content
+  if (words.includes('generat') || words.includes('creat') || words.includes('write') || words.includes('updat')) score += 25;
+  if (words.includes('video')) score += 10;
+  if (words.includes('description')) score += 10;
+  if (words.includes('qa') || words.includes('quality') || words.includes('%')) score += 15;
+  if (words.includes('publish') || words.includes('pause') || words.includes('approv')) score += 20;
+  if (words.includes('brand') || words.includes('kit') || words.includes('tone')) score += 10;
+  if (words.includes('all') || words.includes('selected') || words.includes('product')) score += 10;
+  score = Math.min(score, 100);
+
+  if (!words.includes('generat') && !words.includes('creat') && !words.includes('write') && !words.includes('process') && !words.includes('content')) {
+    missing.push('What should agents do to each item? Be specific about the action.');
+    suggestions.push('Generate content for each item');
+  }
+  if (!words.includes('publish') && !words.includes('pause') && !words.includes('approv') && !words.includes('complet')) {
+    missing.push('What happens after agents finish? Should they pause for your approval?');
+    suggestions.push('Pause for my approval before completing');
+  }
+  if (!words.includes('qa') && !words.includes('quality') && !words.includes('%') && !words.includes('check')) {
+    missing.push('What quality standard should agents apply to the output?');
+    suggestions.push('Apply quality check at 85% threshold');
+  }
+  if (!words.includes('brand') && !words.includes('guideline') && !words.includes('tone') && !words.includes('style')) {
+    suggestions.push('Use the latest brand guidelines');
+    suggestions.push('Follow a professional tone throughout');
+  }
+
+  applyState({ score, missing: missing.slice(0,3), suggestions: suggestions.slice(0,5), allGood: score >= 95 });
+}
+
+function applyState(state) {
+  const panel = document.getElementById('refinement-panel');
+  const scoreBar = document.getElementById('score-bar');
+  const scoreVal = document.getElementById('score-value');
+  const missingSection = document.getElementById('missing-section');
+  const missingItems = document.getElementById('missing-items');
+  const suggestionsSection = document.getElementById('suggestions-section');
+  const suggestionChips = document.getElementById('suggestion-chips');
+  const allGood = document.getElementById('all-good-section');
+
+  panel.classList.add('visible');
+
+  // Score
+  const color = state.score < 40 ? 'var(--red)' : state.score < 70 ? 'var(--amber)' : 'var(--green)';
+  scoreBar.style.width = state.score + '%';
+  scoreBar.style.background = color;
+  scoreVal.textContent = state.score + '%';
+  scoreVal.style.color = color;
+
+  // Missing
+  if (state.missing && state.missing.length > 0) {
+    missingSection.style.display = 'block';
+    missingItems.innerHTML = state.missing.map(m =>
+      `<div class="missing-item"><div class="missing-dot">?</div><span>${m}</span></div>`
+    ).join('');
+  } else {
+    missingSection.style.display = 'none';
+  }
+
+  // Suggestions
+  if (state.suggestions && state.suggestions.length > 0) {
+    suggestionsSection.style.display = 'block';
+    suggestionChips.innerHTML = state.suggestions.map(s =>
+      `<button class="suggestion-chip" onclick="addSuggestion(this,'${s}')"><span class="chip-plus">+</span>${s}</button>`
+    ).join('');
+  } else {
+    suggestionsSection.style.display = 'none';
+  }
+
+  // All good
+  allGood.style.display = state.allGood ? 'flex' : 'none';
+  if (state.allGood) {
+    missingSection.style.display = 'none';
+    suggestionsSection.style.display = 'none';
+  }
+}
+
+function addSuggestion(chip, text) {
+  if (chip.classList.contains('added')) return;
+  const field = document.getElementById('instruction-field');
+  const current = field.value.trim();
+  const separator = current.endsWith('.') || current.endsWith(',') ? ' ' : current ? ', ' : '';
+  field.value = current + separator + text;
+  chip.classList.add('added');
+  chip.innerHTML = '✓ ' + text;
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => { analyzeInstruction(field.value); }, 300);
+}
+
+// Init empty state
+document.getElementById('refinement-panel').classList.remove('visible');
+</script>
+</body>
+</html>

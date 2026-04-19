@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian — Agentic AI Pattern Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08101E;--surface:#0F1928;--surface2:#162032;--surface3:#1C2A3E;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --blue:#3B82F6;--blue-l:rgba(59,130,246,0.1);
+  --green:#10B981;--green-l:rgba(16,185,129,0.1);
+  --red:#EF4444;--red-l:rgba(239,68,68,0.1);
+  --amber:#F59E0B;--amber-l:rgba(245,158,11,0.1);
+  --teal:#0D9488;--teal-l:rgba(13,148,136,0.1);
+  --purple:#8B5CF6;--purple-l:rgba(139,92,246,0.1);
+  --text:#F1F5F9;--text2:#94A3B8;--text3:#475569;--text4:#334155;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+#app{display:flex;flex-direction:column;height:100vh}
+
+.top-nav{display:flex;align-items:center;gap:12px;padding:0 28px;height:52px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;z-index:50}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--text);display:flex;align-items:center;gap:8px;letter-spacing:-0.02em}
+.nav-logo-mark{width:28px;height:28px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.nav-divider{width:1px;height:18px;background:var(--border2)}
+.nav-label{font-size:12px;color:var(--text3);font-weight:500}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.nav-version{padding:3px 9px;background:var(--surface2);border:1px solid var(--border2);border-radius:100px;font-size:10px;font-weight:600;color:var(--text3);font-family:'DM Mono',monospace}
+.back-btn{display:none;align-items:center;gap:6px;padding:5px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer}
+.back-btn.visible{display:flex}
+
+.main{flex:1;overflow:hidden;display:flex}
+.sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.sidebar-header{padding:14px 18px;border-bottom:1px solid var(--border)}
+.sidebar-title{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3)}
+.sidebar-nav{flex:1;overflow-y:auto;padding:6px}
+.sb-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:7px;cursor:pointer;border:1px solid transparent;margin-bottom:2px;transition:all 0.15s}
+.sb-item:hover{background:rgba(255,255,255,0.03)}
+.sb-item.active{background:var(--blue-l);border-color:rgba(59,130,246,0.2)}
+.sb-item.active .sb-pid{color:var(--blue)}
+.sb-item.active .sb-name{color:var(--text)}
+.sb-pid{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text4);width:36px;flex-shrink:0}
+.sb-name{font-size:11px;font-weight:600;color:var(--text3)}
+.sidebar-footer{padding:10px 14px;border-top:1px solid var(--border);font-size:11px;color:var(--text4);line-height:1.4}
+
+.content{flex:1;overflow-y:auto}
+.view{display:none;min-height:100%}
+.view.active{display:block}
+
+/* INDEX */
+.index-hero{padding:48px 52px 36px;border-bottom:1px solid var(--border)}
+.index-tag{display:inline-flex;align-items:center;gap:5px;background:var(--blue-l);border:1px solid rgba(59,130,246,0.2);color:#93C5FD;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 9px;border-radius:100px;margin-bottom:18px}
+.index-title{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;color:var(--text);letter-spacing:-0.03em;line-height:1.1;margin-bottom:14px}
+.index-title span{color:var(--blue)}
+.index-desc{font-size:14px;color:var(--text2);line-height:1.7;max-width:560px;margin-bottom:24px}
+.index-meta{display:flex;gap:24px;flex-wrap:wrap}
+.im-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text4);margin-bottom:2px}
+.im-value{font-size:12px;font-weight:600;color:var(--text2)}
+.im-value.green{color:var(--green)}
+.index-grid{padding:36px 52px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.pc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;cursor:pointer;transition:all 0.2s}
+.pc:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.06)}
+.pc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.pc-pid{font-family:'DM Mono',monospace;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px}
+.pc-cat{font-size:10px;color:var(--text4);font-weight:600;text-transform:uppercase;letter-spacing:0.06em}
+.pc-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:5px}
+.pc-q{font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:14px}
+.pc-foot{display:flex;align-items:center;justify-content:space-between}
+.pc-cont{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:0.05em}
+.pc-arr{color:var(--text4);transition:transform 0.15s}
+.pc:hover .pc-arr{transform:translateX(3px);color:var(--text2)}
+
+/* PATTERN PAGE */
+.pp{min-height:100%}
+.pp-hero{padding:36px 52px 28px;border-bottom:1px solid var(--border)}
+.pp-icon-row{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
+.pp-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.pp-pid{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;display:inline-block;margin-bottom:6px}
+.pp-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--text);letter-spacing:-0.02em;margin-bottom:6px}
+.pp-q{font-size:16px;color:var(--text2);line-height:1.6;max-width:600px;margin-bottom:16px}
+.pp-oneliner{background:var(--surface2);border-radius:8px;padding:12px 16px;max-width:640px;margin-bottom:18px}
+.pp-meta{display:flex;gap:20px;flex-wrap:wrap}
+.pml{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text4);margin-bottom:2px}
+.pmv{font-size:12px;font-weight:600;color:var(--text2)}
+.pmv.green{color:var(--green)}
+
+/* Sections */
+.ps{padding:28px 52px;border-bottom:1px solid var(--border)}
+.ps:last-child{border-bottom:none}
+.ps-lbl{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:5px}
+.ps-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--text);letter-spacing:-0.01em;margin-bottom:6px}
+.ps-desc{font-size:12px;color:var(--text3);line-height:1.6;max-width:660px;margin-bottom:22px}
+
+/* Demo panel */
+.demo-panel{background:var(--surface);border:1px solid var(--border2);border-radius:12px;overflow:hidden}
+.demo-header{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--surface2)}
+.demo-dot{width:8px;height:8px;border-radius:50%}
+.demo-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em}
+.demo-sub{font-size:10px;color:var(--text4);margin-left:auto}
+.demo-body{padding:20px}
+
+/* Split demo */
+.demo-split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* Shared UI kit for demos */
+.dk-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.dk-card-header{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.dk-card-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.dk-card-title{font-size:12px;font-weight:600;color:var(--text)}
+.dk-card-sub{font-size:10px;color:var(--text3)}
+.dk-card-body{padding:12px 14px}
+.dk-label{font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text4);margin-bottom:6px}
+.dk-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:100px;font-size:10px;font-weight:600}
+.dk-pill-blue{background:var(--blue-l);color:#93C5FD}
+.dk-pill-green{background:var(--green-l);color:#6EE7B7}
+.dk-pill-red{background:var(--red-l);color:#FCA5A5}
+.dk-pill-amber{background:var(--amber-l);color:#FDE68A}
+.dk-pill-gray{background:rgba(255,255,255,0.05);color:var(--text3)}
+.dk-pill-teal{background:var(--teal-l);color:#5EEAD4}
+.dk-pbar{height:3px;background:rgba(255,255,255,0.06);border-radius:100px;overflow:hidden}
+.dk-pbar-fill{height:100%;border-radius:100px}
+.dk-btn{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.15s;display:inline-flex;align-items:center;gap:4px}
+.dk-btn:hover{filter:brightness(1.15)}
+.dk-btn-primary{background:var(--blue);color:white}
+.dk-btn-green{background:var(--green);color:white}
+.dk-btn-ghost{background:rgba(255,255,255,0.06);color:var(--text2);border:1px solid var(--border2)}
+.dk-btn-amber{background:var(--amber-l);color:#FDE68A;border:1px solid rgba(245,158,11,0.3)}
+.dk-btn-red{background:var(--red-l);color:#FCA5A5;border:1px solid rgba(239,68,68,0.3)}
+.dk-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.dk-row:last-child{border-bottom:none}
+.dk-row-name{font-size:11px;font-weight:600;color:var(--text);flex:1}
+.dk-row-sub{font-size:10px;color:var(--text3)}
+.dk-step{display:flex;gap:10px;margin-bottom:10px}
+.dk-step:last-child{margin-bottom:0}
+.dk-step-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.dk-step-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:1px}
+.dk-step-desc{font-size:10px;color:var(--text3);line-height:1.4}
+.dk-input{background:var(--surface2);border:1.5px solid var(--border2);border-radius:6px;padding:8px 10px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--text);width:100%;outline:none}
+.dk-tag{padding:4px 10px;border-radius:100px;font-size:11px;font-weight:500;cursor:pointer;border:1.5px solid var(--border2);color:var(--text2);background:transparent;transition:all 0.15s}
+.dk-tag.on{background:var(--blue);border-color:var(--blue);color:white}
+.dk-progress-row{margin-bottom:8px}
+.dk-progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.dk-progress-label{font-size:10px;font-weight:600;color:var(--text2)}
+.dk-progress-count{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace}
+.dk-table{width:100%;border-collapse:collapse}
+.dk-table th{padding:6px 10px;font-size:9px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:var(--text4);text-align:left;background:var(--surface2);border-bottom:1px solid var(--border)}
+.dk-table td{padding:8px 10px;font-size:11px;color:var(--text2);border-bottom:1px solid var(--border);vertical-align:middle}
+.dk-table tr:last-child td{border-bottom:none}
+.pulse{display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* Anatomy */
+.ana-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.ana-item:last-child{border-bottom:none}
+.ana-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px}
+.ana-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px}
+.ana-desc{font-size:11px;color:var(--text3);line-height:1.5;margin-bottom:2px}
+.ana-purpose{font-size:10px;font-weight:600}
+
+/* Variants */
+.var-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.var-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px}
+.var-tag{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;padding:2px 6px;border-radius:4px;margin-bottom:7px}
+.var-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px}
+.var-desc{font-size:11px;color:var(--text3);line-height:1.4;margin-bottom:7px}
+.var-use{font-size:10px;color:var(--text4);padding-top:7px;border-top:1px solid var(--border)}
+
+/* States */
+.state-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.state-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px}
+.state-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:5px}
+.state-desc{font-size:11px;color:var(--text3);line-height:1.4}
+
+/* Rules */
+.rules-2col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rule-card{border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.rule-card-hdr{padding:8px 14px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+.rule-card-body{padding:12px 14px;background:var(--surface)}
+.rule-item{display:flex;gap:7px;font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:8px}
+.rule-item:last-child{margin-bottom:0}
+
+/* Metrics */
+.met-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.met-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px}
+.met-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px}
+.met-val{font-size:24px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);margin-bottom:3px}
+.met-desc{font-size:11px;color:var(--text3);line-height:1.4;margin-bottom:7px}
+.met-flag{font-size:10px;font-weight:600;color:var(--red)}
+.met-flagd{font-size:10px;color:var(--text4);margin-top:1px}
+
+/* Trust */
+.trust-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.trust-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px}
+.trust-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px}
+.trust-desc{font-size:11px;color:var(--text3);line-height:1.4}
+
+/* Rel flow */
+.rel-flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.rel-box{border-radius:7px;padding:8px 12px;font-size:11px;font-weight:600;text-align:center;min-width:90px;border:1.5px solid var(--border2);cursor:pointer}
+.rel-box.cur{border-color:var(--blue);background:var(--blue-l);color:#93C5FD;font-weight:700}
+.rel-box.oth{background:var(--surface2);color:var(--text3)}
+.rel-box.oth:hover{border-color:var(--border2);color:var(--text2)}
+.rel-arr{color:var(--text4);font-size:16px}
+
+/* Content guide */
+.cg-item{padding:10px 0;border-bottom:1px solid var(--border)}
+.cg-item:last-child{border-bottom:none}
+.cg-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text4);margin-bottom:5px}
+.cg-do{font-size:11px;color:var(--green);line-height:1.5;margin-bottom:3px;display:flex;gap:5px}
+.cg-dont{font-size:11px;color:var(--red);line-height:1.5;display:flex;gap:5px}
+
+/* Nav footer */
+.pp-nav-footer{display:flex;align-items:center;justify-content:space-between;padding:24px 52px;border-top:1px solid var(--border);background:var(--surface)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+
+/* Interactive demo states */
+.demo-interactive{cursor:pointer}
+.demo-interactive:hover{opacity:0.95}
+.fade-in{animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div id="app">
+<nav class="top-nav">
+  <div class="nav-logo"><div class="nav-logo-mark">⬡</div>Meridian</div>
+  <div class="nav-divider"></div>
+  <span class="nav-label">Agentic AI Pattern Library</span>
+  <div class="nav-right">
+    <button class="back-btn" id="back-btn" onclick="showIndex()">← Library</button>
+    <span class="nav-version">v1.0</span>
+  </div>
+</nav>
+<div class="main">
+<aside class="sidebar">
+  <div class="sidebar-header"><div class="sidebar-title">8 Patterns</div></div>
+  <nav class="sidebar-nav" id="sidebar-nav"></nav>
+  <div class="sidebar-footer">One scenario. Any product.</div>
+</aside>
+<div class="content" id="content">
+
+<!-- INDEX -->
+<div class="view active" id="view-index">
+  <div class="index-hero">
+    <div class="index-tag">⬡ Agentic AI · Pattern Library</div>
+    <div class="index-title">Design for agents<br>that <span>act autonomously</span></div>
+    <div class="index-desc">8 patterns for the unique UX challenges that emerge when AI agents run without the user watching — across multiple items, multiple steps, and irreversible actions. Each pattern includes live interactive examples.</div>
+    <div class="index-meta">
+      <div><div class="im-label">Patterns</div><div class="im-value">8</div></div>
+      <div><div class="im-label">Source scenario</div><div class="im-value">Retail · 4 agents · 10–100 products</div></div>
+      <div><div class="im-label">Status</div><div class="im-value green">● Approved v1.0</div></div>
+    </div>
+  </div>
+  <div class="index-grid" id="index-grid"></div>
+</div>
+
+<!-- PATTERN VIEWS -->
+<div id="pattern-views"></div>
+
+</div>
+</div>
+</div>
+
+<script>
+// ══════════════════════════════
+// DEMO BUILDERS
+// ══════════════════════════════
+
+const demos = {
+
+0: function(containerId) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = `
+  <div class="demo-split">
+    <div class="demo-panel">
+      <div class="demo-header"><div class="demo-dot" style="background:var(--purple)"></div><span class="demo-label" style="color:#C4B5FD">General — Any Product</span><span class="demo-sub">Interactive</span></div>
+      <div class="demo-body">
+        <div class="dk-label">Select scope</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+          <button class="dk-tag on" onclick="toggleDemoTag(this)">Marketing</button>
+          <button class="dk-tag" onclick="toggleDemoTag(this)">Engineering</button>
+          <button class="dk-tag" onclick="toggleDemoTag(this)">Sales</button>
+          <button class="dk-tag" onclick="toggleDemoTag(this)">All Teams</button>
+        </div>
+        <div style="background:var(--blue-l);border:1px solid rgba(59,130,246,0.2);border-radius:6px;padding:7px 10px;font-size:11px;color:#93C5FD;margin-bottom:14px">✓ 12 employees selected · Marketing</div>
+        <div class="dk-label">Instruction</div>
+        <textarea class="dk-input" rows="3" style="margin-bottom:10px">Update job titles and send welcome emails to new starters</textarea>
+        <div style="display:flex;justify-content:flex-end;gap:6px">
+          <button class="dk-btn dk-btn-ghost" style="font-size:10px">Clear</button>
+          <button class="dk-btn dk-btn-primary" style="font-size:10px" onclick="showClarityCheck('d0-clarity')">Submit → AI will check</button>
+        </div>
+        <div id="d0-clarity" style="display:none;margin-top:10px;background:var(--green-l);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:12px" class="fade-in">
+          <div style="font-size:11px;font-weight:700;color:#6EE7B7;margin-bottom:8px">✓ Instruction understood</div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px">✓ Update job titles for 3 new starters in Marketing</div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px">✓ Send welcome email to each starter</div>
+          <div style="font-size:11px;color:var(--text2)">✓ 12 employees in scope</div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-panel" style="border-color:rgba(139,92,246,0.3)">
+      <div class="demo-header" style="background:var(--purple-l)"><div class="demo-dot" style="background:var(--purple)"></div><span class="demo-label" style="color:#C4B5FD">Retail Scenario</span><span class="demo-sub">Summer Collection</span></div>
+      <div class="demo-body">
+        <div class="dk-label">Category filter</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+          <button class="dk-tag on" onclick="toggleDemoTag(this)">Footwear</button>
+          <button class="dk-tag on" onclick="toggleDemoTag(this)">Running</button>
+          <button class="dk-tag" onclick="toggleDemoTag(this)">Apparel</button>
+          <button class="dk-tag" onclick="toggleDemoTag(this)">Accessories</button>
+        </div>
+        <div style="background:var(--blue-l);border:1px solid rgba(59,130,246,0.2);border-radius:6px;padding:7px 10px;font-size:11px;color:#93C5FD;margin-bottom:12px">✓ 10 products · Footwear + Running</div>
+        <textarea class="dk-input" rows="3" style="margin-bottom:10px">Generate videos, descriptions, run QA and publish for all selected products</textarea>
+        <div style="background:var(--green-l);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:10px;font-size:11px">
+          <div style="font-weight:700;color:#6EE7B7;margin-bottom:6px">✓ AI understood all 4 agent tasks</div>
+          <div style="color:var(--text2);margin-bottom:3px">✓ Generate 30s video per product · 10 items</div>
+          <div style="color:var(--text2);margin-bottom:3px">✓ Write description in Professional tone</div>
+          <div style="color:var(--text2);margin-bottom:3px">✓ QA review at 85% threshold</div>
+          <div style="color:var(--text2)">✓ Pause before publishing for your approval</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+},
+
+1: function(containerId) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = `
+  <div class="demo-split">
+    <div class="demo-panel">
+      <div class="demo-header"><div class="demo-dot" style="background:var(--blue)"></div><span class="demo-label" style="color:#93C5FD">General — Any Product</span><span class="demo-sub">Email campaign agents</span></div>
+      <div class="demo-body">
+        <div class="dk-card">
+          <div class="dk-card-header"><div class="dk-card-icon" style="background:var(--blue-l)">✦</div><div><div class="dk-card-title">Agent Plan — Review before starting</div><div class="dk-card-sub">P-001 · Modal</div></div></div>
+          <div style="padding:10px 14px;background:var(--blue-l);border-bottom:1px solid var(--border)"><div style="font-size:9px;color:#93C5FD;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:3px">Your instruction</div><div style="font-size:11px;color:var(--text2);font-style:italic">"Send personalised campaign emails to 500 customers"</div></div>
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border)">
+            <div class="dk-step"><div class="dk-step-num" style="background:var(--blue-l);color:var(--blue)">1</div><div><div class="dk-step-name">Personalisation Agent</div><div class="dk-step-desc">Customises email content per customer segment</div></div></div>
+            <div class="dk-step"><div class="dk-step-num" style="background:var(--amber-l);color:var(--amber)">2</div><div><div class="dk-step-name">Send Agent <span style="background:var(--amber-l);color:#FDE68A;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600">⚠ Irreversible</span></div><div class="dk-step-desc">Sends emails — will pause for your approval first</div></div></div>
+          </div>
+          <div style="padding:8px 14px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;gap:16px">
+            <div><div style="font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:0.06em">Recipients</div><div style="font-size:14px;font-weight:700;font-family:'DM Mono',monospace">500</div></div>
+            <div><div style="font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:0.06em">Tasks</div><div style="font-size:14px;font-weight:700;font-family:'DM Mono',monospace">1000</div></div>
+            <div><div style="font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:0.06em">Est. time</div><div style="font-size:14px;font-weight:700;font-family:'DM Mono',monospace">8–12 min</div></div>
+          </div>
+          <div style="padding:10px 14px;display:flex;gap:6px">
+            <button class="dk-btn dk-btn-ghost" style="font-size:10px">Cancel</button>
+            <button class="dk-btn dk-btn-primary" style="font-size:10px;margin-left:auto" onclick="this.textContent='✓ Agents starting...';this.style.background='var(--green)'">Start agents →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-panel" style="border-color:rgba(59,130,246,0.3)">
+      <div class="demo-header" style="background:var(--blue-l)"><div class="demo-dot" style="background:var(--blue)"></div><span class="demo-label" style="color:#93C5FD">Retail Scenario</span><span class="demo-sub">Summer Collection · 10 products</span></div>
+      <div class="demo-body">
+        <div class="dk-card">
+          <div class="dk-card-header"><div class="dk-card-icon" style="background:linear-gradient(135deg,var(--blue),var(--purple))">✦</div><div><div class="dk-card-title">Agent Plan</div><div class="dk-card-sub">Variant C — Warning (publishing is irreversible)</div></div></div>
+          <div style="padding:8px 14px;background:var(--red-l);border-bottom:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;gap:8px"><span style="font-size:12px">⚠️</span><span style="font-size:11px;color:#FCA5A5;font-weight:500">This task will publish content to live product pages</span></div>
+          <div style="padding:10px 14px;background:var(--blue-l);border-bottom:1px solid var(--border)"><div style="font-size:9px;color:#93C5FD;font-weight:700;text-transform:uppercase;margin-bottom:3px">Your instruction</div><div style="font-size:11px;color:var(--text2);font-style:italic">"Generate videos, descriptions, QA and publish for 10 products"</div></div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+            <div class="dk-step"><div class="dk-step-num" style="background:var(--blue-l);color:var(--blue)">1</div><div><div class="dk-step-name">Video Agent</div><div class="dk-step-desc">30s video per product · Brand Kit v3</div></div></div>
+            <div class="dk-step"><div class="dk-step-num" style="background:var(--blue-l);color:var(--blue)">2</div><div><div class="dk-step-name">Description Agent</div><div class="dk-step-desc">Professional tone descriptions</div></div></div>
+            <div class="dk-step"><div class="dk-step-num" style="background:var(--blue-l);color:var(--blue)">3</div><div><div class="dk-step-name">QA Agent</div><div class="dk-step-desc">85% quality threshold</div></div></div>
+            <div class="dk-step"><div class="dk-step-num" style="background:var(--amber-l);color:var(--amber)">4</div><div><div class="dk-step-name">Publishing Agent <span style="background:var(--amber-l);color:#FDE68A;font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600">⚠ Pauses for approval</span></div><div class="dk-step-desc">Will pause before publishing anything live</div></div></div>
+          </div>
+          <div style="padding:8px 14px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;gap:14px">
+            <div><div style="font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:0.06em">Products</div><div style="font-size:14px;font-weight:700;font-family:'DM Mono',monospace">10</div></div>
+            <div><div style="font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:0.06em">Tasks</div><div style="font-size:14px;font-weight:700;font-family:'DM Mono',monospace">40</div></div>
+            <div><div style="font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:0.06em">Time</div><div style="font-size:14px;font-weight:700;font-family:'DM Mono',monospace">4–6 min</div></div>
+          </div>
+          <div id="pf-confirm" style="padding:8px 14px;background:var(--amber-l);border-bottom:1px solid rgba(245,158,11,0.2);display:flex;align-items:flex-start;gap:8px;cursor:pointer" onclick="togglePFCheck()">
+            <div id="pf-check" style="width:14px;height:14px;border:2px solid var(--amber);border-radius:3px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:9px"></div>
+            <div style="font-size:10px;color:#FDE68A;line-height:1.4">I understand this will publish to live product pages and requires my approval</div>
+          </div>
+          <div style="padding:10px 14px;display:flex;gap:6px">
+            <button class="dk-btn dk-btn-ghost" style="font-size:10px">Cancel</button>
+            <button class="dk-btn" id="pf-start-btn" style="font-size:10px;margin-left:auto;background:var(--surface3);color:var(--text4);cursor:not-allowed" disabled>Start agents →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+},
+
+2: function(containerId) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = `
+  <div class="demo-split">
+    <div class="demo-panel">
+      <div class="demo-header"><div class="demo-dot" style="background:var(--blue)"></div><span class="demo-label" style="color:#93C5FD">General — HR System</span><span class="demo-sub">50 onboarding tasks</span></div>
+      <div class="demo-body">
+        <div class="dk-card">
+          <div style="padding:10px 14px;background:var(--red-l);border:1px solid rgba(239,68,68,0.2);border-radius:6px;margin-bottom:12px;display:flex;align-items:center;gap:8px">
+            <span style="font-size:13px">🚨</span>
+            <div><div style="font-size:11px;font-weight:700;color:#FCA5A5">2 onboarding tasks need attention</div><div style="font-size:10px;color:var(--text3)">Alice Chen and Bob Kumar have failed IT access setup</div></div>
+            <button class="dk-btn dk-btn-red" style="margin-left:auto;font-size:9px">Fix →</button>
+          </div>
+          <div class="dk-progress-row"><div class="dk-progress-header"><span class="dk-progress-label">Email Agent</span><span class="dk-progress-count">48/50</span></div><div class="dk-pbar"><div class="dk-pbar-fill" style="width:96%;background:var(--green)"></div></div></div>
+          <div class="dk-progress-row"><div class="dk-progress-header"><span class="dk-progress-label">IT Access Agent</span><span class="dk-progress-count" style="color:var(--red)">46/50 · 2 stuck</span></div><div class="dk-pbar"><div class="dk-pbar-fill" style="width:92%;background:var(--green)"></div><div style="position:relative;top:-6px;left:92%;width:4%;height:6px;background:var(--red);display:inline-block"></div></div></div>
+          <div class="dk-progress-row"><div class="dk-progress-header"><span class="dk-progress-label">Badge Agent</span><span class="dk-progress-count"><span class="pulse" style="color:var(--blue)"></span> 41/50</span></div><div class="dk-pbar"><div class="dk-pbar-fill" style="width:82%;background:var(--blue)"></div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-panel" style="border-color:rgba(59,130,246,0.3)">
+      <div class="demo-header" style="background:var(--blue-l)"><div class="demo-dot" style="background:var(--blue)"></div><span class="demo-label" style="color:#93C5FD">Retail Scenario</span><span class="demo-sub">Summer Collection — Table View</span></div>
+      <div class="demo-body">
+        <div style="margin-bottom:10px;display:flex;gap:8px;align-items:center">
+          <span style="font-size:11px;font-weight:600;color:var(--text)">Summer Collection 2026</span>
+          <span class="dk-pill dk-pill-blue"><span class="pulse"></span>Running</span>
+          <span style="font-size:10px;color:var(--text3);margin-left:auto">10 products · 4 agents</span>
+        </div>
+        <div style="background:var(--red-l);border:1px solid rgba(239,68,68,0.2);border-radius:6px;padding:8px 10px;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+          <span style="font-size:11px">🚨</span><span style="font-size:10px;font-weight:600;color:#FCA5A5">2 products stuck at QA — need your attention</span>
+          <button class="dk-btn dk-btn-red" style="margin-left:auto;font-size:9px;padding:3px 8px">Fix →</button>
+        </div>
+        <table class="dk-table">
+          <thead><tr><th>Product</th><th>Video</th><th>Description</th><th>QA</th><th>Publish</th></tr></thead>
+          <tbody>
+            <tr style="background:rgba(239,68,68,0.04)"><td style="font-weight:600;color:var(--text);border-left:2px solid var(--red)">Air Max Lite</td><td><span class="dk-pill dk-pill-green" style="font-size:9px">✓</span></td><td><span class="dk-pill dk-pill-green" style="font-size:9px">✓</span></td><td><span class="dk-pill dk-pill-red" style="font-size:9px">⚠ Stuck</span></td><td><span class="dk-pill dk-pill-gray" style="font-size:9px">—</span></td></tr>
+            <tr style="background:rgba(239,68,68,0.04)"><td style="font-weight:600;color:var(--text);border-left:2px solid var(--red)">Jordan 1</td><td><span class="dk-pill dk-pill-green" style="font-size:9px">✓</span></td><td><span class="dk-pill dk-pill-red" style="font-size:9px">⚠ Stuck</span></td><td><span class="dk-pill dk-pill-gray" style="font-size:9px">—</span></td><td><span class="dk-pill dk-pill-gray" style="font-size:9px">—</span></td></tr>
+            <tr><td style="font-weight:600;color:var(--text)">Air Max 2026</td><td><span class="dk-pill dk-pill-green" style="font-size:9px">✓</span></td><td><span class="dk-pill dk-pill-green" style="font-size:9px">✓</span></td><td><span class="dk-pill dk-pill-green" style="font-size:9px">✓</span></td><td><span class="dk-pill dk-pill-amber" style="font-size:9px">⏸ Waiting</span></td></tr>
+            <tr><td style="font-weight:600;color:var(--text)">Dunk Low</td><td><span class="dk-pill dk-pill-green" style="font-size:9px">✓</span></td><td><span class="dk-pill dk-pill-blue" style="font-size:9px"><span class="pulse"></span>Running</span></td><td><span class="dk-pill dk-pill-gray" style="font-size:9px">—</span></td><td><span class="dk-pill dk-pill-gray" style="font-size:9px">—</span></td></tr>
+            <tr><td style="font-weight:600;color:var(--text)">Air Force 1</td><td><span class="dk-pill dk-pill-blue" style="font-size:9px"><span class="pulse"></span>Running</span></td><td><span class="dk-pill dk-pill-gray" style="font-size:9px">—</span></td><td><span class="dk-pill dk-pill-gray" style="font-size:9px">—</span></td><td><span class="dk-pill dk-pill-gray" style="font-size:9px">—</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
+},
+
+3: function(containerId) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = `
+  <div class="demo-split">
+    <div class="demo-panel">
+      <div class="demo-header"><div class="demo-dot" style="background:var(--amber)"></div><span class="demo-label" style="color:#FDE68A">General — Legal Review</span><span class="demo-sub">Contract analysis agent</span></div>
+      <div class="demo-body">
+        <div style="background:var(--surface2);border:1px solid rgba(245,158,11,0.3);border-radius:10px;overflow:hidden">
+          <div style="padding:10px 14px;background:var(--amber-l);border-bottom:1px solid rgba(245,158,11,0.2);display:flex;align-items:center;gap:8px">
+            <div style="width:24px;height:24px;background:var(--amber);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:white">⏸</div>
+            <div><div style="font-size:12px;font-weight:700;color:#FDE68A">Agent needs your input</div><div style="font-size:10px;color:#B45309">Legal Review Agent · Contract-0042 · Clause 7.3</div></div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--text3);margin-bottom:6px">Jurisdiction reference outside training data</div>
+            <div style="background:var(--surface3);border-radius:6px;padding:8px;font-size:10px;color:var(--text2)">Confidence: <span style="color:var(--amber);font-weight:700">71%</span> — below your 80% threshold</div>
+          </div>
+          <div style="padding:10px 14px;background:var(--amber-l);border-bottom:1px solid rgba(245,158,11,0.2)">
+            <div style="font-size:11px;font-weight:600;color:var(--text)">Approve clause 7.3 or escalate to legal team?</div>
+            <div style="font-size:10px;color:#B45309;margin-top:4px">💡 Escalation recommended for low-confidence jurisdictions</div>
+          </div>
+          <div style="padding:10px 14px;background:var(--blue-l);border-bottom:1px solid var(--border);font-size:10px;color:#93C5FD"><span class="pulse" style="color:var(--blue)"></span> Other contracts continuing to process</div>
+          <div style="padding:10px 14px;display:flex;gap:6px">
+            <button class="dk-btn dk-btn-green" style="font-size:10px;flex:1" onclick="resolveDemo(this,'Approved')">✓ Approve</button>
+            <button class="dk-btn dk-btn-amber" style="font-size:10px;flex:1" onclick="resolveDemo(this,'Escalated')">↑ Escalate</button>
+            <button class="dk-btn dk-btn-red" style="font-size:10px;flex:1" onclick="resolveDemo(this,'Rejected')">✕ Reject</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-panel" style="border-color:rgba(245,158,11,0.3)">
+      <div class="demo-header" style="background:var(--amber-l)"><div class="demo-dot" style="background:var(--amber)"></div><span class="demo-label" style="color:#FDE68A">Retail Scenario</span><span class="demo-sub">QA Agent · Air Max Lite</span></div>
+      <div class="demo-body">
+        <div style="background:var(--surface2);border:1px solid rgba(245,158,11,0.3);border-radius:10px;overflow:hidden">
+          <div style="padding:10px 14px;background:var(--amber-l);border-bottom:1px solid rgba(245,158,11,0.2);display:flex;align-items:center;gap:8px">
+            <div style="width:24px;height:24px;background:var(--amber);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:white">⏸</div>
+            <div><div style="font-size:12px;font-weight:700;color:#FDE68A">Agent needs your input</div><div style="font-size:10px;color:#B45309">QA Agent · Air Max Lite · Stage 3 of 4</div></div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+            <div style="font-size:10px;color:var(--text3);margin-bottom:6px">Evidence</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--surface3);border-radius:4px;margin-bottom:4px"><span style="font-size:10px;color:var(--text3)">Video resolution</span><span style="font-size:10px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace">84%</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--surface3);border-radius:4px;margin-bottom:4px"><span style="font-size:10px;color:var(--text3)">Brand voice</span><span style="font-size:10px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">96%</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:var(--surface3);border-radius:4px"><span style="font-size:10px;color:var(--text3)">Description</span><span style="font-size:10px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">91%</span></div>
+          </div>
+          <div style="padding:10px 14px;background:var(--amber-l);border-bottom:1px solid rgba(245,158,11,0.2)">
+            <div style="font-size:11px;font-weight:600;color:var(--text)">Approve at 84% or regenerate to meet 85% threshold?</div>
+            <div style="font-size:10px;color:#B45309;margin-top:4px">💡 Approving is low risk — difference is minimal</div>
+          </div>
+          <div style="padding:8px 14px;background:var(--blue-l);font-size:10px;color:#93C5FD;border-bottom:1px solid var(--border)"><span class="pulse" style="color:var(--blue)"></span> Other 9 agents continuing</div>
+          <div style="padding:10px 14px;display:flex;gap=6px">
+            <button class="dk-btn dk-btn-green" style="font-size:10px;flex:1;margin-right:4px" onclick="resolveDemo(this,'✓ Approved — resuming')">✓ Approve</button>
+            <button class="dk-btn dk-btn-amber" style="font-size:10px;flex:1;margin-right:4px" onclick="resolveDemo(this,'↻ Regenerating video')">↻ Regenerate</button>
+            <button class="dk-btn dk-btn-red" style="font-size:10px;flex:1" onclick="resolveDemo(this,'✕ Rejected')">✕ Reject</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+},
+
+4: function(containerId) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = `
+  <div class="demo-split">
+    <div class="demo-panel">
+      <div class="demo-header"><div class="demo-dot" style="background:var(--red)"></div><span class="demo-label" style="color:#FCA5A5">General — Data Pipeline</span><span class="demo-sub">ETL agent failure</span></div>
+      <div class="demo-body">
+        <div style="background:var(--surface2);border:1px solid rgba(239,68,68,0.3);border-radius:10px;overflow:hidden">
+          <div style="padding:10px 14px;background:var(--red-l);border-bottom:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;gap:8px">
+            <div style="width:24px;height:24px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:white">✕</div>
+            <div><div style="font-size:12px;font-weight:700;color:#FCA5A5">Transform Agent failed</div><div style="font-size:10px;color:var(--red)">Dataset: Q3_sales.csv · Stage 2 of 4</div></div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+            <div style="background:var(--green-l);border-radius:6px;padding:7px 10px;margin-bottom:8px;font-size:11px;color:#6EE7B7">✓ Extract Agent output preserved — 847 records loaded</div>
+            <div style="background:var(--red-l);border-radius:6px;padding:7px 10px;margin-bottom:8px;font-size:11px;color:#FCA5A5">✕ Transform failed — schema mismatch on column "revenue_usd"</div>
+            <div style="background:rgba(249,115,22,0.1);border-radius:6px;padding:7px 10px;font-size:11px;color:#FDBA74">⊘ Load Agent and Report Agent blocked</div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+            <div style="font-size:10px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:5px">Fix steps</div>
+            <div style="font-size:11px;color:var(--text2);display:flex;gap:6px;margin-bottom:5px"><span style="color:var(--blue);font-weight:700">1</span>Rename column "revenue_usd" to "revenue" in source file</div>
+            <div style="font-size:11px;color:var(--text2);display:flex;gap:6px"><span style="color:var(--blue);font-weight:700">2</span>Resume Transform Agent from this dataset</div>
+          </div>
+          <div style="padding:10px 14px;display:flex;gap:6px">
+            <button class="dk-btn dk-btn-primary" style="font-size:10px" onclick="resolveDemo(this,'↻ Resuming from failure point...')">Resume from here →</button>
+            <button class="dk-btn dk-btn-ghost" style="font-size:10px" onclick="resolveDemo(this,'Dataset skipped')">Skip dataset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-panel" style="border-color:rgba(239,68,68,0.3)">
+      <div class="demo-header" style="background:var(--red-l)"><div class="demo-dot" style="background:var(--red)"></div><span class="demo-label" style="color:#FCA5A5">Retail Scenario</span><span class="demo-sub">Description Agent · Jordan 1 Retro · Inline expansion</span></div>
+      <div class="demo-body">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:8px">Click the stuck row to expand error detail</div>
+        <div style="background:var(--green-l);border:1px solid rgba(16,185,129,0.2);border-radius:6px;padding:6px 10px;margin-bottom:6px;display:flex;align-items:center;gap:6px"><span class="dk-pill dk-pill-green" style="font-size:9px">✓ Done</span><span style="font-size:11px;color:var(--text2)">Air Max 2026 — All agents complete</span></div>
+        <div id="d4-row" style="background:var(--red-l);border:1.5px solid rgba(239,68,68,0.3);border-radius:6px;padding:8px 10px;margin-bottom:6px;cursor:pointer" onclick="toggleD4Error()">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="font-size:13px">⚠</span><span style="font-size:11px;font-weight:600;color:var(--text)">Jordan 1 Retro</span><span class="dk-pill dk-pill-red" style="font-size:9px;margin-left:auto">Stuck</span><span style="font-size:12px;color:var(--text3)" id="d4-arrow">▾</span></div>
+          <div id="d4-error" style="display:none" class="fade-in">
+            <div style="background:var(--green-l);border-radius:5px;padding:6px 8px;margin-bottom:6px;font-size:10px;color:#6EE7B7">✓ Video Agent output preserved</div>
+            <div style="background:var(--red-l);border-radius:5px;padding:6px 8px;margin-bottom:6px;font-size:10px;color:#FCA5A5">✕ Description failed — jordan1_data.json not found</div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:8px">⊘ QA and Publish blocked until fixed</div>
+            <div style="display:flex;gap:6px">
+              <button class="dk-btn dk-btn-primary" style="font-size:9px" onclick="event.stopPropagation();resolveD4(this)">Resume from here →</button>
+              <button class="dk-btn dk-btn-ghost" style="font-size:9px" onclick="event.stopPropagation();skipD4(this)">Skip</button>
+            </div>
+          </div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;display:flex;align-items:center;gap:6px"><span class="dk-pill dk-pill-blue" style="font-size:9px"><span class="pulse"></span>Running</span><span style="font-size:11px;color:var(--text2)">Air Max Lite — QA Agent running</span></div>
+      </div>
+    </div>
+  </div>`;
+},
+
+5: function(containerId) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = `
+  <div class="demo-split">
+    <div class="demo-panel">
+      <div class="demo-header"><div class="demo-dot" style="background:var(--amber)"></div><span class="demo-label" style="color:#FDE68A">General — Data Migration</span><span class="demo-sub">2000 records · paused at 847</span></div>
+      <div class="demo-body">
+        <div style="background:var(--surface2);border:1px solid rgba(245,158,11,0.3);border-radius:10px;overflow:hidden">
+          <div style="padding:10px 14px;background:var(--amber-l);border-bottom:1px solid rgba(245,158,11,0.2);display:flex;align-items:center;gap:8px">
+            <div style="width:24px;height:24px;background:var(--amber);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:white">⏸</div>
+            <div><div style="font-size:12px;font-weight:700;color:#FDE68A">All agents paused</div><div style="font-size:10px;color:#B45309">Data Migration Run · Paused 3 min ago</div></div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+            <div class="dk-row"><span class="dk-row-name">Extract Agent</span><span class="dk-pill dk-pill-green" style="font-size:9px">847/2000 done</span></div>
+            <div class="dk-row"><span class="dk-row-name">Transform Agent</span><span class="dk-pill dk-pill-green" style="font-size:9px">623/2000 done</span></div>
+            <div class="dk-row"><span class="dk-row-name">Load Agent</span><span class="dk-pill dk-pill-gray" style="font-size:9px">⏸ Paused</span></div>
+          </div>
+          <div style="padding:8px 14px;background:var(--blue-l);border-bottom:1px solid var(--border)">
+            <div style="font-size:9px;color:#93C5FD;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:5px">Update before resuming</div>
+            <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:10px;color:#93C5FD">Target environment</span><span style="font-size:10px;font-weight:600;color:#93C5FD;font-family:'DM Mono',monospace" id="d5-env">staging-db</span></div>
+          </div>
+          <div style="padding:10px 14px;display:flex;gap:6px">
+            <button class="dk-btn dk-btn-primary" style="font-size:10px" onclick="resolveDemo(this,'▶ Resuming from record 848...')">▶ Resume from record 848</button>
+            <button class="dk-btn dk-btn-red" style="font-size:10px" onclick="resolveDemo(this,'✕ Run cancelled — 847 records preserved')">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-panel" style="border-color:rgba(245,158,11,0.3)">
+      <div class="demo-header" style="background:var(--amber-l)"><div class="demo-dot" style="background:var(--amber)"></div><span class="demo-label" style="color:#FDE68A">Retail Scenario</span><span class="demo-sub">Paused mid-run at product 7</span></div>
+      <div class="demo-body">
+        <div style="background:var(--surface2);border:1px solid rgba(245,158,11,0.3);border-radius:10px;overflow:hidden">
+          <div style="padding:10px 14px;background:linear-gradient(135deg,var(--amber-l),rgba(245,158,11,0.05));border-bottom:1px solid rgba(245,158,11,0.2);display:flex;align-items:center;gap:8px">
+            <div style="width:24px;height:24px;background:var(--amber);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:white">⏸</div>
+            <div><div style="font-size:12px;font-weight:700;color:#FDE68A">All agents paused</div><div style="font-size:10px;color:#B45309">Summer Collection · Paused 2 min ago</div></div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+            <div style="font-size:9px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">Snapshot — where everything paused</div>
+            <div class="dk-row"><span class="dk-row-name">Video Agent</span><div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;color:var(--text3)">After Air Force 1</span><span class="dk-pill dk-pill-green" style="font-size:9px">7/10</span></div></div>
+            <div class="dk-row"><span class="dk-row-name">Description Agent</span><div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;color:var(--text3)">After Dunk Low</span><span class="dk-pill dk-pill-green" style="font-size:9px">5/10</span></div></div>
+            <div class="dk-row"><span class="dk-row-name">QA Agent</span><div style="display:flex;align-items:center;gap:6px"><span style="font-size:10px;color:var(--text3)">After Air Max 2026</span><span class="dk-pill dk-pill-green" style="font-size:9px">3/10</span></div></div>
+            <div class="dk-row"><span class="dk-row-name">Publish Agent</span><div style="display:flex;align-items:center;gap:6px"><span class="dk-pill dk-pill-gray" style="font-size:9px">Not started</span></div></div>
+          </div>
+          <div style="padding:8px 14px;background:var(--blue-l);border-bottom:1px solid var(--border)">
+            <div style="font-size:9px;color:#93C5FD;font-weight:700;text-transform:uppercase;margin-bottom:4px">Update brand kit before resuming</div>
+            <div style="display:flex;gap:4px">
+              <button class="dk-btn" style="font-size:9px;background:rgba(59,130,246,0.2);color:#93C5FD;border:1px solid rgba(59,130,246,0.3)" onclick="setBrandKit(this,'v3')">Brand Kit v3</button>
+              <button class="dk-btn" style="font-size:9px;background:var(--blue);color:white" onclick="setBrandKit(this,'v4')">Brand Kit v4 ✓</button>
+            </div>
+          </div>
+          <div style="padding:10px 14px;display:flex;gap:6px">
+            <button class="dk-btn dk-btn-primary" style="font-size:10px" onclick="resolveDemo(this,'▶ Resuming with Brand Kit v4 from product 8...')">▶ Resume with updates</button>
+            <button class="dk-btn dk-btn-red" style="font-size:10px" onclick="resolveDemo(this,'✕ Cancelled')">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+},
+
+6: function(containerId) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = `
+  <div class="demo-split">
+    <div class="demo-panel">
+      <div class="demo-header"><div class="demo-dot" style="background:var(--green)"></div><span class="demo-label" style="color:#6EE7B7">General — Document Processing</span><span class="demo-sub">User returned after 1hr 12min</span></div>
+      <div class="demo-body">
+        <div style="background:var(--green-l);border:1px solid rgba(16,185,129,0.3);border-radius:8px;padding:10px 12px;margin-bottom:10px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <div style="width:28px;height:28px;background:var(--green-l);border:1px solid rgba(16,185,129,0.3);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px">👋</div>
+            <div><div style="font-size:12px;font-weight:700;color:#6EE7B7">Welcome back — Away 1hr 12min</div><div style="font-size:10px;color:var(--text3)">Document Processing · While you were away</div></div>
+          </div>
+          <div style="display:flex;gap:12px;margin-bottom:10px">
+            <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--red);font-family:'DM Mono',monospace">3</div><div style="font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:0.06em">Need you</div></div>
+            <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace">8</div><div style="font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:0.06em">Approvals</div></div>
+            <div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">47</div><div style="font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:0.06em">Done</div></div>
+          </div>
+          <div style="background:var(--red-l);border-radius:6px;padding:7px 10px;margin-bottom:6px;display:flex;align-items:center;gap:6px"><span style="font-size:11px">🚨</span><div><div style="font-size:11px;font-weight:600;color:#FCA5A5">3 documents need attention</div><div style="font-size:10px;color:var(--text3)">Invoice_Q3, Contract_47, Report_Oct — OCR failed</div></div><button class="dk-btn dk-btn-red" style="font-size:9px;margin-left:auto;padding:3px 7px" onclick="resolveDemo(this,'Viewing issues...')">Fix →</button></div>
+          <div style="background:var(--amber-l);border-radius:6px;padding:7px 10px;display:flex;align-items:center;gap:6px"><span style="font-size:11px">⏸</span><div><div style="font-size:11px;font-weight:600;color:#FDE68A">8 documents need approval</div><div style="font-size:10px;color:var(--text3)">Ready to archive</div></div><button class="dk-btn dk-btn-amber" style="font-size:9px;margin-left:auto;padding:3px 7px" onclick="resolveDemo(this,'Reviewing approvals...')">Review →</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="demo-panel" style="border-color:rgba(16,185,129,0.3)">
+      <div class="demo-header" style="background:var(--green-l)"><div class="demo-dot" style="background:var(--green)"></div><span class="demo-label" style="color:#6EE7B7">Retail Scenario</span><span class="demo-sub">All done — Variant A</span></div>
+      <div class="demo-body">
+        <div style="background:var(--green-l);border:1.5px solid rgba(16,185,129,0.3);border-radius:10px;overflow:hidden">
+          <div style="padding:12px 14px;background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(16,185,129,0.05));border-bottom:1px solid rgba(16,185,129,0.2);display:flex;align-items:center;gap:8px">
+            <div style="width:28px;height:28px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;color:white">✓</div>
+            <div><div style="font-size:12px;font-weight:700;color:#6EE7B7">All done while you were away</div><div style="font-size:10px;color:var(--green)">Summer Collection · Away 22 min</div></div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid rgba(16,185,129,0.15)">
+            <div style="display:flex;gap:14px;margin-bottom:10px">
+              <div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">10</div><div style="font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:0.06em">Completed</div></div>
+              <div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace">10</div><div style="font-size:9px;color:var(--text4);text-transform:uppercase;letter-spacing:0.06em">Awaiting approval</div></div>
+            </div>
+            <div style="font-size:11px;font-weight:600;color:#6EE7B7;margin-bottom:4px">⏸ 10 products ready to publish</div>
+            <div style="font-size:10px;color:var(--text3)">All agents completed · QA passed on all · Waiting for your publish approval</div>
+          </div>
+          <div style="padding:10px 14px;border-bottom:1px solid rgba(16,185,129,0.15)">
+            <div style="font-size:9px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">What happened while you were away</div>
+            <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px"><div style="width:16px;height:16px;border-radius:50%;background:var(--green-l);border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--green);flex-shrink:0">✓</div><div style="font-size:10px;color:var(--text2)">10 products completed all 4 agent stages · <span style="color:var(--text3)">14 min ago</span></div></div>
+            <div style="display:flex;gap:8px;align-items:flex-start"><div style="width:16px;height:16px;border-radius:50%;background:var(--amber-l);border:1.5px solid var(--amber);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--amber);flex-shrink:0">⏸</div><div style="font-size:10px;color:var(--text2)">Publishing Agent paused — awaiting your sign-off · <span style="color:var(--text3)">8 min ago</span></div></div>
+          </div>
+          <div style="padding:10px 14px">
+            <button class="dk-btn dk-btn-green" style="width:100%;justify-content:center;font-size:11px" onclick="resolveDemo(this,'→ Going to Decision Checkpoint...')">Review & approve all →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+},
+
+7: function(containerId) {
+  const c = document.getElementById(containerId);
+  const products = [
+    {id:'SKU-0011',name:'Air Max 2026',qa:94,status:'pending'},
+    {id:'SKU-0019',name:'Air Force 1',qa:91,status:'pending'},
+    {id:'SKU-0033',name:'Dunk Low',qa:88,status:'pending'},
+    {id:'SKU-0042',name:'Air Max Lite',qa:92,status:'pending'},
+    {id:'SKU-0091',name:'Pegasus Trail',qa:89,status:'pending'},
+  ];
+  c.innerHTML = `
+  <div class="demo-panel" style="border-color:rgba(13,148,136,0.3)">
+    <div class="demo-header" style="background:var(--teal-l)"><div class="demo-dot" style="background:var(--teal)"></div><span class="demo-label" style="color:#5EEAD4">Retail Scenario — Side Panel · Click products to review</span><span class="demo-sub">5 of 10 shown</span></div>
+    <div style="display:grid;grid-template-columns:200px 1fr;border-top:1px solid var(--border)">
+      <div style="border-right:1px solid var(--border);padding:10px" id="d7-list">
+        <div style="font-size:9px;font-weight:700;color:var(--text4);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:8px">5 Products</div>
+        ${products.map((p,i)=>`<div id="d7-item-${i}" style="padding:8px 10px;border-radius:7px;cursor:pointer;margin-bottom:4px;border:1px solid transparent;transition:all 0.15s" onclick="selectD7Product(${i})" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="if(!this.classList.contains('d7-active'))this.style.background='transparent'">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px"><span style="font-size:11px;font-weight:600;color:var(--text)">${p.name}</span><span style="font-size:10px;font-weight:700;font-family:'DM Mono',monospace;color:${p.qa>=90?'var(--green)':'var(--amber)'}">${p.qa}%</span></div>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:9px;color:var(--text4);font-family:'DM Mono',monospace">${p.id}</span><span class="dk-pill dk-pill-gray" style="font-size:9px" id="d7-status-${i}">— Pending</span></div>
+        </div>`).join('')}
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+          <button class="dk-btn dk-btn-green" style="width:100%;font-size:10px;justify-content:center" id="d7-publish-btn" onclick="d7PublishAll()">Publish approved →</button>
+        </div>
+      </div>
+      <div style="padding:14px" id="d7-detail">
+        <div style="text-align:center;padding:32px 16px;color:var(--text3)"><div style="font-size:24px;margin-bottom:8px">←</div><div style="font-size:12px">Select a product to review</div></div>
+      </div>
+    </div>
+  </div>
+  <script>
+  var d7products=[{id:"SKU-0011",name:"Air Max 2026",qa:94,status:"pending"},{id:"SKU-0019",name:"Air Force 1",qa:91,status:"pending"},{id:"SKU-0033",name:"Dunk Low",qa:88,status:"pending"},{id:"SKU-0042",name:"Air Max Lite",qa:92,status:"pending"},{id:"SKU-0091",name:"Pegasus Trail",qa:89,status:"pending"}];
+  var d7selected=null;
+  function selectD7Product(i){
+    d7selected=i;
+    document.querySelectorAll('[id^=d7-item-]').forEach((el,idx)=>{el.classList.remove('d7-active');el.style.background=idx===i?'var(--teal-l)':'transparent';el.style.borderColor=idx===i?'rgba(13,148,136,0.3)':'transparent'});
+    var p=d7products[i];
+    var statusColors={pending:'dk-pill-gray',approved:'dk-pill-green',editing:'dk-pill-amber',rejected:'dk-pill-red'};
+    var statusText={pending:'— Pending',approved:'✓ Approved',editing:'↻ Editing',rejected:'✕ Rejected'};
+    document.getElementById('d7-detail').innerHTML=\`<div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div><div style="font-size:15px;font-weight:700;color:var(--text);\${''}">\${p.name}</div><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">\${p.id}</div></div>
+        <div style="display:flex;gap:4px">\${i>0?'<button class="dk-btn dk-btn-ghost" style="font-size:9px;padding:3px 7px" onclick="selectD7Product('+(i-1)+')">← Prev</button>':''}\${i<4?'<button class="dk-btn dk-btn-ghost" style="font-size:9px;padding:3px 7px" onclick="selectD7Product('+(i+1)+')">Next →</button>':''}</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:8px;height:70px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:10px;color:var(--text3)">🎬 30-second product video</div>
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 10px;font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:10px">"The \${p.name} delivers all-day comfort with premium materials and superior design. Available in multiple colourways."</div>
+      <div style="background:var(--surface2);border-radius:6px;padding:8px 10px;margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)"><span style="font-size:10px;color:var(--text3)">QA Score</span><span style="font-size:10px;font-weight:700;color:\${p.qa>=90?'var(--green)':'var(--amber)'};font-family:'DM Mono',monospace">\${p.qa}%</span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)"><span style="font-size:10px;color:var(--text3)">Brand voice</span><span style="font-size:10px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">96%</span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0"><span style="font-size:10px;color:var(--text3)">Accuracy</span><span style="font-size:10px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">91%</span></div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="dk-btn dk-btn-green" style="flex:1;font-size:10px;justify-content:center" onclick="d7Action(\${i},'approved')">✓ Approve</button>
+        <button class="dk-btn dk-btn-amber" style="flex:1;font-size:10px;justify-content:center" onclick="d7Action(\${i},'editing')">↻ Request edit</button>
+        <button class="dk-btn dk-btn-red" style="flex:1;font-size:10px;justify-content:center" onclick="d7Action(\${i},'rejected')">✕ Reject</button>
+      </div>
+    </div>\`;
+  }
+  function d7Action(i,status){
+    d7products[i].status=status;
+    var statusClass={pending:'dk-pill-gray',approved:'dk-pill-green',editing:'dk-pill-amber',rejected:'dk-pill-red'};
+    var statusText={pending:'— Pending',approved:'✓ Approved',editing:'↻ Editing',rejected:'✕ Rejected'};
+    var el=document.getElementById('d7-status-'+i);
+    if(el){el.className='dk-pill '+statusClass[status];el.style.fontSize='9px';el.textContent=statusText[status];}
+    var next=d7products.findIndex((p,idx)=>idx>i&&p.status==='pending');
+    if(next!==-1)selectD7Product(next);
+    var allDone=d7products.every(p=>p.status!=='pending');
+    if(allDone){var btn=document.getElementById('d7-publish-btn');if(btn){btn.style.background='var(--green)';btn.textContent='✓ All reviewed — Publish →';}}
+  }
+  function d7PublishAll(){var btn=document.getElementById('d7-publish-btn');if(btn){btn.textContent='✓ Published!';btn.disabled=true;}}
+  <\/script>`;
+}
+
+};
+
+// ══════════════════════════════
+// HELPER INTERACTIONS
+// ══════════════════════════════
+function toggleDemoTag(el){ el.classList.toggle('on'); }
+function showClarityCheck(id){ var el=document.getElementById(id); if(el){el.style.display='block';} }
+function togglePFCheck(){
+  var chk=document.getElementById('pf-check');
+  var btn=document.getElementById('pf-start-btn');
+  if(!chk||!btn) return;
+  var checked=chk.textContent==='✓';
+  if(checked){ chk.textContent=''; btn.style.background='var(--surface3)'; btn.style.color='var(--text4)'; btn.disabled=true; }
+  else{ chk.textContent='✓'; chk.style.color='var(--amber-d)'; btn.style.background='var(--blue)'; btn.style.color='white'; btn.disabled=false; btn.onclick=function(){this.textContent='✓ Starting...';this.style.background='var(--green)';} }
+}
+function resolveDemo(btn, msg){ btn.textContent=msg; btn.style.background='var(--green)'; btn.style.color='white'; btn.disabled=true; }
+function toggleD4Error(){
+  var err=document.getElementById('d4-error');
+  var arr=document.getElementById('d4-arrow');
+  if(!err) return;
+  var open=err.style.display==='block';
+  err.style.display=open?'none':'block';
+  if(arr) arr.textContent=open?'▾':'▲';
+}
+function resolveD4(btn){ btn.textContent='↻ Resuming...'; btn.style.background='var(--green)'; btn.style.color='white'; btn.disabled=true; var row=document.getElementById('d4-row'); if(row){row.style.background='var(--green-l)';row.style.borderColor='rgba(16,185,129,0.3)';} }
+function skipD4(btn){ btn.textContent='Skipped'; btn.disabled=true; var row=document.getElementById('d4-row'); if(row){row.style.display='none';} }
+function setBrandKit(btn, v){ document.querySelectorAll('.dk-btn[onclick*="setBrandKit"]').forEach(b=>{ b.style.background='rgba(59,130,246,0.2)'; b.style.color='#93C5FD'; }); btn.style.background='var(--blue)'; btn.style.color='white'; }
+
+// ══════════════════════════════
+// PATTERN DATA
+// ══════════════════════════════
+const patterns = [
+{id:'P-000',num:0,icon:'✍️',name:'Instruction Input',question:'How do you help the user write an instruction that agents can act on safely at scale?',category:'Setup Patterns',container:'Full Page',color:'purple',accent:'#8B5CF6',accentL:'rgba(139,92,246,0.1)',status:'Approved',version:'1.0',
+oneliner:'Capture user intent and scope before agents start — then verify AI understood correctly before anything runs.',
+whyAgentic:'In standard UX a vague query returns imperfect results — the user refines and tries again. Cost: 10 seconds. In agentic systems a vague instruction triggers 4 agents across 100 products autonomously. Cost: hours of recovery work. The instruction input must catch ambiguity before anything starts.',
+anatomy:[{n:'1',name:'Header',desc:'AI identity and framing. User knows they are setting up an agent run — not a search query.',purpose:'→ Sets the contract before interaction begins'},{n:'2',name:'Scope Selector',desc:'Filter by Collection, Category, or Tag. Count shown immediately. User always knows how many products agents will touch.',purpose:'→ Answers: What will agents act on?'},{n:'3',name:'Instruction Field',desc:'Free text. Hint chips for common additions. Parameters live in Pre-flight Plan — not here.',purpose:'→ Answers: What should agents do?'},{n:'4',name:'Task Estimate',desc:'Total tasks shown before submit. Scope × agents. User understands scale before committing.',purpose:'→ Answers: How much will this do?'},{n:'5',name:'Clarity Check',desc:'After submit, AI confirms understanding before Pre-flight loads. Three outcomes: Clear, Flagged, Unclear. Never skipped.',purpose:'→ The agentic moment. Last safe point.'}],
+variants:[{tag:'A',name:'Clear',desc:'AI understood fully. Green confirmation shown for 2 seconds then Pre-flight loads automatically.',use:'Default. Most instructions from experienced users.'},{tag:'B',name:'Flagged',desc:'AI understood most but one thing is ambiguous. One specific quick-select question.',use:'When instruction has one unclear element.'},{tag:'C',name:'Unclear',desc:'Cannot form a plan. Shows what is missing. Gives concrete example.',use:'Instruction too vague to act on.'}],
+states:[{label:'Default',color:'var(--purple)',desc:'Scope and instruction field ready. Submit active.'},{label:'Checking',color:'var(--blue)',desc:'AI reading instruction. Skeleton loading.'},{label:'Clear',color:'var(--green)',desc:'Understood. Auto-transitions to Pre-flight.'},{label:'Flagged',color:'var(--amber)',desc:'One thing unclear. Question shown inline.'},{label:'Unclear',color:'var(--red)',desc:'Cannot form plan. Example provided.'},{label:'Empty scope',color:'var(--text4)',desc:'No products selected. Submit disabled.'}],
+contentGuide:[{label:'Submit button',do:'"Submit → AI will check"',dont:'"Submit" only — always tell user what happens next'},{label:'Clarity confirmation',do:'"Instruction understood — loading Pre-flight Plan"',dont:'"Got it!" — too casual for an autonomous system'},{label:'Flagged question',do:'"Should agents write in English only, or include French and German?"',dont:'"Your instruction is ambiguous" — say specifically what is unclear'},{label:'Unclear state',do:'"I need to know what type of content agents should create"',dont:'"I didn\'t understand" — never blame the user'}],
+rules:{do:['Always show product count when scope is selected','Always run clarity check after submit — before Pre-flight loads','Always show what AI understood — not just whether it understood','Always give a concrete example when instruction is unclear','Always ask one clarifying question at a time','Always show total task estimate before submit'],dont:['Never skip clarity check — even for returning users','Never ask for parameters here — they belong in Pre-flight Plan','Never allow submit with zero products selected','Never show a generic error — say specifically what is missing','Never auto-proceed past a flagged instruction','Never collect agent configuration here']},
+trust:[{name:'Transparency',desc:'AI always shows what it understood — not just a pass/fail. User can see exactly what agents will do before approving.'},{name:'Human override',desc:'User can always edit their instruction after the clarity check. Nothing is locked in at this stage.'},{name:'Scale awareness',desc:'Task estimate always shown before submit. User must consciously understand the scale they are triggering.'},{name:'No silent failures',desc:'If AI cannot understand the instruction it explains what is missing. Never proceeds with a best guess.'}],
+relationships:{prev:null,next:'P-001',paired:'P-001',never:'Auto-starting agents without clarity check'},
+metrics:[{label:'Clarity pass rate',value:'>85%',desc:'Instructions that pass on first submit.',flag:'Red flag if under 60%',flagDesc:'Instruction field needs better guidance'},{label:'Flagged → resolved',value:'>90%',desc:'Users who resolve a flagged instruction and continue.',flag:'Red flag if under 70%',flagDesc:'Clarifying questions are too hard'},{label:'Scope change rate',value:'<30%',desc:'Users who change scope after seeing Pre-flight.',flag:'Red flag if over 30%',flagDesc:'Product counts not clear enough'}]},
+
+{id:'P-001',num:1,icon:'✦',name:'Pre-flight Plan',question:'How do you tell the user what agents will do before they start?',category:'Setup Patterns',container:'Modal',color:'blue',accent:'#3B82F6',accentL:'rgba(59,130,246,0.1)',status:'Approved',version:'1.0',
+oneliner:'Before any multi-agent task runs, show exactly what will happen, in what order, on how many items — and get explicit approval.',
+whyAgentic:'Users don\'t fear AI doing things. They fear AI doing things they didn\'t expect. Pre-flight Plan is the contract between user and agents. Without it, any unexpected behaviour breaks trust permanently.',
+anatomy:[{n:'1',name:'Goal Confirmation',desc:'The user\'s instruction shown back to them verbatim.',purpose:'→ Answers: Did it understand me?'},{n:'2',name:'Agent Sequence',desc:'Every agent in order with plain-language description. Irreversible steps marked ⚠.',purpose:'→ Answers: What will it do without me?'},{n:'3',name:'Scope Bar',desc:'Items, total tasks, estimated time. Always ranges — never precise times.',purpose:'→ Answers: How much will it do?'},{n:'4',name:'Parameters',desc:'The inputs agents will use. Each one editable inline before starting.',purpose:'→ Answers: What rules will it follow?'},{n:'5',name:'Pause Preference',desc:'If an agent gets stuck — keep others running or pause everything? Set upfront.',purpose:'→ Answers: What happens if something goes wrong?'},{n:'6',name:'Actions',desc:'Edit (left), Cancel (centre), Start (right). Fixed order always.',purpose:'→ Answers: Can I stop it if I need to?'}],
+variants:[{tag:'A',name:'Full',desc:'All elements visible. Full descriptions. First-time users or high-stakes tasks.',use:'First time, irreversible actions, unfamiliar task types.'},{tag:'B',name:'Compact',desc:'Agent names as pills. Parameters collapsed. Faster for returning users.',use:'Returning users running familiar task types.'},{tag:'C',name:'Warning',desc:'Red header. Warning banner. Confirmation checkbox. Start disabled until checked.',use:'Any task involving publishing, sending, or deleting.'}],
+states:[{label:'Default',color:'var(--blue)',desc:'All elements visible. Start active.'},{label:'Editing',color:'var(--purple)',desc:'Parameter expanded. Start disabled.'},{label:'Loading',color:'var(--text3)',desc:'Fetching parameters. Start disabled.'},{label:'Error',color:'var(--red)',desc:'Agent unavailable. Specific error shown.'},{label:'Confirmed',color:'var(--green)',desc:'User clicked Start. Transitioning to Status Grid.'},{label:'Warning',color:'var(--amber)',desc:'Irreversible action. Checkbox required.'}],
+contentGuide:[{label:'Goal confirmation label',do:'"Your instruction"',dont:'"Input received" or "Query"'},{label:'Agent descriptions',do:'"Generates one 30-second product video per item using your brand guidelines"',dont:'"pipeline_executor_v2 running task type VIDEO_GEN"'},{label:'Time estimate',do:'"4–6 minutes"',dont:'"5 minutes exactly"'},{label:'Start button',do:'"Start agents →"',dont:'"Submit" or "OK"'}],
+rules:{do:['Always show Pre-flight before any multi-agent task','Mark every irreversible step with ⚠','Show Cancel in the middle — always accessible','Use time ranges not precise times','Write agent descriptions in plain language','Use Warning variant for any irreversible action'],dont:['Skip for experienced users — familiarity does not remove risk','Auto-start agents without this plan','Hide the publishing step in small text','Use technical agent names','Show a precise time you cannot guarantee','Disable Cancel at any point']},
+trust:[{name:'Full transparency',desc:'Every agent, step, and parameter shown before anything starts.'},{name:'Explicit consent',desc:'User must click Start. No auto-start. The contract is the click.'},{name:'Irreversibility warning',desc:'Any step that cannot be undone is marked ⚠ before approval.'},{name:'Editable parameters',desc:'User can change any input before starting.'}],
+relationships:{prev:'P-000',next:'P-002',paired:'P-007',never:'Auto-start behaviour'},
+metrics:[{label:'Approval rate',value:'>80%',desc:'Users who click Start after seeing the plan.',flag:'Red flag if below 60%',flagDesc:'Agents being given wrong instructions'},{label:'Edit rate',value:'<20%',desc:'Users who change parameters before starting.',flag:'Red flag if above 40%',flagDesc:'Default parameters consistently wrong'},{label:'Time on screen',value:'8–20s',desc:'Time reading before approving.',flag:'Red flag if under 5s',flagDesc:'User not reading — trust will break later'}]},
+
+{id:'P-002',num:2,icon:'📊',name:'Item Status Grid',question:'How do you show progress across all products and all agents while running?',category:'Progress Patterns',container:'Full Page',color:'blue',accent:'#3B82F6',accentL:'rgba(59,130,246,0.1)',status:'Approved',version:'1.0',
+oneliner:'Real-time visibility across every item and every agent stage — with stuck items impossible to miss.',
+whyAgentic:'Standard UX has no monitoring concept — action either worked or didn\'t. In agentic systems 4 agents run across 100 products simultaneously. The user cannot watch everything. This pattern is their window into autonomous activity.',
+anatomy:[{n:'1',name:'Project List',desc:'Overview of all projects. Progress bars + counts per agent. Issues sort to top. Stuck projects get red left border.',purpose:'→ Answers: Which project needs me?'},{n:'2',name:'Stuck Alert',desc:'Always at top of detail page when any item is stuck. Never hidden. Fix button always visible.',purpose:'→ Answers: What needs me right now?'},{n:'3',name:'Agent State Language',desc:'Five states shared across ALL patterns: Running, Done, Stuck, Waiting, Pending. Colors never change.',purpose:'→ The universal visual language of the library'},{n:'4',name:'Detail View',desc:'Four variants: Table (10–100 items), Cards (6–20 items), Grouped by Status, Grouped by Agent.',purpose:'→ Answers: Where exactly is everything?'},{n:'5',name:'Inline Actions',desc:'Fix button on stuck rows. Review button on waiting rows. No button needed on running or done rows.',purpose:'→ Answers: What can I do?'}],
+variants:[{tag:'A',name:'Table View',desc:'One row per item, one column per agent. Sortable. Most density. Stuck always top.',use:'10–100 products. Most common default.'},{tag:'B',name:'Card View',desc:'One card per product. Stuck cards first. Action button only when needed.',use:'6–20 products. More visual.'},{tag:'C',name:'Grouped by Status',desc:'Stuck → Waiting → Running → Done. Fixed order. Fastest triage.',use:'User returning after being away.'},{tag:'D',name:'Grouped by Agent',desc:'One column per agent. Agent with most issues gets red header.',use:'Diagnosing bottlenecks.'}],
+states:[{label:'Running',color:'var(--blue)',desc:'Agents active. Progress animating. No user action needed.'},{label:'Stuck',color:'var(--red)',desc:'Items stuck. Red alert at top. Fix button visible.'},{label:'Waiting',color:'var(--amber)',desc:'Awaiting user approval at pre-declared boundary.'},{label:'Completed',color:'var(--green)',desc:'All agents finished. Publishing awaiting approval.'},{label:'Mixed',color:'var(--text2)',desc:'Some done, some running, some stuck.'},{label:'Empty',color:'var(--text4)',desc:'No active runs. CTA to start a new run.'}],
+contentGuide:[{label:'Stuck indicator',do:'"⚠ 2 stuck" — count + label',dont:'"Issues found" — too vague'},{label:'Progress count',do:'"8/10" — always show denominator',dont:'"80%" only'},{label:'Waiting state',do:'"⏸ Awaiting publish approval"',dont:'"Paused" — user needs to know WHY'},{label:'Fix button',do:'"Fix →" — direct action',dont:'"More info" — must be an action'}],
+rules:{do:['Always show stuck items first','Always show stuck alert banner at top of detail page','Always show a Fix button directly on the stuck item','Always use the 5 shared agent states — never invent new ones','Always show which agent caused the stuck state','Always sort project list by urgency'],dont:['Never hide stuck items','Never use a different color for Stuck — always red','Never show only a count — always show which product is stuck','Never show Fix button without explaining what needs fixing','Never sort alphabetically by default','Never collapse the stuck section']},
+trust:[{name:'Continuous visibility',desc:'User sees exactly what agents are doing at any moment without asking.'},{name:'Urgency clarity',desc:'What needs the user is always shown first. Never need to search for problems.'},{name:'Agent state language',desc:'Five states fixed across every product. Designers cannot change them.'},{name:'No silent failures',desc:'Every stuck or failed item surfaces immediately.'}],
+relationships:{prev:'P-001',next:'P-003',paired:'P-003, P-004, P-005',never:'Auto-resolving stuck items without user'},
+metrics:[{label:'Time to notice stuck',value:'<10s',desc:'Identify stuck item after opening page.',flag:'Red flag if over 30s',flagDesc:'Stuck items not prominent enough'},{label:'Time to resolve',value:'<2min',desc:'Opening page to completing fix.',flag:'Red flag if over 5 min',flagDesc:'Fix flow too complex'},{label:'Variant D dominance',value:'Watch',desc:'If users prefer Grouped by Agent consistently.',flag:'Red flag if D dominant',flagDesc:'Systemic agent quality problem'}]},
+
+{id:'P-003',num:3,icon:'⏸',name:'Graceful Handoff',question:'How do you pass control back to the human when an agent reaches its limit?',category:'Collaboration Patterns',container:'Drawer',color:'amber',accent:'#F59E0B',accentL:'rgba(245,158,11,0.1)',status:'Approved',version:'1.0',
+oneliner:'Agent pauses deliberately at its decision limit — hands over full context — user decides — agent resumes exactly where it left off.',
+whyAgentic:'Standard UX has no concept of a machine that knows it needs help and asks for it. Graceful Handoff is what happens when an autonomous agent reaches a decision it cannot make alone and passes control back without losing the thread.',
+anatomy:[{n:'1',name:'Header',desc:'Which agent, which item, which stage. Always specific — never generic.',purpose:'→ Answers: Where am I in the process?'},{n:'2',name:'Context',desc:'Three lines max. Item, threshold, finding. No noise.',purpose:'→ Answers: What happened?'},{n:'3',name:'Evidence',desc:'Only data relevant to the decision. Never full logs.',purpose:'→ Answers: How significant is this?'},{n:'4',name:'The Question',desc:'One clear specific question. Never multiple at once.',purpose:'→ Answers: What do you need from me?'},{n:'5',name:'Recommendation',desc:'Agent\'s best guess. Labelled as recommendation — never as decision.',purpose:'→ Answers: What would you do?'},{n:'6',name:'Pause Status',desc:'What other agents are doing. Matches Pre-flight preference.',purpose:'→ Answers: Is everything waiting for me?'}],
+variants:[{tag:'A',name:'Borderline',desc:'Agent uncertain but not blocked. All three actions. Recommendation shown. Amber.',use:'Score just below threshold. Low stakes.'},{tag:'B',name:'Hard Block',desc:'Agent cannot continue. No recommendation — only fix options. Red.',use:'Missing file, broken dependency.'},{tag:'C',name:'Scope Exceeded',desc:'Agent found something outside original brief. Purple.',use:'Work outside original scope — not an error.'}],
+states:[{label:'Open',color:'var(--amber)',desc:'Drawer visible. User reviewing.'},{label:'Decided',color:'var(--green)',desc:'Decision made. Drawer closing.'},{label:'Resuming',color:'var(--blue)',desc:'Agent picking up from decision point.'},{label:'Hard Block',color:'var(--red)',desc:'Fix required before action available.'},{label:'Scope',color:'var(--purple)',desc:'Scope question. Different actions.'},{label:'Multiple',color:'var(--text2)',desc:'Queue of handoffs in Status Grid.'}],
+contentGuide:[{label:'Header',do:'"QA Agent · Air Max Lite · Stage 3 of 4"',dont:'"Agent needs input" — always specific'},{label:'The question',do:'"Approve at 84% or regenerate to meet 85%?"',dont:'"What would you like to do?" — too vague'},{label:'Recommendation',do:'"Agent recommendation: Approving is low risk"',dont:'"I recommend approving" — label it clearly'},{label:'Pause status',do:'"Other agents continuing on remaining 9 products"',dont:'No mention of other agents'}],
+rules:{do:['Always name specific agent, item, and stage in header','Always ask one specific question — never multiple','Always show pause status','Always show resume confirmation','Always preserve chain state','Always label recommendation as recommendation'],dont:['Never auto-resolve','Never show generic "Agent failed" message','Never dump full logs in handoff card','Never use Borderline style for a Hard Block','Never restart agent from beginning after user decides','Never skip resume confirmation']},
+trust:[{name:'Agent knows its limits',desc:'Agent stops at its decision boundary — not when it fails. System is calibrated and self-aware.'},{name:'Context not commands',desc:'Handoff gives user enough to decide — not a list of options to click blindly.'},{name:'Recommendation transparency',desc:'Agent shares recommendation but labels it clearly.'},{name:'Seamless resumption',desc:'Agent picks up exactly where it left off. Chain state never lost.'}],
+relationships:{prev:'P-002',next:'P-002',paired:'P-001 (pause preference)',never:'Auto-resolution'},
+metrics:[{label:'Time to decide',value:'<45s',desc:'Handoff appearing to user deciding.',flag:'Red flag if over 3 min',flagDesc:'User does not understand what is being asked'},{label:'Override rate',value:'<30%',desc:'Users who ignore agent recommendation.',flag:'Red flag if over 60%',flagDesc:'Recommendations not calibrated to user values'},{label:'Handoff frequency',value:'Watch',desc:'How often agents trigger handoff per 100 items.',flag:'Red flag if rising',flagDesc:'Agent thresholds need calibration'}]},
+
+{id:'P-004',num:4,icon:'💥',name:'Error Recovery',question:'How do you recover when an agent fails unexpectedly mid-chain?',category:'Recovery Patterns',container:'Inline / Drawer',color:'red',accent:'#EF4444',accentL:'rgba(239,68,68,0.1)',status:'Approved',version:'1.0',
+oneliner:'Agent breaks unexpectedly. Preserve all completed work. Explain what failed. Fix the cause. Resume from the exact failure point.',
+whyAgentic:'Standard UX has retry buttons. Agentic systems have chains of agents that already did work. The challenge is not just fixing the error — it is preserving what was already done and resuming from exactly the right point.',
+anatomy:[{n:'1',name:'What\'s Safe',desc:'Always shown first. Reassure user about preserved work before explaining failure.',purpose:'→ Answers: Did I lose everything?'},{n:'2',name:'What Failed',desc:'Plain language. Never raw error codes. Translate technical cause to actionable explanation.',purpose:'→ Answers: What went wrong?'},{n:'3',name:'What\'s Blocked',desc:'Which downstream agents cannot run until this is fixed.',purpose:'→ Answers: What else is affected?'},{n:'4',name:'Root Cause',desc:'The specific reason for failure in one plain-language sentence.',purpose:'→ Answers: Why did it fail?'},{n:'5',name:'Fix Steps',desc:'Numbered. Specific. Not "try again" — exactly what to do.',purpose:'→ Answers: How do I fix it?'},{n:'6',name:'Resume',desc:'Resume always means from failure point — never from scratch. Stated explicitly.',purpose:'→ Answers: Do I lose all progress?'}],
+variants:[{tag:'A',name:'Resource Missing',desc:'File, data, or connection not found. Red treatment.',use:'Source file moved, API key expired, connection broken.'},{tag:'B',name:'Quality Failure',desc:'Output generated but below threshold. Scores shown.',use:'QA score below minimum. Output exists but not good enough.'},{tag:'C',name:'System Failure',desc:'Agent crashed — not user error. Purple treatment. Reassuring tone.',use:'Infrastructure issue, timeout, external service failure.'}],
+states:[{label:'Single failure',color:'var(--red)',desc:'One item failed. Inline expansion on row.'},{label:'Multiple failures',color:'var(--red)',desc:'More than one failed. Drawer instead of inline.'},{label:'Critical failure',color:'var(--red)',desc:'All items or irreversible step blocked. Urgent notification.'},{label:'Fixing',color:'var(--blue)',desc:'User following fix steps.'},{label:'Resuming',color:'var(--green)',desc:'Fix complete. Agent resuming from failure point.'},{label:'Skipped',color:'var(--text3)',desc:'User skipped failed item. Logged in completion.'}],
+contentGuide:[{label:'What\'s safe',do:'"✓ Video output preserved from Video Agent"',dont:'Skip this section — always show it first'},{label:'Error description',do:'"Product data file not found — file was moved after the run started"',dont:'"Error code: FILE_NOT_FOUND_404"'},{label:'Resume button',do:'"Resume from here →"',dont:'"Try again" or "Retry"'},{label:'System failure',do:'"This is a system issue, not a problem with your product data"',dont:'"An error occurred"'}],
+rules:{do:['Always show what\'s safe before what failed','Always translate errors into plain language','Always show what\'s blocked downstream','Always resume from failure point — never from scratch','Always distinguish system errors (purple) from user errors (red)','Always give numbered fix steps'],dont:['Never show raw error codes or stack traces','Never roll back completed work from prior agents','Never use urgent notification for a single product failure','Never imply user error when it was a system failure','Never offer only Start over','Never silently retry']},
+trust:[{name:'Work preservation',desc:'Completed agent outputs never discarded. Most important trust signal in this pattern.'},{name:'Honest failure',desc:'System acknowledges what broke without hiding it.'},{name:'User vs system error',desc:'Purple for system failures. Never blame user for infrastructure issues.'},{name:'Precise resumption',desc:'Resume from failure point — not from start. Respects the user\'s time.'}],
+relationships:{prev:'P-002',next:'P-002',paired:'P-002 (surfaces error)',never:'Rolling back completed work'},
+metrics:[{label:'Time to resolve',value:'<3min',desc:'Error card to resume button clicked.',flag:'Red flag if over 10 min',flagDesc:'User cannot understand how to fix it'},{label:'Skip rate',value:'<15%',desc:'Users who skip a failed item instead of fixing.',flag:'Red flag if over 40%',flagDesc:'Fix steps too hard — users giving up'},{label:'Error frequency',value:'Track',desc:'Which agent fails most often.',flag:'Red flag if same agent every time',flagDesc:'Engineering issue not UX issue'}]},
+
+{id:'P-005',num:5,icon:'⏸',name:'Interruption & Pause',question:'How do you let the user stop agents mid-run without losing work?',category:'Control Patterns',container:'Modal',color:'amber',accent:'#F59E0B',accentL:'rgba(245,158,11,0.1)',status:'Approved',version:'1.0',
+oneliner:'User decides to stop agents mid-run. System finishes current tasks then pauses cleanly. State held indefinitely. Three options: resume, update and resume, or cancel.',
+whyAgentic:'Standard UX the user is always in control — nothing to interrupt. In agentic systems agents run autonomously. The user has to actively reach in and stop them. This requires a designed safe-stop mechanism that preserves all work.',
+anatomy:[{n:'1',name:'Pause Button',desc:'Always visible in toolbar while agents run. One click to trigger. Confirmation required.',purpose:'→ User must always be able to stop'},{n:'2',name:'Finishing State',desc:'Between pause clicked and fully paused. Shows which agents still finishing vs already paused.',purpose:'→ Answers: Did it hear me?'},{n:'3',name:'Paused Snapshot',desc:'Where every agent stopped. Exact positions.',purpose:'→ Answers: Where did everything stop?'},{n:'4',name:'Editable Parameters',desc:'User can update parameters while paused. Only remaining items affected.',purpose:'→ Answers: Can I change something before continuing?'},{n:'5',name:'Three Options',desc:'Resume, Update and Resume, Cancel. All keep completed work.',purpose:'→ Answers: What can I do now?'}],
+variants:[{tag:'A',name:'Standard Pause',desc:'Clean stop. All agents finish current task. Snapshot shown.',use:'Default. User wants to pause for any reason.'},{tag:'B',name:'Pause with Update',desc:'User edits parameters in paused state. Resume shows with updates label.',use:'User spotted wrong parameter mid-run.'},{tag:'C',name:'Cancel',desc:'User chooses to cancel. Completed outputs preserved.',use:'Run no longer needed. All completed work kept.'}],
+states:[{label:'Finishing',color:'var(--amber)',desc:'Agents finishing current tasks. Est. time shown.'},{label:'Fully paused',color:'var(--amber)',desc:'All stopped. Snapshot visible. Parameters editable.'},{label:'Resuming',color:'var(--blue)',desc:'Agents picking up from next pending task.'},{label:'Updating',color:'var(--purple)',desc:'Editing parameter. Resume shows with updates.'},{label:'Cancelled',color:'var(--text3)',desc:'Run cancelled. Transition to completion summary.'},{label:'Confirmation',color:'var(--text2)',desc:'User clicked pause. Confirmation dialog.'}],
+contentGuide:[{label:'Pause button',do:'"⏸ Pause agents"',dont:'"Stop" — pause is recoverable, stop implies permanent'},{label:'Finishing state',do:'"Finishing current tasks — pausing soon"',dont:'"Stopping..." — user needs to know it is not instant'},{label:'Snapshot label',do:'"Snapshot — where everything paused"',dont:'"Current status"'},{label:'Resume with updates',do:'"Resume with updates →"',dont:'"Resume" — user must know their changes take effect'}],
+rules:{do:['Always show pause button while agents are running','Always require confirmation before stopping','Always finish current task before pausing','Always show the finishing state','Always show snapshot of where everything paused','Always preserve completed work even if run is cancelled'],dont:['Never cut agents mid-output','Never auto-resume','Never delete completed outputs when run is cancelled','Never show generic spinner during finishing state','Never re-run completed items when resuming with updated parameters','Never hide pause button in dropdown']},
+trust:[{name:'Safe stop guarantee',desc:'Agents finish current task before stopping. No corrupted outputs.'},{name:'Work preservation',desc:'Even on cancellation, completed work is preserved.'},{name:'Exact resumption',desc:'Resume picks up from next pending task — not from beginning.'},{name:'Parameter transparency',desc:'When resuming with updates, user is told explicitly what is affected.'}],
+relationships:{prev:'P-002',next:'P-002',paired:'P-002 (pause button lives here)',never:'Auto-resume without user action'},
+metrics:[{label:'Time to resume',value:'<5min',desc:'Fully paused to user clicking resume.',flag:'Red flag if over 20 min',flagDesc:'Users not confident resuming is safe'},{label:'Cancel rate',value:'<20%',desc:'Users who cancel instead of resuming.',flag:'Red flag if over 50%',flagDesc:'Users pausing because something went wrong'},{label:'Parameter edit rate',value:'Track',desc:'How often users update parameters before resuming.',flag:'Red flag if always same parameter',flagDesc:'Pre-flight defaults need fixing'}]},
+
+{id:'P-006',num:6,icon:'👋',name:'Re-engagement',question:'How do you re-orient a user who returns after agents ran without them?',category:'Re-entry Patterns',container:'Banner / Full Page',color:'green',accent:'#10B981',accentL:'rgba(16,185,129,0.1)',status:'Approved',version:'1.0',
+oneliner:'User left while agents were running. They return. A structured briefing — most important first — tells them what happened and what needs them.',
+whyAgentic:'Standard UX has no concept of coming back. In agentic systems agents act without the user watching. When they return the world has changed. Re-engagement is the designed re-entry point.',
+anatomy:[{n:'1',name:'Away Time',desc:'How long the user was away. Always shown. "While you were away" without context is meaningless.',purpose:'→ Anchors the user in time'},{n:'2',name:'Summary Strip',desc:'Four numbers: needs you now, awaiting approval, completed, still running.',purpose:'→ Answers: What is the state of things?'},{n:'3',name:'Priority Sections',desc:'Fixed order always: Needs you now → Awaiting approval → What happened → Completed.',purpose:'→ User always sees what needs them first'},{n:'4',name:'Timeline',desc:'Key events while user was away. Most recent first. Not a full log.',purpose:'→ Answers: What changed while I was gone?'},{n:'5',name:'Primary CTA',desc:'One clear action button — always the most urgent thing to do.',purpose:'→ Never leaves user uncertain'}],
+variants:[{tag:'A',name:'All done',desc:'Everything completed, no issues. Green treatment. Straight to approval.',use:'Agents finished everything successfully.'},{tag:'B',name:'Mixed results',desc:'Some done, some need attention. Issues first.',use:'Normal return state.'},{tag:'C',name:'Still running',desc:'User returned before agents finished. Blue treatment. No urgent action.',use:'User came back early.'}],
+states:[{label:'Banner',color:'var(--green)',desc:'User is in app on another screen. Thin strip at top.'},{label:'Full page',color:'var(--green)',desc:'First thing on opening app. Full briefing.'},{label:'All done',color:'var(--green)',desc:'Everything completed. Approval CTA.'},{label:'Mixed',color:'var(--text2)',desc:'Some issues. Issues shown first.'},{label:'Still running',color:'var(--blue)',desc:'Agents continuing. No urgent action.'},{label:'Critical',color:'var(--red)',desc:'Critical failure while away. Urgent regardless of entry.'}],
+contentGuide:[{label:'Away time',do:'"Away 47 min"',dont:'No time shown — useless without context'},{label:'Needs you now',do:'"2 products need your attention" + names',dont:'"Issues found" — always specific'},{label:'All done variant',do:'"All done while you were away"',dont:'"Completed" — celebrate the outcome'},{label:'Still running',do:'"Agents still working — est. 4 more minutes"',dont:'"Running..." — always give an estimate'}],
+rules:{do:['Always show how long user was away','Always show issues first — never bury below good news','Always show the 4-number summary strip','Always show what changed — newest first','Always provide a direct action CTA','Use green treatment when everything went well'],dont:['Never show completed items before issues','Never dump a full log','Never require navigation elsewhere to see what happened','Never show same treatment regardless of outcome','Never omit the away time','Never show re-engagement card if still running with nothing urgent — use Variant C']},
+trust:[{name:'Time transparency',desc:'Always showing away time respects the user\'s mental model.'},{name:'Priority honesty',desc:'Showing issues before successes is harder to design but more honest.'},{name:'Good outcomes celebrated',desc:'When agents completed everything — say so clearly and positively.'},{name:'No surprise scope',desc:'Timeline shows exactly what agents did. Nothing hidden.'}],
+relationships:{prev:null,next:'P-002',paired:'P-002, P-007',never:'Showing good news before urgent issues'},
+metrics:[{label:'Time to first action',value:'<30s',desc:'Re-engagement card to first action.',flag:'Red flag if over 2 min',flagDesc:'Briefing not clear — user reading not acting'},{label:'Correct first action',value:'>80%',desc:'First action is highest priority one.',flag:'Red flag if under 50%',flagDesc:'Priority order not clear visually'},{label:'Variant A satisfaction',value:'Track',desc:'When everything went right — do users feel good?',flag:'Red flag if low despite success',flagDesc:'Good outcomes not celebrated enough'}]},
+
+{id:'P-007',num:7,icon:'⏸',name:'Decision Checkpoint',question:'How do you pause an agent at an irreversible boundary and get human sign-off?',category:'Control Patterns',container:'Side Panel',color:'teal',accent:'#0D9488',accentL:'rgba(13,148,136,0.1)',status:'Approved',version:'1.0',
+oneliner:'Agent hits a pre-declared irreversible boundary — stops exactly as agreed in Pre-flight Plan — user reviews all items — agent continues only on approved items.',
+whyAgentic:'This is not a failure. It is the agentic contract being honoured. The agent knew this moment was coming from the start. It ran autonomously until it reached the agreed boundary — then stopped. The design tone is a handover, not an alert.',
+anatomy:[{n:'1',name:'Checkpoint Banner',desc:'Teal — not red. "As agreed in Pre-flight Plan." Agent is working correctly.',purpose:'→ Sets tone: this is expected, not wrong'},{n:'2',name:'Summary Counts',desc:'Approved, editing, rejected, pending. Four numbers.',purpose:'→ Answers: How far through am I?'},{n:'3',name:'Product List (Left)',desc:'All items with QA score and status. Selected item highlighted.',purpose:'→ Answers: What do I still need to review?'},{n:'4',name:'Detail Preview (Right)',desc:'Full preview as it will appear live — video, description, QA scores.',purpose:'→ Answers: Is this good enough to publish?'},{n:'5',name:'Navigation',desc:'Prev/Next arrows. User moves through all items without returning to list.',purpose:'→ Keeps review flow fast and linear'},{n:'6',name:'Three Actions',desc:'Approve, Request edit (agent fixes specific thing), Reject.',purpose:'→ Every item gets an explicit decision'}],
+variants:[{tag:'A',name:'All pending',desc:'User just arrived. All items pending. Default state.',use:'Entry state. Normal first view.'},{tag:'B',name:'Partial review',desc:'User reviewed some. Mix of approved/editing/rejected/pending.',use:'Mid-review. User returning after a break.'},{tag:'C',name:'All reviewed',desc:'Every item has a decision. Publish button activates.',use:'Ready to publish.'}],
+states:[{label:'Pending',color:'var(--text3)',desc:'Item not yet reviewed.'},{label:'Approved',color:'var(--green)',desc:'Will be published when user clicks publish.'},{label:'Editing',color:'var(--amber)',desc:'Edit requested. Agent fixing. Will return for re-review.'},{label:'Rejected',color:'var(--red)',desc:'Will not be published. Logged in summary.'},{label:'Re-review',color:'var(--amber)',desc:'Edited item returned for second review.'},{label:'Published',color:'var(--green)',desc:'Approved items published. Run complete.'}],
+contentGuide:[{label:'Checkpoint banner',do:'"As agreed in your Pre-flight Plan — Publishing Agent paused"',dont:'"Publishing Agent stopped" — implies failure'},{label:'Approve button',do:'"✓ Approve"',dont:'"Publish" — agent publishes after review'},{label:'Request edit',do:'"↻ Request edit"',dont:'"Edit" — signal agent will edit, not user'},{label:'Reject',do:'"✕ Reject"',dont:'"Delete" or "Skip"'}],
+rules:{do:['Always show checkpoint as planned positive moment — teal not red','Always show all items at a glance before drill-in','Always show QA score per item','Always provide navigation arrows in detail view','Always fix only the specific element on request edit','Always reference Pre-flight Plan agreement'],dont:['Never style this like an error — agent succeeded','Never allow Publishing Agent to bypass this checkpoint','Never make bulk approve the default','Never re-run all agents when user requests edit','Never publish without explicit user approval','Never show if Publishing Agent not declared in Pre-flight Plan']},
+trust:[{name:'Contract fulfilment',desc:'Agent stopped because it was told to stop. The Pre-flight Plan instruction is being honoured.'},{name:'Nothing published without approval',desc:'Absolute guarantee. Every item requires an explicit approve action.'},{name:'Edit without re-run',desc:'Request edit fixes only the specific element. User\'s investment preserved.'},{name:'Full visibility before decision',desc:'Preview shows exactly how content will appear live.'}],
+relationships:{prev:'P-002',next:'Completion',paired:'P-001 (checkpoint declared here)',never:'Auto-publishing without explicit user approval'},
+metrics:[{label:'Approval rate',value:'>80%',desc:'Items approved without edits or rejection.',flag:'Red flag if under 50%',flagDesc:'Agent output not meeting expectations'},{label:'Edit vs reject rate',value:'Track',desc:'High edit = close but not right. High reject = fundamentally wrong.',flag:'Red flag if reject rate rising',flagDesc:'Agent instructions drifting from intent'},{label:'Review completion',value:'<5min',desc:'Checkpoint appearing to all items decided. For 10 products.',flag:'Red flag if over 15 min',flagDesc:'Preview not giving enough signal'}]}
+];
+
+// ══════════════════════════════
+// RENDER ENGINE
+// ══════════════════════════════
+function renderSidebar(){
+  const nav=document.getElementById('sidebar-nav');
+  nav.innerHTML=`<div class="sb-item active" id="sb-index" onclick="showIndex()"><span class="sb-pid" style="color:var(--text3)">⬡</span><span class="sb-name" style="color:var(--text2)">Library Index</span></div>`+
+  patterns.map(p=>`<div class="sb-item" id="sb-${p.num}" onclick="showPattern(${p.num})"><span class="sb-pid">${p.id}</span><span class="sb-name">${p.name}</span></div>`).join('');
+}
+
+function renderIndex(){
+  const grid=document.getElementById('index-grid');
+  const colors={purple:'rgba(139,92,246,0.1)',blue:'rgba(59,130,246,0.1)',amber:'rgba(245,158,11,0.1)',red:'rgba(239,68,68,0.1)',green:'rgba(16,185,129,0.1)',teal:'rgba(13,148,136,0.1)'};
+  const accents={purple:'#C4B5FD',blue:'#93C5FD',amber:'#FDE68A',red:'#FCA5A5',green:'#6EE7B7',teal:'#5EEAD4'};
+  grid.innerHTML=patterns.map(p=>`
+    <div class="pc" style="border-color:${p.accentL}" onclick="showPattern(${p.num})" onmouseover="this.style.borderColor='${p.accent}50'" onmouseout="this.style.borderColor='${p.accentL}'">
+      <div class="pc-top"><span class="pc-pid" style="background:${p.accentL};color:${accents[p.color]}">${p.id}</span><span class="pc-cat">${p.category}</span></div>
+      <div class="pc-title">${p.name}</div>
+      <div class="pc-q">${p.question}</div>
+      <div class="pc-foot"><span class="pc-cont" style="background:${p.accentL};color:${accents[p.color]}">${p.container}</span><span class="pc-arr">→</span></div>
+    </div>`).join('');
+}
+
+function renderPatternViews(){
+  const container=document.getElementById('pattern-views');
+  container.innerHTML=patterns.map(p=>{
+    const a=p.accent; const al=p.accentL;
+    return `<div class="view" id="view-${p.num}" style="display:none">
+      <div class="pp">
+        <div class="pp-hero" style="border-bottom:1px solid ${a}25">
+          <div class="pp-icon-row">
+            <div class="pp-icon" style="background:${al};border:1.5px solid ${a}40">${p.icon}</div>
+            <div><span class="pp-pid" style="background:${al};color:${a}">${p.id} · ${p.category}</span><div class="pp-title">${p.name}</div></div>
+          </div>
+          <div class="pp-q">${p.question}</div>
+          <div class="pp-oneliner"><span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${a};display:block;margin-bottom:4px">One-liner</span><span style="font-size:13px;color:var(--text2);line-height:1.5">${p.oneliner}</span></div>
+          <div class="pp-meta">
+            <div><div class="pml">Container</div><div class="pmv">${p.container}</div></div>
+            <div><div class="pml">Version</div><div class="pmv">${p.version}</div></div>
+            <div><div class="pml">Status</div><div class="pmv green">● ${p.status}</div></div>
+          </div>
+        </div>
+
+        <div class="ps"><div class="ps-lbl" style="color:${a}">01 — Why This Is Agentic</div><div class="ps-title">This problem only exists because AI acts autonomously</div><div style="background:var(--surface2);border-left:3px solid ${a};border-radius:0 8px 8px 0;padding:12px 16px;max-width:660px;font-size:12px;color:var(--text2);line-height:1.7">${p.whyAgentic}</div></div>
+
+        <div class="ps"><div class="ps-lbl" style="color:${a}">02 — Anatomy</div><div class="ps-title">What's inside this pattern</div><div class="ps-desc">Every element and why it exists. Engineers need all of these.</div>
+        ${p.anatomy.map(item=>`<div class="ana-item"><div class="ana-num" style="background:${al};color:${a}">${item.n}</div><div><div class="ana-name">${item.name}</div><div class="ana-desc">${item.desc}</div><div class="ana-purpose" style="color:${a}">${item.purpose}</div></div></div>`).join('')}</div>
+
+        <div class="ps"><div class="ps-lbl" style="color:${a}">03 — Variants</div><div class="ps-title">${p.variants.length} versions for different contexts</div>
+        <div class="var-grid">${p.variants.map(v=>`<div class="var-card"><span class="var-tag" style="background:${al};color:${a}">Variant ${v.tag}</span><div class="var-name">${v.name}</div><div class="var-desc">${v.desc}</div><div class="var-use">Use when: ${v.use}</div></div>`).join('')}</div></div>
+
+        <div class="ps"><div class="ps-lbl" style="color:${a}">04 — States</div><div class="ps-title">Every condition must be designed</div>
+        <div class="state-grid">${p.states.map(s=>`<div class="state-card"><div class="state-lbl" style="color:${s.color}">${s.label}</div><div class="state-desc">${s.desc}</div></div>`).join('')}</div></div>
+
+        <div class="ps"><div class="ps-lbl" style="color:${a}">05 — Content Guidelines</div><div class="ps-title">Exact copy standards</div>
+        ${p.contentGuide.map(cg=>`<div class="cg-item"><div class="cg-lbl">${cg.label}</div><div class="cg-do"><span style="flex-shrink:0">✓</span>${cg.do}</div><div class="cg-dont"><span style="flex-shrink:0">✗</span>${cg.dont}</div></div>`).join('')}</div>
+
+        <div class="ps"><div class="ps-lbl" style="color:${a}">06 — Rules</div><div class="ps-title">Do's and Don'ts</div>
+        <div class="rules-2col">
+          <div class="rule-card"><div class="rule-card-hdr" style="background:var(--green-l);color:var(--green)">✅ Always do this</div><div class="rule-card-body">${p.rules.do.map(r=>`<div class="rule-item"><span style="color:var(--green);flex-shrink:0">✓</span>${r}</div>`).join('')}</div></div>
+          <div class="rule-card"><div class="rule-card-hdr" style="background:var(--red-l);color:var(--red)">❌ Never do this</div><div class="rule-card-body">${p.rules.dont.map(r=>`<div class="rule-item"><span style="color:var(--red);flex-shrink:0">✗</span>${r}</div>`).join('')}</div></div>
+        </div></div>
+
+        <div class="ps"><div class="ps-lbl" style="color:${a}">07 — Trust & Ethics</div><div class="ps-title">How this pattern builds user trust</div>
+        <div class="trust-grid">${p.trust.map(t=>`<div class="trust-item"><div class="trust-name" style="color:${a}">⬡ ${t.name}</div><div class="trust-desc">${t.desc}</div></div>`).join('')}</div></div>
+
+        <div class="ps"><div class="ps-lbl" style="color:${a}">08 — Pattern Relationships</div><div class="ps-title">How this connects to other patterns</div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:10px">
+          <div class="rel-flow">${p.relationships.prev?`<div><div class="rel-box oth" onclick="showPattern(${patterns.findIndex(x=>x.id===p.relationships.prev)})">${p.relationships.prev}</div><div style="font-size:9px;color:var(--text4);text-align:center;margin-top:3px">Before</div></div><span class="rel-arr">→</span>`:''}<div><div class="rel-box cur">${p.id}</div><div style="font-size:9px;color:${a};text-align:center;margin-top:3px;font-weight:600">You are here</div></div>${p.relationships.next&&p.relationships.next!=='Completion'?`<span class="rel-arr">→</span><div><div class="rel-box oth" onclick="showPattern(${patterns.findIndex(x=>x.id===p.relationships.next)})">${p.relationships.next}</div><div style="font-size:9px;color:var(--text4);text-align:center;margin-top:3px">After</div></div>`:p.relationships.next==='Completion'?`<span class="rel-arr">→</span><div><div class="rel-box oth">Complete</div><div style="font-size:9px;color:var(--text4);text-align:center;margin-top:3px">After</div></div>`:''}</div>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--text3)"><span style="font-weight:600;color:var(--text2)">Paired with:</span> ${p.relationships.paired} · <span style="color:var(--red);font-weight:600">Never combine with:</span> ${p.relationships.never}</div>
+        </div></div>
+
+        <div class="ps"><div class="ps-lbl" style="color:${a}">09 — Metrics</div><div class="ps-title">How you know this pattern is working</div>
+        <div class="met-3">${p.metrics.map(m=>`<div class="met-card"><div class="met-lbl" style="color:${a}">${m.label}</div><div class="met-val">${m.value}</div><div class="met-desc">${m.desc}</div><div class="met-flag">🚨 ${m.flag}</div><div class="met-flagd">${m.flagDesc}</div></div>`).join('')}</div></div>
+
+        <div class="ps" style="border-bottom:none">
+          <div class="ps-lbl" style="color:${a}">10 — Live Examples</div>
+          <div class="ps-title">General pattern · Retail scenario · Interactive</div>
+          <div class="ps-desc">Left: how this pattern applies to any agentic product. Right: how it applies to our retail scenario. Both are interactive.</div>
+          <div id="demo-${p.num}"></div>
+        </div>
+
+        <div class="pp-nav-footer">
+          ${p.num>0?`<button class="dk-btn dk-btn-ghost" onclick="showPattern(${p.num-1})">← ${patterns[p.num-1].id}</button>`:'<div></div>'}
+          <button class="dk-btn dk-btn-ghost" onclick="showIndex()">↑ Index</button>
+          ${p.num<patterns.length-1?`<button class="dk-btn" style="background:${al};color:${a};border:1px solid ${a}40" onclick="showPattern(${p.num+1})">${patterns[p.num+1].id} →</button>`:'<div></div>'}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════
+// NAVIGATION
+// ══════════════════════════════
+let currentView='index';
+
+function showIndex(){
+  document.querySelectorAll('.view').forEach(v=>v.style.display='none');
+  document.getElementById('view-index').style.display='block';
+  document.getElementById('back-btn').classList.remove('visible');
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById('sb-index').classList.add('active');
+  document.getElementById('content').scrollTop=0;
+  currentView='index';
+}
+
+function showPattern(n){
+  document.querySelectorAll('.view').forEach(v=>v.style.display='none');
+  const view=document.getElementById('view-'+n);
+  if(view){view.style.display='block';}
+  document.getElementById('back-btn').classList.add('visible');
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  const sb=document.getElementById('sb-'+n);
+  if(sb)sb.classList.add('active');
+  document.getElementById('content').scrollTop=0;
+  currentView=n;
+  // Build demo
+  const demoContainer=document.getElementById('demo-'+n);
+  if(demoContainer&&demoContainer.innerHTML===''&&demos[n]){
+    demos[n]('demo-'+n);
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')showIndex();
+  if(e.key==='ArrowRight'&&typeof currentView==='number'&&currentView<patterns.length-1)showPattern(currentView+1);
+  if(e.key==='ArrowLeft'&&typeof currentView==='number'&&currentView>0)showPattern(currentView-1);
+});
+
+renderSidebar();
+renderIndex();
+renderPatternViews();
+</script>
+</body>
+</html>

@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P-000 Instruction Input — Evolved</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2563EB;--blue-d:#1D4ED8;--blue-l:#EFF6FF;--blue-mid:#BFDBFE;
+  --green:#059669;--green-l:#ECFDF5;
+  --red:#DC2626;--red-l:#FEF2F2;
+  --amber:#D97706;--amber-l:#FFFBEB;
+  --purple:#7C3AED;--purple-l:#F5F3FF;
+  --gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;
+  --gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;
+  --gray-700:#374151;--gray-900:#111827;
+}
+html,body{min-height:100vh;font-family:'DM Sans',sans-serif;background:#F8FAFC;color:var(--gray-900)}
+
+.top-bar{background:white;border-bottom:1px solid var(--gray-200);padding:0 28px;height:52px;display:flex;align-items:center;gap:10px}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;display:flex;align-items:center;gap:7px}
+.logo-dot{width:7px;height:7px;border-radius:50%;background:var(--blue)}
+.sep{width:1px;height:16px;background:var(--gray-200)}
+.top-label{font-size:12px;color:var(--gray-500)}
+.badge{margin-left:auto;padding:3px 10px;background:var(--blue-l);border:1px solid var(--blue-mid);border-radius:100px;font-size:11px;font-weight:600;color:var(--blue);font-family:'DM Mono',monospace}
+
+.main{display:flex;align-items:center;justify-content:center;padding:32px 24px;min-height:calc(100vh - 52px)}
+.wrap{width:100%;max-width:620px}
+
+/* Pattern note */
+.pattern-note{background:linear-gradient(135deg,var(--blue-l),var(--purple-l));border:1px solid var(--blue-mid);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;gap:12px}
+.pn-icon{font-size:18px;flex-shrink:0}
+.pn-title{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:3px}
+.pn-text{font-size:12px;color:var(--gray-600);line-height:1.5}
+
+/* Dialog */
+.dialog{background:white;border:1px solid var(--gray-200);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,0.1),0 4px 16px rgba(0,0,0,0.05);overflow:hidden}
+
+/* Header */
+.d-header{padding:20px 24px 0;display:flex;align-items:flex-start;justify-content:space-between}
+.d-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.d-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:var(--gray-900)}
+.d-sub{font-size:11px;color:var(--gray-400);margin-top:2px}
+.d-close{width:28px;height:28px;border-radius:7px;background:var(--gray-100);border:none;cursor:pointer;font-size:13px;color:var(--gray-400)}
+
+/* Scope */
+.section{padding:16px 24px 0}
+.s-label{font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--gray-400);margin-bottom:8px}
+.scope-tags{display:flex;gap:6px;flex-wrap:wrap}
+.scope-tag{padding:5px 12px;border-radius:100px;font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--gray-200);color:var(--gray-600);background:transparent;transition:all 0.15s;font-family:'DM Sans',sans-serif}
+.scope-tag:hover{border-color:var(--blue-mid);color:var(--blue)}
+.scope-tag.on{background:var(--blue);border-color:var(--blue);color:white}
+.scope-info{margin-top:8px;padding:7px 12px;background:var(--blue-l);border:1px solid var(--blue-mid);border-radius:8px;font-size:12px;color:var(--blue);font-weight:500}
+
+/* Input type switcher */
+.type-bar{display:flex;gap:3px;background:var(--gray-100);border-radius:10px;padding:3px;overflow-x:auto}
+.type-pill{padding:5px 10px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;border:none;background:transparent;color:var(--gray-500);transition:all 0.15s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0}
+.type-pill.active{background:white;color:var(--gray-900);box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+.type-pill:hover:not(.active){color:var(--gray-700)}
+
+/* Panels */
+.panel{display:none}
+.panel.active{display:block}
+
+/* Textarea */
+.ta{width:100%;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;padding:13px 15px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--gray-900);resize:none;outline:none;line-height:1.6;transition:all 0.2s;min-height:96px}
+.ta:focus{border-color:var(--blue);background:white;box-shadow:0 0 0 3px rgba(37,99,235,0.08)}
+.hints{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.hint{padding:4px 10px;background:var(--gray-100);border-radius:100px;font-size:11px;color:var(--gray-500);cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.hint:hover{background:var(--gray-200);color:var(--gray-700)}
+.char-count{font-size:11px;color:var(--gray-400);text-align:right;margin-top:5px}
+
+/* File */
+.file-drop{border:2px dashed var(--gray-200);border-radius:12px;padding:28px 20px;text-align:center;cursor:pointer;transition:all 0.2s}
+.file-drop:hover{border-color:var(--blue);background:var(--blue-l)}
+.file-drop-icon{font-size:28px;margin-bottom:8px}
+.file-drop-title{font-size:14px;font-weight:600;color:var(--gray-700);margin-bottom:4px}
+.file-drop-sub{font-size:12px;color:var(--gray-400)}
+.file-drop-sub span{color:var(--blue);cursor:pointer;font-weight:500}
+.file-list{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.file-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--green-l);border:1px solid rgba(5,150,105,0.2);border-radius:8px}
+.file-item-name{font-size:12px;font-weight:600;flex:1}
+.file-item-size{font-size:11px;color:var(--gray-400)}
+.file-item-rm{font-size:12px;color:var(--gray-400);cursor:pointer;background:none;border:none}
+
+/* Template */
+.tmpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tmpl-card{padding:12px 14px;border:1.5px solid var(--gray-200);border-radius:10px;cursor:pointer;transition:all 0.15s}
+.tmpl-card:hover{border-color:var(--blue-mid);background:var(--blue-l)}
+.tmpl-card.sel{border-color:var(--blue);background:var(--blue-l)}
+.tmpl-title{font-size:12px;font-weight:700;color:var(--gray-900);margin-bottom:3px}
+.tmpl-desc{font-size:11px;color:var(--gray-500);line-height:1.4;margin-bottom:8px}
+.tmpl-tags{display:flex;gap:4px;flex-wrap:wrap}
+.tmpl-tag{font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px;background:var(--gray-100);color:var(--gray-500);text-transform:uppercase;letter-spacing:0.05em}
+
+/* History */
+.hist-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto}
+.hist-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1.5px solid var(--gray-200);border-radius:10px;cursor:pointer;transition:all 0.15s}
+.hist-item:hover{border-color:var(--blue-mid);background:var(--blue-l)}
+.hist-item.sel{border-color:var(--blue);background:var(--blue-l)}
+.hist-text{font-size:12px;color:var(--gray-700);line-height:1.4;flex:1}
+.hist-meta{font-size:10px;color:var(--gray-400);margin-top:3px}
+.hist-reuse{font-size:11px;font-weight:600;color:var(--blue);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0}
+
+/* Form */
+.form-grid{display:flex;flex-direction:column;gap:10px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-label{font-size:11px;font-weight:600;color:var(--gray-600);margin-bottom:5px}
+.form-select,.form-input{width:100%;background:white;border:1.5px solid var(--gray-200);border-radius:8px;padding:8px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--gray-900);outline:none}
+.form-select:focus,.form-input:focus{border-color:var(--blue)}
+.cb-row{display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:6px}
+.cb-box{width:15px;height:15px;border:2px solid var(--gray-300);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all 0.15s;flex-shrink:0}
+.cb-box.on{background:var(--blue);border-color:var(--blue);color:white}
+.cb-label{font-size:12px;color:var(--gray-700)}
+
+/* Voice */
+.voice-wrap{text-align:center;padding:12px 0}
+.voice-btn{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));border:none;cursor:pointer;font-size:26px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,99,235,0.3);transition:all 0.2s}
+.voice-btn:hover{transform:scale(1.05)}
+.voice-btn.rec{animation:vpulse 1s ease-in-out infinite;background:linear-gradient(135deg,var(--red),#B91C1C)}
+@keyframes vpulse{0%,100%{transform:scale(1);box-shadow:0 4px 16px rgba(220,38,38,0.3)}50%{transform:scale(1.08);box-shadow:0 8px 28px rgba(220,38,38,0.5)}}
+.voice-status{font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:4px}
+.voice-hint{font-size:11px;color:var(--gray-400)}
+.voice-transcript{margin-top:12px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--gray-700);line-height:1.6;text-align:left;min-height:56px;font-style:italic;display:none}
+.waveform{display:none;align-items:center;justify-content:center;gap:3px;height:28px;margin:8px 0}
+.waveform.show{display:flex}
+.wbar{width:3px;border-radius:100px;background:var(--blue);animation:wanim 0.8s ease-in-out infinite}
+.wbar:nth-child(1){height:8px;animation-delay:0s}
+.wbar:nth-child(2){height:16px;animation-delay:0.1s}
+.wbar:nth-child(3){height:24px;animation-delay:0.2s}
+.wbar:nth-child(4){height:18px;animation-delay:0.3s}
+.wbar:nth-child(5){height:12px;animation-delay:0.4s}
+.wbar:nth-child(6){height:22px;animation-delay:0.5s}
+.wbar:nth-child(7){height:14px;animation-delay:0.6s}
+@keyframes wanim{0%,100%{transform:scaleY(0.5);opacity:0.5}50%{transform:scaleY(1);opacity:1}}
+
+/* URL */
+.url-wrap{position:relative}
+.url-prefix{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--gray-400)}
+.url-input{width:100%;background:white;border:1.5px solid var(--gray-200);border-radius:10px;padding:10px 12px 10px 34px;font-size:13px;font-family:'DM Mono',monospace;color:var(--gray-900);outline:none;transition:border-color 0.15s}
+.url-input:focus{border-color:var(--blue)}
+.url-preview{margin-top:10px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;padding:12px 14px;display:none;gap:10px;align-items:flex-start}
+.url-preview.show{display:flex}
+.url-fav{width:24px;height:24px;border-radius:6px;background:var(--blue-l);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.url-title{font-size:12px;font-weight:600;color:var(--gray-900);margin-bottom:2px}
+.url-href{font-size:10px;color:var(--gray-400);font-family:'DM Mono',monospace}
+.url-desc{font-size:11px;color:var(--gray-500);line-height:1.4;margin-top:4px}
+
+/* Meta */
+.meta-tabs{display:flex;border:1.5px solid var(--gray-200);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.meta-tab{flex:1;padding:8px 10px;border:none;background:white;color:var(--gray-500);font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;border-left:1px solid var(--gray-200)}
+.meta-tab:first-child{border-left:none}
+.meta-tab.active{background:linear-gradient(135deg,var(--blue),var(--purple));color:white}
+.meta-panel{display:none}
+.meta-panel.active{display:block}
+
+.gen-btn{padding:8px 16px;background:linear-gradient(135deg,var(--blue),var(--purple));color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px}
+.gen-result{display:none;margin-top:10px;background:var(--blue-l);border:1.5px solid var(--blue-mid);border-radius:10px;padding:12px 14px}
+.gen-result-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--blue);margin-bottom:6px}
+.gen-result-text{font-size:13px;color:var(--gray-900);line-height:1.6;margin-bottom:8px}
+.gen-actions{display:flex;gap:6px}
+.gen-btn-sm{padding:5px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none}
+.gen-btn-accept{background:var(--blue);color:white}
+.gen-btn-ghost{background:white;color:var(--gray-500);border:1px solid var(--gray-200) !important;border:none}
+
+.block-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.block-item{display:flex;align-items:center;gap:8px;padding:9px 12px;background:white;border:1.5px solid var(--gray-200);border-radius:8px}
+.block-item.primary{border-color:var(--blue-mid)}
+.block-drag{font-size:12px;color:var(--gray-300);cursor:grab}
+.block-type{font-size:11px;font-weight:700;color:var(--gray-500);min-width:72px}
+.block-type.primary{color:var(--blue)}
+.block-input{flex:1;border:none;outline:none;font-size:12px;color:var(--gray-900);font-family:'DM Sans',sans-serif;background:transparent}
+.block-rm{font-size:12px;color:var(--gray-300);border:none;background:none;cursor:pointer}
+.block-add-btns{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.block-add-btn{padding:4px 10px;border:1.5px dashed var(--gray-300);border-radius:6px;font-size:11px;font-weight:600;color:var(--gray-500);background:transparent;cursor:pointer;font-family:'DM Sans',sans-serif}
+.block-add-btn:hover{border-color:var(--blue);color:var(--blue)}
+.block-assembled{padding:8px 12px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;font-size:11px;color:var(--gray-600);line-height:1.5}
+
+.ctx-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--gray-400);margin-bottom:4px}
+.ctx-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ctx-input,.ctx-select{width:100%;padding:8px 11px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:12px;font-family:'DM Sans',sans-serif;color:var(--gray-900);outline:none;background:white}
+.ctx-input:focus,.ctx-select:focus{border-color:var(--blue)}
+.ctx-assembled{padding:10px 12px;background:var(--blue-l);border:1.5px solid var(--blue-mid);border-radius:8px;margin-top:8px}
+.ctx-assembled-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--blue);margin-bottom:5px}
+.ctx-assembled-text{font-size:12px;color:var(--gray-900);line-height:1.6}
+
+/* Clarity check */
+.clarity{margin:0 24px;border-radius:10px;overflow:hidden;display:none}
+.clarity.show{display:block;animation:fadeUp 0.3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.clarity-inner{background:var(--green-l);border:1px solid rgba(5,150,105,0.25);padding:12px 16px}
+.clarity-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.clarity-icon{width:20px;height:20px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;flex-shrink:0}
+.clarity-title{font-size:12px;font-weight:700;color:var(--green)}
+.clarity-item{display:flex;gap:7px;font-size:12px;color:var(--gray-700);margin-bottom:5px;line-height:1.4}
+
+/* Footer */
+.d-footer{padding:14px 24px;border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;margin-top:16px}
+.footer-meta{font-size:12px;color:var(--gray-400)}
+.footer-actions{display:flex;gap:8px}
+.btn{padding:9px 18px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.btn-ghost{background:transparent;color:var(--gray-500);border:1px solid var(--gray-200)}
+.btn-primary{background:var(--blue);color:white;box-shadow:0 2px 8px rgba(37,99,235,0.2)}
+.btn-primary:hover{background:var(--blue-d)}
+
+/* Reference table */
+.ref-table{margin-top:20px;background:white;border:1px solid var(--gray-200);border-radius:14px;padding:18px 22px}
+.ref-label{font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--gray-400);margin-bottom:12px}
+.ref-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.ref-item{padding:10px 12px;background:var(--gray-50);border-radius:8px}
+.ref-item-title{font-size:12px;font-weight:700;color:var(--gray-900);margin-bottom:3px}
+.ref-item-desc{font-size:11px;color:var(--gray-500);line-height:1.4}
+.ref-item.special{background:var(--blue-l);border:1px solid var(--blue-mid)}
+.ref-item.special .ref-item-title{color:var(--blue)}
+.ref-item.special .ref-item-desc{color:var(--blue)}
+.ref-item.meta-special{background:var(--purple-l);border:1px solid rgba(124,58,237,0.2)}
+.ref-item.meta-special .ref-item-title{color:var(--purple)}
+.ref-item.meta-special .ref-item-desc{color:var(--purple)}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo"><div class="logo-dot"></div>Meridian</div>
+  <div class="sep"></div>
+  <span class="top-label">Agentic AI Pattern Library</span>
+  <span class="badge">P-000 · Evolved</span>
+</div>
+
+<div class="main">
+<div class="wrap">
+
+  <div class="pattern-note">
+    <span class="pn-icon">⬡</span>
+    <div>
+      <div class="pn-title">P-000 · Instruction Input — Evolved</div>
+      <div class="pn-text">8 input types. Text is the default. Switch to any other type using the pill switcher. The clarity check always runs before Pre-flight loads regardless of input type.</div>
+    </div>
+  </div>
+
+  <div class="dialog">
+
+    <!-- Header -->
+    <div class="d-header">
+      <div style="display:flex;align-items:flex-start;gap:10px">
+        <div class="d-icon">✦</div>
+        <div>
+          <div class="d-title">New Agent Run</div>
+          <div class="d-sub">P-000 · Dialog · Entry point</div>
+        </div>
+      </div>
+      <button class="d-close">✕</button>
+    </div>
+
+    <!-- Scope -->
+    <div class="section">
+      <div class="s-label">Which items</div>
+      <div class="scope-tags">
+        <button class="scope-tag on" onclick="this.classList.toggle('on');updateScope()">Footwear</button>
+        <button class="scope-tag on" onclick="this.classList.toggle('on');updateScope()">Running</button>
+        <button class="scope-tag" onclick="this.classList.toggle('on');updateScope()">Apparel</button>
+        <button class="scope-tag" onclick="this.classList.toggle('on');updateScope()">Accessories</button>
+        <button class="scope-tag" onclick="this.classList.toggle('on');updateScope()">New Arrivals</button>
+        <button class="scope-tag" onclick="this.classList.toggle('on');updateScope()">Sale</button>
+      </div>
+      <div class="scope-info" id="scope-info">✓ 10 items selected — Footwear and Running</div>
+    </div>
+
+    <div style="height:14px"></div>
+    <div style="height:1px;background:var(--gray-100);margin:0 24px"></div>
+
+    <!-- Input section -->
+    <div class="section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="s-label" style="margin-bottom:0">What do you want to achieve</div>
+      </div>
+
+      <!-- Type switcher -->
+      <div class="type-bar" style="margin-bottom:12px">
+        <button class="type-pill active" onclick="switchType('text',this)">✏️ Text</button>
+        <button class="type-pill" onclick="switchType('file',this)">📎 File</button>
+        <button class="type-pill" onclick="switchType('template',this)">📋 Template</button>
+        <button class="type-pill" onclick="switchType('history',this)">🕐 History</button>
+        <button class="type-pill" onclick="switchType('form',this)">⚙️ Form</button>
+        <button class="type-pill" onclick="switchType('voice',this)">🎙️ Voice</button>
+        <button class="type-pill" onclick="switchType('url',this)">🔗 URL</button>
+        <button class="type-pill" onclick="switchType('meta',this)">✦ Meta</button>
+      </div>
+
+      <!-- TEXT -->
+      <div class="panel active" id="panel-text">
+        <textarea class="ta" id="text-ta" rows="4" placeholder="e.g. Generate content for all selected items, apply a quality check, then pause for my approval" oninput="onTextInput(this)">Generate videos, write descriptions, run QA and publish for all selected products</textarea>
+        <div class="hints">
+          <button class="hint" onclick="addHint('Use Professional tone')">+ Professional tone</button>
+          <button class="hint" onclick="addHint('Pause before publishing')">+ Pause before publish</button>
+          <button class="hint" onclick="addHint('QA threshold 90%')">+ QA threshold</button>
+          <button class="hint" onclick="addHint('Use Brand Kit v4')">+ Brand Kit</button>
+        </div>
+        <div class="char-count" id="char-count">81 / 500</div>
+      </div>
+
+      <!-- FILE -->
+      <div class="panel" id="panel-file">
+        <div class="file-drop" onclick="document.getElementById('file-in').click()" ondragover="event.preventDefault();this.style.borderColor='var(--blue)';this.style.background='var(--blue-l)'" ondragleave="this.style.borderColor='var(--gray-200)';this.style.background='transparent'" ondrop="onDrop(event)">
+          <div class="file-drop-icon">📁</div>
+          <div class="file-drop-title">Drop your brief or instruction file here</div>
+          <div class="file-drop-sub">or <span>browse to upload</span></div>
+          <div style="font-size:11px;color:var(--gray-400);margin-top:6px">Accepts .pdf · .docx · .txt · .md · .csv · .xlsx</div>
+        </div>
+        <input type="file" id="file-in" style="display:none" accept=".pdf,.docx,.txt,.md,.csv,.xlsx" multiple onchange="onFileSelect(event)">
+        <div class="file-list" id="file-list"></div>
+      </div>
+
+      <!-- TEMPLATE -->
+      <div class="panel" id="panel-template">
+        <div class="tmpl-grid">
+          <div class="tmpl-card sel" onclick="selectTmpl(this)">
+            <div class="tmpl-title">Full content launch</div>
+            <div class="tmpl-desc">Generate content, run QA and publish with approval gate</div>
+            <div class="tmpl-tags"><span class="tmpl-tag">Generate</span><span class="tmpl-tag">QA</span><span class="tmpl-tag">Publish</span></div>
+          </div>
+          <div class="tmpl-card" onclick="selectTmpl(this)">
+            <div class="tmpl-title">Content refresh</div>
+            <div class="tmpl-desc">Rewrite content only, QA check, no generation</div>
+            <div class="tmpl-tags"><span class="tmpl-tag">Rewrite</span><span class="tmpl-tag">QA</span></div>
+          </div>
+          <div class="tmpl-card" onclick="selectTmpl(this)">
+            <div class="tmpl-title">QA audit only</div>
+            <div class="tmpl-desc">Run QA across existing content, flag below threshold</div>
+            <div class="tmpl-tags"><span class="tmpl-tag">QA</span></div>
+          </div>
+          <div class="tmpl-card" onclick="selectTmpl(this)">
+            <div class="tmpl-title">Publish approved</div>
+            <div class="tmpl-desc">Publish items that have already passed QA review</div>
+            <div class="tmpl-tags"><span class="tmpl-tag">Publish</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY -->
+      <div class="panel" id="panel-history">
+        <div class="hist-list">
+          <div class="hist-item" onclick="selectHist(this)">
+            <div style="flex:1">
+              <div class="hist-text">"Generate content for all selected items, run QA at 85%, then pause for my approval before publishing"</div>
+              <div class="hist-meta">2 days ago · 10 items · 4 agents · Completed</div>
+            </div>
+            <button class="hist-reuse" onclick="event.stopPropagation();reuseHist(this)">Reuse</button>
+          </div>
+          <div class="hist-item" onclick="selectHist(this)">
+            <div style="flex:1">
+              <div class="hist-text">"Rewrite all descriptions in Professional tone, QA at 90% threshold"</div>
+              <div class="hist-meta">5 days ago · 24 items · 2 agents · Completed</div>
+            </div>
+            <button class="hist-reuse" onclick="event.stopPropagation();reuseHist(this)">Reuse</button>
+          </div>
+          <div class="hist-item" onclick="selectHist(this)">
+            <div style="flex:1">
+              <div class="hist-text">"Generate content using Brand Kit v4, pause before completing"</div>
+              <div class="hist-meta">1 week ago · 8 items · 3 agents · Partially completed</div>
+            </div>
+            <button class="hist-reuse" onclick="event.stopPropagation();reuseHist(this)">Reuse</button>
+          </div>
+          <div class="hist-item" onclick="selectHist(this)">
+            <div style="flex:1">
+              <div class="hist-text">"Run full QA audit, flag anything below 85% quality threshold"</div>
+              <div class="hist-meta">2 weeks ago · 47 items · 1 agent · Completed</div>
+            </div>
+            <button class="hist-reuse" onclick="event.stopPropagation();reuseHist(this)">Reuse</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORM -->
+      <div class="panel" id="panel-form">
+        <div class="form-grid">
+          <div class="form-row">
+            <div>
+              <div class="form-label">What to generate</div>
+              <select class="form-select"><option>Content + Visuals</option><option>Visuals only</option><option>Content only</option><option>All formats</option></select>
+            </div>
+            <div>
+              <div class="form-label">Tone of voice</div>
+              <select class="form-select"><option>Professional</option><option>Casual</option><option>Technical</option><option>Luxury</option></select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div>
+              <div class="form-label">Quality threshold</div>
+              <select class="form-select"><option>85% minimum</option><option>90% minimum</option><option>95% minimum</option><option>No QA check</option></select>
+            </div>
+            <div>
+              <div class="form-label">Brand guidelines</div>
+              <select class="form-select"><option>Brand Kit v4 (latest)</option><option>Brand Kit v3</option><option>Custom upload</option></select>
+            </div>
+          </div>
+          <div>
+            <div class="form-label">After agents complete</div>
+            <div class="cb-row" onclick="toggleCb(this)"><div class="cb-box on">✓</div><span class="cb-label">Pause for my approval before completing</span></div>
+            <div class="cb-row" onclick="toggleCb(this)"><div class="cb-box"></div><span class="cb-label">Send me a notification when done</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VOICE -->
+      <div class="panel" id="panel-voice">
+        <div class="voice-wrap">
+          <button class="voice-btn" id="voice-btn" onclick="toggleVoice()">🎙️</button>
+          <div class="waveform" id="waveform">
+            <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
+            <div class="wbar"></div><div class="wbar"></div><div class="wbar"></div>
+            <div class="wbar"></div>
+          </div>
+          <div class="voice-status" id="voice-status">Tap to start speaking</div>
+          <div class="voice-hint" id="voice-hint">Speak your goal clearly. Stops automatically after a pause.</div>
+          <div class="voice-transcript" id="voice-transcript"></div>
+        </div>
+      </div>
+
+      <!-- URL -->
+      <div class="panel" id="panel-url">
+        <div class="url-wrap">
+          <span class="url-prefix">🔗</span>
+          <input class="url-input" type="url" placeholder="https://docs.example.com/your-brief" oninput="onUrlInput(this)">
+        </div>
+        <div class="url-preview" id="url-preview">
+          <div class="url-fav">📄</div>
+          <div>
+            <div class="url-title">Content Brief — Summer 2026</div>
+            <div class="url-href">docs.example.com/briefs/summer-2026</div>
+            <div class="url-desc">Full content brief including tone guidelines, quality requirements, and publishing rules.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- META -->
+      <div class="panel" id="panel-meta">
+        <div class="meta-tabs">
+          <button class="meta-tab active" id="mt-goal" onclick="switchMeta('goal',this)">🎯 Goal-driven</button>
+          <button class="meta-tab" id="mt-blocks" onclick="switchMeta('blocks',this)">🧱 Block builder</button>
+          <button class="meta-tab" id="mt-context" onclick="switchMeta('context',this)">⚙️ Context assembler</button>
+        </div>
+
+        <!-- Goal driven -->
+        <div class="meta-panel active" id="mp-goal">
+          <div style="font-size:11px;color:var(--gray-500);margin-bottom:8px;line-height:1.5">Describe what you want to achieve at a high level. The system generates the full agent instruction from your goal.</div>
+          <textarea class="ta" id="goal-input" rows="2" placeholder="e.g. I want to launch a new collection with consistent content across all items"></textarea>
+          <button class="gen-btn" onclick="generateGoal()">✦ Generate instruction</button>
+          <div class="gen-result" id="goal-result">
+            <div class="gen-result-label">Generated instruction</div>
+            <div class="gen-result-text" id="goal-result-text"></div>
+            <div class="gen-actions">
+              <button class="gen-btn-sm gen-btn-accept" onclick="acceptGoal()">Use this →</button>
+              <button class="gen-btn-sm" style="background:white;color:var(--gray-500);border:1px solid var(--gray-200)" onclick="document.getElementById('goal-result').style.display='none'">Dismiss</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Block builder -->
+        <div class="meta-panel" id="mp-blocks">
+          <div style="font-size:11px;color:var(--gray-500);margin-bottom:8px;line-height:1.5">Build your instruction block by block. Each block defines one aspect of what agents should do.</div>
+          <div class="block-list" id="block-list">
+            <div class="block-item primary">
+              <span class="block-drag">⠿</span>
+              <span class="block-type primary">Action</span>
+              <input type="text" class="block-input" value="Generate content for all selected items" oninput="updateAssembled()">
+              <button class="block-rm" onclick="this.closest('.block-item').remove();updateAssembled()">✕</button>
+            </div>
+            <div class="block-item">
+              <span class="block-drag">⠿</span>
+              <span class="block-type">Quality</span>
+              <input type="text" class="block-input" value="Apply a quality check at 85% minimum" oninput="updateAssembled()">
+              <button class="block-rm" onclick="this.closest('.block-item').remove();updateAssembled()">✕</button>
+            </div>
+            <div class="block-item">
+              <span class="block-drag">⠿</span>
+              <span class="block-type">After</span>
+              <input type="text" class="block-input" value="Pause for my approval before completing" oninput="updateAssembled()">
+              <button class="block-rm" onclick="this.closest('.block-item').remove();updateAssembled()">✕</button>
+            </div>
+          </div>
+          <div class="block-add-btns">
+            <button class="block-add-btn" onclick="addBlock('Action')">+ Action</button>
+            <button class="block-add-btn" onclick="addBlock('Tone')">+ Tone</button>
+            <button class="block-add-btn" onclick="addBlock('Constraint')">+ Constraint</button>
+            <button class="block-add-btn" onclick="addBlock('After')">+ After</button>
+            <button class="block-add-btn" onclick="addBlock('Reference')">+ Reference</button>
+          </div>
+          <div class="block-assembled"><span style="font-weight:600;color:var(--gray-700)">Assembled: </span><span id="assembled-text">Generate content for all selected items, apply a quality check at 85% minimum, pause for my approval before completing</span></div>
+        </div>
+
+        <!-- Context assembler -->
+        <div class="meta-panel" id="mp-context">
+          <div style="font-size:11px;color:var(--gray-500);margin-bottom:10px;line-height:1.5">Provide rich context and the system assembles the complete agent instruction from all of it.</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div>
+              <div class="ctx-label">Intent — what is the overall goal?</div>
+              <input type="text" class="ctx-input" id="ctx-intent" oninput="assembleCtx()" value="Launch new collection with consistent content across all items">
+            </div>
+            <div class="ctx-row">
+              <div>
+                <div class="ctx-label">Tone</div>
+                <select class="ctx-select" id="ctx-tone" onchange="assembleCtx()">
+                  <option>Professional</option><option>Casual</option><option>Technical</option><option>Luxury</option>
+                </select>
+              </div>
+              <div>
+                <div class="ctx-label">Quality bar</div>
+                <select class="ctx-select" id="ctx-quality" onchange="assembleCtx()">
+                  <option>85% minimum</option><option>90% minimum</option><option>95% minimum</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <div class="ctx-label">Constraints</div>
+              <input type="text" class="ctx-input" id="ctx-constraints" oninput="assembleCtx()" value="Use latest brand guidelines, pause before any publishing">
+            </div>
+            <div class="ctx-assembled">
+              <div class="ctx-assembled-label">Assembled instruction</div>
+              <div class="ctx-assembled-text" id="ctx-assembled-text">Generate content for all selected items in a Professional tone to achieve the goal of launching new collection with consistent content across all items, using latest brand guidelines, pause before any publishing, apply a quality check at 85% minimum.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /section -->
+
+    <div style="height:14px"></div>
+
+    <!-- Clarity check -->
+    <div class="clarity" id="clarity">
+      <div class="clarity-inner">
+        <div class="clarity-hd">
+          <div class="clarity-icon">✓</div>
+          <span class="clarity-title">Instruction understood — loading Pre-flight Plan</span>
+        </div>
+        <div class="clarity-item"><span style="color:var(--green)">✓</span>Generate a video and description for each of the 10 selected items</div>
+        <div class="clarity-item"><span style="color:var(--green)">✓</span>Run QA review against 85% quality threshold</div>
+        <div class="clarity-item"><span style="color:var(--green)">✓</span>Pause for approval before publishing anything live</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="d-footer">
+      <div class="footer-meta">10 items · 4 agents · ~40 tasks</div>
+      <div class="footer-actions">
+        <button class="btn btn-ghost">Clear</button>
+        <button class="btn btn-primary" id="submit-btn" onclick="submit()">Submit → AI will check</button>
+      </div>
+    </div>
+
+  </div><!-- /dialog -->
+
+  <!-- Reference table -->
+  <div class="ref-table">
+    <div class="ref-label">Input type reference — when to use each</div>
+    <div class="ref-grid">
+      <div class="ref-item"><div class="ref-item-title">✏️ Text</div><div class="ref-item-desc">Simple direct instructions. Default for all users.</div></div>
+      <div class="ref-item"><div class="ref-item-title">📎 File</div><div class="ref-item-desc">When the brief or data is in a document.</div></div>
+      <div class="ref-item"><div class="ref-item-title">📋 Template</div><div class="ref-item-desc">Repeating run types. Reduces effort and errors.</div></div>
+      <div class="ref-item"><div class="ref-item-title">🕐 History</div><div class="ref-item-desc">Reuse or modify a previous instruction.</div></div>
+      <div class="ref-item"><div class="ref-item-title">⚙️ Form</div><div class="ref-item-desc">Complex instructions with many parameters.</div></div>
+      <div class="ref-item"><div class="ref-item-title">🎙️ Voice</div><div class="ref-item-desc">Long instructions, mobile, or hands-free.</div></div>
+      <div class="ref-item"><div class="ref-item-title">🔗 URL</div><div class="ref-item-desc">When the brief lives in a document or web page.</div></div>
+      <div class="ref-item meta-special"><div class="ref-item-title">✦ Meta</div><div class="ref-item-desc">Sophisticated prompting via goal, blocks, or context assembly.</div></div>
+      <div class="ref-item special" style="grid-column:1/-1"><div class="ref-item-title">⬡ Always — Clarity check runs regardless of input type</div><div class="ref-item-desc">AI always confirms it understood the instruction before Pre-flight Plan loads. This never changes.</div></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+// Scope
+function updateScope() {
+  var tags = document.querySelectorAll('.scope-tag.on');
+  var info = document.getElementById('scope-info');
+  if (tags.length === 0) {
+    info.textContent = 'No items selected — select at least one';
+    info.style.background = 'var(--red-l)';
+    info.style.borderColor = 'rgba(220,38,38,0.3)';
+    info.style.color = 'var(--red)';
+  } else {
+    var names = Array.from(tags).map(function(t) { return t.textContent; }).join(' and ');
+    info.textContent = '✓ ' + (tags.length * 5) + ' items selected — ' + names;
+    info.style.background = 'var(--blue-l)';
+    info.style.borderColor = 'var(--blue-mid)';
+    info.style.color = 'var(--blue)';
+  }
+}
+
+// Input type switching
+function switchType(type, btn) {
+  document.querySelectorAll('.type-pill').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  btn.classList.add('active');
+  var panel = document.getElementById('panel-' + type);
+  if (panel) panel.classList.add('active');
+  document.getElementById('clarity').classList.remove('show');
+}
+
+// Text
+function addHint(text) {
+  var ta = document.getElementById('text-ta');
+  var current = ta.value.trim();
+  ta.value = current ? current + '. ' + text : text;
+  onTextInput(ta);
+  ta.focus();
+}
+function onTextInput(ta) {
+  var cc = document.getElementById('char-count');
+  if (cc) cc.textContent = ta.value.length + ' / 500';
+}
+
+// File
+function onFileSelect(e) { addFiles(Array.from(e.target.files)); }
+function onDrop(e) {
+  e.preventDefault();
+  addFiles(Array.from(e.dataTransfer.files));
+}
+function addFiles(files) {
+  var list = document.getElementById('file-list');
+  files.forEach(function(f) {
+    var size = f.size > 1048576 ? (f.size/1048576).toFixed(1)+'MB' : Math.round(f.size/1024)+'KB';
+    var item = document.createElement('div');
+    item.className = 'file-item';
+    item.innerHTML = '<span>📄</span><span class="file-item-name">'+f.name+'</span><span class="file-item-size">'+size+'</span><button class="file-item-rm" onclick="this.parentElement.remove()">✕</button>';
+    list.appendChild(item);
+  });
+}
+
+// Template
+function selectTmpl(el) {
+  document.querySelectorAll('.tmpl-card').forEach(function(c) { c.classList.remove('sel'); });
+  el.classList.add('sel');
+}
+
+// History
+function selectHist(el) {
+  document.querySelectorAll('.hist-item').forEach(function(i) { i.classList.remove('sel'); });
+  el.classList.add('sel');
+}
+function reuseHist(btn) {
+  var item = btn.closest('.hist-item');
+  var text = item.querySelector('.hist-text').textContent.replace(/"/g, '');
+  switchType('text', document.querySelector('.type-pill'));
+  var ta = document.getElementById('text-ta');
+  ta.value = text;
+  onTextInput(ta);
+}
+
+// Form checkbox
+function toggleCb(row) {
+  var box = row.querySelector('.cb-box');
+  var isOn = box.classList.contains('on');
+  if (isOn) { box.classList.remove('on'); box.textContent = ''; }
+  else { box.classList.add('on'); box.textContent = '✓'; }
+}
+
+// Voice
+var voiceRec = false;
+var voiceTimer = null;
+var voiceLines = [
+  'Generate content for all selected items...',
+  'Generate content for all selected items, apply a quality check...',
+  'Generate content for all selected items, apply a quality check at 85%, then pause for my approval before completing.'
+];
+var voiceStep = 0;
+
+function toggleVoice() {
+  voiceRec = !voiceRec;
+  var btn = document.getElementById('voice-btn');
+  var status = document.getElementById('voice-status');
+  var hint = document.getElementById('voice-hint');
+  var wf = document.getElementById('waveform');
+  var tr = document.getElementById('voice-transcript');
+  if (voiceRec) {
+    btn.textContent = '⏹️';
+    btn.classList.add('rec');
+    status.textContent = 'Listening...';
+    hint.textContent = 'Speak your goal. Click to stop.';
+    wf.classList.add('show');
+    tr.style.display = 'block';
+    tr.textContent = '';
+    voiceStep = 0;
+    voiceTimer = setInterval(function() {
+      if (voiceStep < voiceLines.length) {
+        tr.textContent = voiceLines[voiceStep];
+        voiceStep++;
+      } else { stopVoice(); }
+    }, 1200);
+  } else { stopVoice(); }
+}
+function stopVoice() {
+  voiceRec = false;
+  clearInterval(voiceTimer);
+  var btn = document.getElementById('voice-btn');
+  btn.textContent = '🎙️';
+  btn.classList.remove('rec');
+  document.getElementById('voice-status').textContent = 'Tap to re-record';
+  document.getElementById('voice-hint').textContent = 'Use the transcript below or re-record.';
+  document.getElementById('waveform').classList.remove('show');
+  document.getElementById('voice-transcript').textContent = voiceLines[voiceLines.length - 1];
+}
+
+// URL
+var urlTimer = null;
+function onUrlInput(input) {
+  var preview = document.getElementById('url-preview');
+  clearTimeout(urlTimer);
+  if (input.value.length > 10) {
+    urlTimer = setTimeout(function() { preview.classList.add('show'); }, 700);
+  } else { preview.classList.remove('show'); }
+}
+
+// Meta — type switcher
+function switchMeta(type, btn) {
+  document.querySelectorAll('.meta-tab').forEach(function(t) {
+    t.classList.remove('active');
+  });
+  document.querySelectorAll('.meta-panel').forEach(function(p) {
+    p.classList.remove('active');
+  });
+  btn.classList.add('active');
+  var panel = document.getElementById('mp-' + type);
+  if (panel) panel.classList.add('active');
+}
+
+// Meta — Goal driven
+function generateGoal() {
+  var input = document.getElementById('goal-input');
+  if (!input || !input.value.trim()) return;
+  var goal = input.value.trim().toLowerCase();
+  var result = document.getElementById('goal-result');
+  var text = document.getElementById('goal-result-text');
+  text.textContent = 'Generating...';
+  result.style.display = 'block';
+  setTimeout(function() {
+    text.textContent = 'Generate content for all selected items in a Professional tone, apply a quality check at 85% minimum to ensure consistency, then pause for approval before completing — in support of: ' + goal + '.';
+  }, 900);
+}
+function acceptGoal() {
+  var text = document.getElementById('goal-result-text').textContent;
+  switchType('text', document.querySelector('.type-pill'));
+  var ta = document.getElementById('text-ta');
+  ta.value = text;
+  onTextInput(ta);
+  document.getElementById('goal-result').style.display = 'none';
+}
+
+// Meta — Block builder
+function addBlock(type) {
+  var list = document.getElementById('block-list');
+  var item = document.createElement('div');
+  item.className = 'block-item';
+  item.innerHTML = '<span class="block-drag">⠿</span><span class="block-type">'+type+'</span><input type="text" class="block-input" placeholder="Describe this '+type.toLowerCase()+'..." oninput="updateAssembled()"><button class="block-rm" onclick="this.closest(\'.block-item\').remove();updateAssembled()">✕</button>';
+  list.appendChild(item);
+  item.querySelector('.block-input').focus();
+  updateAssembled();
+}
+function updateAssembled() {
+  var inputs = document.querySelectorAll('#block-list .block-input');
+  var parts = [];
+  inputs.forEach(function(i) { if (i.value.trim()) parts.push(i.value.trim()); });
+  var el = document.getElementById('assembled-text');
+  if (el) el.textContent = parts.length ? parts.join(', ') : 'Add blocks above to build your instruction';
+}
+
+// Meta — Context assembler
+function assembleCtx() {
+  var intent = document.getElementById('ctx-intent').value;
+  var tone = document.getElementById('ctx-tone').value;
+  var quality = document.getElementById('ctx-quality').value;
+  var constraints = document.getElementById('ctx-constraints').value;
+  var out = 'Generate content for all selected items';
+  if (tone) out += ' in a ' + tone + ' tone';
+  if (intent) out += ' to achieve the goal of ' + intent.toLowerCase();
+  if (constraints) out += ', ' + constraints.toLowerCase();
+  if (quality) out += ', apply a quality check at ' + quality;
+  out += '.';
+  document.getElementById('ctx-assembled-text').textContent = out;
+}
+
+// Submit
+function submit() {
+  var btn = document.getElementById('submit-btn');
+  btn.textContent = 'Checking...';
+  btn.disabled = true;
+  btn.style.background = 'var(--gray-300)';
+  setTimeout(function() {
+    document.getElementById('clarity').classList.add('show');
+    btn.textContent = '✓ Understood — loading Pre-flight';
+    btn.style.background = 'var(--green)';
+    setTimeout(function() {
+      btn.textContent = 'Submit → AI will check';
+      btn.style.background = 'var(--blue)';
+      btn.disabled = false;
+      document.getElementById('clarity').classList.remove('show');
+    }, 3000);
+  }, 1200);
+}
+</script>
+</body>
+</html>

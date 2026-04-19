@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian — Agentic AI Pattern Library</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#08101E;--surface:#0F1928;--surface2:#162032;--surface3:#1C2A3E;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --blue:#3B82F6;--blue-d:#1D4ED8;--blue-l:rgba(59,130,246,0.1);
+  --green:#10B981;--green-d:#065F46;--green-l:rgba(16,185,129,0.1);
+  --red:#EF4444;--red-d:#991B1B;--red-l:rgba(239,68,68,0.1);
+  --amber:#F59E0B;--amber-d:#92400E;--amber-l:rgba(245,158,11,0.1);
+  --teal:#0D9488;--teal-l:rgba(13,148,136,0.1);
+  --purple:#8B5CF6;--purple-l:rgba(139,92,246,0.1);
+  --orange:#F97316;--orange-l:rgba(249,115,22,0.1);
+  --text:#F1F5F9;--text2:#94A3B8;--text3:#475569;--text4:#334155;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+#app{display:flex;flex-direction:column;height:100vh}
+
+/* ── Top nav ── */
+.top-nav{display:flex;align-items:center;gap:12px;padding:0 28px;height:52px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;z-index:50}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--text);display:flex;align-items:center;gap:8px;letter-spacing:-0.02em}
+.nav-logo-mark{width:28px;height:28px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px}
+.nav-divider{width:1px;height:18px;background:var(--border2)}
+.nav-label{font-size:12px;color:var(--text3);font-weight:500}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.nav-version{padding:3px 9px;background:var(--surface2);border:1px solid var(--border2);border-radius:100px;font-size:10px;font-weight:600;color:var(--text3);font-family:'DM Mono',monospace}
+.back-btn{display:none;align-items:center;gap:6px;padding:5px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.15s}
+.back-btn:hover{background:var(--surface3);color:var(--text)}
+.back-btn.visible{display:flex}
+
+/* ── Main layout ── */
+.main{flex:1;overflow:hidden;display:flex;position:relative}
+
+/* ── Sidebar ── */
+.sidebar{width:240px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden}
+.sidebar-header{padding:16px 20px;border-bottom:1px solid var(--border)}
+.sidebar-title{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3)}
+.sidebar-count{font-size:11px;color:var(--text4);margin-top:3px}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;transition:all 0.15s;border:1px solid transparent;margin-bottom:2px}
+.sidebar-item:hover{background:rgba(255,255,255,0.03)}
+.sidebar-item.active{background:var(--blue-l);border-color:rgba(59,130,246,0.2)}
+.sidebar-item.active .sidebar-pid{color:var(--blue)}
+.sidebar-item.active .sidebar-name{color:var(--text)}
+.sidebar-pid{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text4);width:32px;flex-shrink:0}
+.sidebar-name{font-size:12px;font-weight:600;color:var(--text3);line-height:1.3}
+.sidebar-cat{font-size:10px;color:var(--text4);margin-top:1px}
+.sidebar-footer{padding:12px 16px;border-top:1px solid var(--border)}
+.sidebar-footer-text{font-size:11px;color:var(--text4);line-height:1.4}
+
+/* ── Content area ── */
+.content{flex:1;overflow-y:auto;position:relative}
+.view{display:none;min-height:100%}
+.view.active{display:block}
+
+/* ── INDEX PAGE ── */
+.index-hero{padding:52px 56px 40px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(59,130,246,0.04) 0%,transparent 100%)}
+.index-tag{display:inline-flex;align-items:center;gap:6px;background:var(--blue-l);border:1px solid rgba(59,130,246,0.2);color:#93C5FD;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 10px;border-radius:100px;margin-bottom:20px}
+.index-title{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;color:var(--text);letter-spacing:-0.03em;line-height:1.1;margin-bottom:16px}
+.index-title span{color:var(--blue)}
+.index-desc{font-size:15px;color:var(--text2);line-height:1.7;max-width:580px;margin-bottom:28px}
+.index-meta{display:flex;gap:24px;flex-wrap:wrap}
+.index-meta-item{display:flex;flex-direction:column;gap:3px}
+.index-meta-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text4)}
+.index-meta-value{font-size:13px;font-weight:600;color:var(--text2)}
+.index-meta-value.green{color:var(--green)}
+
+.index-grid{padding:40px 56px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.pattern-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.pattern-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.2s;border-radius:14px}
+.pattern-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.06)}
+.pattern-card:hover::before{opacity:1}
+.pc-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.pc-pid{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px}
+.pc-cat{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;color:var(--text4)}
+.pc-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--text);letter-spacing:-0.01em;margin-bottom:6px}
+.pc-question{font-size:13px;color:var(--text3);line-height:1.5;margin-bottom:16px}
+.pc-footer{display:flex;align-items:center;justify-content:space-between}
+.pc-container{font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:0.06em}
+.pc-arrow{font-size:16px;color:var(--text4);transition:transform 0.15s}
+.pattern-card:hover .pc-arrow{transform:translateX(4px);color:var(--text2)}
+
+/* Card color variants */
+.pc-0{border-color:rgba(139,92,246,0.2)} .pc-0:hover{border-color:rgba(139,92,246,0.4);box-shadow:0 8px 32px rgba(139,92,246,0.1)}
+.pc-0 .pc-pid{background:var(--purple-l);color:#C4B5FD}
+.pc-0 .pc-container{background:var(--purple-l);color:#C4B5FD}
+.pc-1{border-color:rgba(59,130,246,0.2)} .pc-1:hover{border-color:rgba(59,130,246,0.4);box-shadow:0 8px 32px rgba(59,130,246,0.1)}
+.pc-1 .pc-pid{background:var(--blue-l);color:#93C5FD}
+.pc-1 .pc-container{background:var(--blue-l);color:#93C5FD}
+.pc-2{border-color:rgba(59,130,246,0.2)} .pc-2:hover{border-color:rgba(59,130,246,0.4);box-shadow:0 8px 32px rgba(59,130,246,0.1)}
+.pc-2 .pc-pid{background:var(--blue-l);color:#93C5FD}
+.pc-2 .pc-container{background:var(--blue-l);color:#93C5FD}
+.pc-3{border-color:rgba(245,158,11,0.2)} .pc-3:hover{border-color:rgba(245,158,11,0.4);box-shadow:0 8px 32px rgba(245,158,11,0.1)}
+.pc-3 .pc-pid{background:var(--amber-l);color:#FDE68A}
+.pc-3 .pc-container{background:var(--amber-l);color:#FDE68A}
+.pc-4{border-color:rgba(239,68,68,0.2)} .pc-4:hover{border-color:rgba(239,68,68,0.4);box-shadow:0 8px 32px rgba(239,68,68,0.1)}
+.pc-4 .pc-pid{background:var(--red-l);color:#FCA5A5}
+.pc-4 .pc-container{background:var(--red-l);color:#FCA5A5}
+.pc-5{border-color:rgba(245,158,11,0.2)} .pc-5:hover{border-color:rgba(245,158,11,0.4);box-shadow:0 8px 32px rgba(245,158,11,0.1)}
+.pc-5 .pc-pid{background:var(--amber-l);color:#FDE68A}
+.pc-5 .pc-container{background:var(--amber-l);color:#FDE68A}
+.pc-6{border-color:rgba(16,185,129,0.2)} .pc-6:hover{border-color:rgba(16,185,129,0.4);box-shadow:0 8px 32px rgba(16,185,129,0.1)}
+.pc-6 .pc-pid{background:var(--green-l);color:#6EE7B7}
+.pc-6 .pc-container{background:var(--green-l);color:#6EE7B7}
+.pc-7{border-color:rgba(13,148,136,0.2)} .pc-7:hover{border-color:rgba(13,148,136,0.4);box-shadow:0 8px 32px rgba(13,148,136,0.1)}
+.pc-7 .pc-pid{background:var(--teal-l);color:#5EEAD4}
+.pc-7 .pc-container{background:var(--teal-l);color:#5EEAD4}
+
+/* ── PATTERN PAGE ── */
+.pattern-page{min-height:100%}
+.pattern-hero{padding:40px 56px 32px;border-bottom:1px solid var(--border)}
+.pattern-hero-top{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px}
+.pattern-hero-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.pattern-hero-pid{font-family:'DM Mono',monospace;font-size:11px;font-weight:700;padding:3px 9px;border-radius:5px;display:inline-block;margin-bottom:8px}
+.pattern-hero-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--text);letter-spacing:-0.02em;margin-bottom:8px}
+.pattern-hero-question{font-size:17px;color:var(--text2);line-height:1.6;font-weight:400;max-width:620px;margin-bottom:20px}
+.pattern-meta-row{display:flex;gap:20px;flex-wrap:wrap}
+.pattern-meta-item{display:flex;flex-direction:column;gap:3px}
+.pattern-meta-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text4)}
+.pattern-meta-value{font-size:13px;font-weight:600;color:var(--text2)}
+.pattern-meta-value.green{color:var(--green)}
+
+/* Section */
+.psec{padding:36px 56px;border-bottom:1px solid var(--border)}
+.psec:last-child{border-bottom:none}
+.psec-label{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px}
+.psec-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.01em;margin-bottom:8px}
+.psec-desc{font-size:13px;color:var(--text3);line-height:1.6;max-width:680px;margin-bottom:28px}
+
+/* Example split */
+.example-split{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.example-panel{border-radius:12px;overflow:hidden;border:1px solid var(--border)}
+.example-panel-header{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.example-panel-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.example-panel-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+.example-panel-body{padding:16px;background:var(--surface)}
+
+/* Anatomy item */
+.anatomy-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border)}
+.anatomy-item:last-child{border-bottom:none}
+.anatomy-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+.anatomy-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px}
+.anatomy-desc{font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:3px}
+.anatomy-purpose{font-size:11px;font-weight:600}
+
+/* Rules */
+.rules-2col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.rule-card{border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.rule-card-header{padding:10px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em}
+.rule-card-body{padding:14px 16px;background:var(--surface)}
+.rule-item{display:flex;gap:8px;font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:10px}
+.rule-item:last-child{margin-bottom:0}
+
+/* Variant card */
+.variant-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.variant-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px}
+.variant-tag{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:2px 7px;border-radius:4px;margin-bottom:8px}
+.variant-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px}
+.variant-desc{font-size:12px;color:var(--text3);line-height:1.4;margin-bottom:10px}
+.variant-use{font-size:11px;color:var(--text4);line-height:1.4}
+
+/* State grid */
+.state-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.state-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px}
+.state-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.state-desc{font-size:12px;color:var(--text3);line-height:1.4}
+
+/* Relationship flow */
+.rel-flow{display:flex;align-items:center;gap:6px;overflow-x:auto;padding:4px 0}
+.rel-node{flex-shrink:0;text-align:center}
+.rel-box{border-radius:8px;padding:10px 14px;font-size:11px;font-weight:600;text-align:center;min-width:100px;border:1.5px solid transparent}
+.rel-box.current{border-color:var(--blue);background:var(--blue-l);color:#93C5FD;font-weight:700}
+.rel-box.other{background:var(--surface2);color:var(--text3);border-color:var(--border2)}
+.rel-box-label{font-size:9px;color:var(--text4);margin-top:4px;text-align:center}
+.rel-arrow{color:var(--text4);font-size:18px;flex-shrink:0}
+
+/* Metrics row */
+.metrics-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.metric-card{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:18px}
+.metric-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.metric-value{font-size:28px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text);margin-bottom:4px}
+.metric-desc{font-size:12px;color:var(--text3);line-height:1.4;margin-bottom:8px}
+.metric-flag{font-size:11px;font-weight:600;color:var(--red)}
+.metric-flag-desc{font-size:11px;color:var(--text4);margin-top:2px}
+
+/* Trust layer */
+.trust-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.trust-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px}
+.trust-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.trust-desc{font-size:12px;color:var(--text3);line-height:1.4}
+
+/* Content guide */
+.content-guide-item{padding:12px 0;border-bottom:1px solid var(--border)}
+.content-guide-item:last-child{border-bottom:none}
+.cg-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text4);margin-bottom:6px}
+.cg-do{font-size:12px;color:var(--green);line-height:1.5;margin-bottom:4px;display:flex;gap:6px}
+.cg-dont{font-size:12px;color:var(--red);line-height:1.5;display:flex;gap:6px}
+
+/* Pill */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:100px;font-size:11px;font-weight:600}
+.pill-blue{background:var(--blue-l);color:#93C5FD}
+.pill-green{background:var(--green-l);color:#6EE7B7}
+.pill-amber{background:var(--amber-l);color:#FDE68A}
+.pill-red{background:var(--red-l);color:#FCA5A5}
+.pill-gray{background:rgba(255,255,255,0.05);color:var(--text3)}
+.pulse{display:inline-block;width:5px;height:5px;border-radius:50%;background:currentColor;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* Demo embed */
+.demo-embed{background:var(--surface2);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.demo-embed-header{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
+.demo-embed-dot{width:6px;height:6px;border-radius:50%}
+.demo-body{padding:16px}
+
+/* Misc */
+.btn{padding:7px 16px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.15s;display:inline-flex;align-items:center;gap:5px}
+.btn-primary{background:var(--blue);color:white}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2)}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:100px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em}
+.code{font-family:'DM Mono',monospace;font-size:11px;background:var(--surface3);padding:1px 5px;border-radius:3px;color:#C4B5FD}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08);border-radius:2px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- Top nav -->
+<nav class="top-nav">
+  <div class="nav-logo"><div class="nav-logo-mark">⬡</div>Meridian</div>
+  <div class="nav-divider"></div>
+  <span class="nav-label">Agentic AI Pattern Library</span>
+  <div class="nav-right">
+    <button class="back-btn" id="back-btn" onclick="showIndex()">← Back to Library</button>
+    <span class="nav-version">v1.0</span>
+  </div>
+</nav>
+
+<div class="main">
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-title">Patterns</div>
+    <div class="sidebar-count">8 patterns · 1 scenario</div>
+  </div>
+  <nav class="sidebar-nav" id="sidebar-nav">
+    <!-- populated by JS -->
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-footer-text">Built from one enterprise scenario. Applicable to any agentic product.</div>
+  </div>
+</aside>
+
+<!-- Content -->
+<div class="content" id="content">
+
+  <!-- INDEX VIEW -->
+  <div class="view active" id="view-index">
+    <div class="index-hero">
+      <div class="index-tag">⬡ Agentic AI · Pattern Library</div>
+      <div class="index-title">Design for agents<br>that <span>act autonomously</span></div>
+      <div class="index-desc">8 patterns for the unique UX challenges that emerge when AI agents run without the user watching — across multiple items, multiple steps, and irreversible actions.</div>
+      <div class="index-meta">
+        <div class="index-meta-item"><div class="index-meta-label">Patterns</div><div class="index-meta-value">8</div></div>
+        <div class="index-meta-item"><div class="index-meta-label">Source scenario</div><div class="index-meta-value">Retail · 4 agents · 10–100 products</div></div>
+        <div class="index-meta-item"><div class="index-meta-label">Status</div><div class="index-meta-value green">● Approved v1.0</div></div>
+        <div class="index-meta-item"><div class="index-meta-label">Design test</div><div class="index-meta-value">Does this problem only exist because AI acts autonomously?</div></div>
+      </div>
+    </div>
+    <div class="index-grid" id="index-grid"><!-- populated by JS --></div>
+  </div>
+
+  <!-- PATTERN VIEWS (populated by JS) -->
+  <div id="pattern-views"></div>
+
+</div><!-- content -->
+</div><!-- main -->
+</div><!-- app -->
+
+<script>
+// ══════════════════════════════════════════
+// DATA — All 8 Patterns
+// ══════════════════════════════════════════
+const patterns = [
+{
+  id:'P-000', num:0, icon:'✍️',
+  name:'Instruction Input',
+  question:'How do you help the user write an instruction that agents can act on safely at scale?',
+  category:'Setup Patterns', container:'Full Page',
+  color:'purple', accent:'#8B5CF6', accentL:'rgba(139,92,246,0.1)',
+  status:'Approved', version:'1.0',
+  oneliner:'Capture user intent and scope before agents start — then verify AI understood correctly.',
+  whyAgentic:'In standard UX a vague query returns imperfect results. User refines. Cost: 10 seconds. In agentic systems a vague instruction triggers 4 agents across 100 products autonomously. Cost: hours of recovery. The instruction input must catch ambiguity before anything starts.',
+  anatomy:[
+    {n:'1',name:'Header',desc:'AI identity and clear framing. User knows they are setting up an agent run — not typing a search query.',purpose:'→ Sets the contract before interaction begins'},
+    {n:'2',name:'Scope Selector',desc:'Filter products by Collection, Category, or Tag. Selected count shown immediately. User always knows exactly how many products agents will touch.',purpose:'→ Answers: "What will agents act on?"'},
+    {n:'3',name:'Instruction Field',desc:'Free text. Hint chips for common additions — constraint, tone, deadline. Parameters live in Pre-flight Plan, not here. Keep this simple.',purpose:'→ Answers: "What should agents do?"'},
+    {n:'4',name:'Task Estimate',desc:'Total task count shown before submit. Scope × agents. User understands scale before committing.',purpose:'→ Answers: "How much will this do?"'},
+    {n:'5',name:'Clarity Check',desc:'After submit, AI confirms understanding before Pre-flight Plan loads. Three outcomes: Clear, Flagged, Unclear. Never skipped.',purpose:'→ The agentic moment. Last safe point before agents act.'},
+  ],
+  variants:[
+    {tag:'A',name:'Clear',desc:'AI understood fully. Confirmation shown for 2 seconds then Pre-flight Plan loads automatically.',use:'Default. Most instructions from experienced users.'},
+    {tag:'B',name:'Flagged',desc:'AI understood most but one thing is ambiguous. One specific question with quick-select options.',use:'When instruction has one unclear element. One question only — never multiple.'},
+    {tag:'C',name:'Unclear',desc:'AI cannot form an agent plan. Shows exactly what is missing. Gives concrete example.',use:'When instruction is too vague to act on. Never show generic error.'},
+  ],
+  states:[
+    {label:'Default',color:'var(--purple)',desc:'Scope selector and instruction field visible. Submit button active.'},
+    {label:'Checking',color:'var(--blue)',desc:'User hit submit. AI checking instruction. Skeleton loading state.'},
+    {label:'Clear',color:'var(--green)',desc:'Instruction understood. Green confirmation. Auto-transitions to Pre-flight.'},
+    {label:'Flagged',color:'var(--amber)',desc:'One thing unclear. Question and quick-select options shown inline.'},
+    {label:'Unclear',color:'var(--red)',desc:'Cannot form plan. Missing elements listed. Concrete example provided.'},
+    {label:'Empty',color:'var(--text4)',desc:'No scope selected. Submit disabled. Clear prompt to select products first.'},
+  ],
+  contentGuide:[
+    {label:'Submit button',do:'"Submit → AI will check"',dont:'"Submit" or "Start" — always tell user what happens next'},
+    {label:'Clarity confirmation',do:'"Instruction understood — loading Pre-flight Plan"',dont:'"Got it!" or "OK!" — too casual for an autonomous system'},
+    {label:'Flagged question',do:'"Should agents write descriptions in English only, or include French and German?"',dont:'"Your instruction is ambiguous" — always say specifically what is unclear'},
+    {label:'Unclear state',do:'"I need to know what type of content agents should create"',dont:'"I didn\'t understand your instruction" — never blame the user'},
+  ],
+  rules:{
+    do:['Always show product count when scope is selected','Always run clarity check after submit — before Pre-flight loads','Always show what AI understood — not just whether it understood','Always give a concrete example when instruction is unclear','Always ask one clarifying question at a time — never multiple','Always show total task estimate before submit'],
+    dont:['Never skip clarity check — even for returning users','Never ask for parameters here — they belong in Pre-flight Plan','Never allow submit with zero products selected','Never show a generic error — always say specifically what is missing','Never auto-proceed past a flagged instruction','Never collect agent configuration here — scope and intent only'],
+  },
+  trust:[
+    {name:'Transparency',desc:'AI always shows what it understood from the instruction — not just a binary pass/fail. User can see exactly what agents will do before approving.'},
+    {name:'Human override',desc:'User can always edit their instruction after the clarity check. Nothing is locked in at this stage.'},
+    {name:'Scale awareness',desc:'Task estimate is always shown before submit. User must consciously understand how many products and tasks they are triggering.'},
+    {name:'No silent failures',desc:'If AI cannot understand the instruction, it always explains what is missing. Never proceeds with a best guess.'},
+  ],
+  relationships:{prev:null,next:'P-001',paired:'P-001',never:'Auto-starting agents without clarity check'},
+  metrics:[
+    {label:'Clarity pass rate',value:'>85%',desc:'How often instructions pass clarity check on first submit.',flag:'Red flag if under 60%',flagDesc:'Instruction field needs better guidance'},
+    {label:'Flagged → resolved',value:'>90%',desc:'How often users resolve a flagged instruction and continue.',flag:'Red flag if under 70%',flagDesc:'Clarifying questions are too hard'},
+    {label:'Scope change rate',value:'<30%',desc:'How often users change scope after seeing Pre-flight Plan.',flag:'Red flag if over 30%',flagDesc:'Product counts not clear enough at selection'},
+  ],
+  generalExample:{title:'Any agentic product',items:['✅ User selects "Marketing" department → 12 employees. Types: "Update job titles and send welcome emails to new starters." AI confirms: "Update titles for 3 employees and send emails to 2." User approves.','❌ User types "fix everything" with no scope. System proceeds without checking. Agents run on all 847 products with no clear instruction.']},
+  retailExample:{title:'Retail — Summer Collection',items:['User selects "Footwear" and "Running" categories → 10 products. Types: "Generate videos, descriptions, QA and publish." AI confirms all 4 agent tasks. Pre-flight loads.','If user typed "update content" — AI flags: "Update how? Improve descriptions, regenerate videos, or both?" User selects "Both" and continues.']},
+},
+{
+  id:'P-001', num:1, icon:'✦',
+  name:'Pre-flight Plan',
+  question:'How do you tell the user what agents will do before they start?',
+  category:'Setup Patterns', container:'Modal',
+  color:'blue', accent:'#3B82F6', accentL:'rgba(59,130,246,0.1)',
+  status:'Approved', version:'1.0',
+  oneliner:'Before any multi-agent task runs, show the user exactly what will happen, in what order, on how many items — and get explicit approval.',
+  whyAgentic:'Users don\'t fear AI doing things. They fear AI doing things they didn\'t expect. Pre-flight Plan is the contract between user and agents. Without it, any unexpected behaviour breaks trust permanently.',
+  anatomy:[
+    {n:'1',name:'Goal Confirmation',desc:'The user\'s instruction shown back to them verbatim. Confirms AI understood correctly.',purpose:'→ Answers: "Did it understand me?"'},
+    {n:'2',name:'Agent Sequence',desc:'Every agent in order with plain-language description. Irreversible steps marked with ⚠ warning badge.',purpose:'→ Answers: "What will it do without me?"'},
+    {n:'3',name:'Scope Bar',desc:'How many items, how many total tasks, estimated time. Always honest — use ranges not precise times.',purpose:'→ Answers: "How much will it do?"'},
+    {n:'4',name:'Parameters',desc:'The inputs agents will use. Each one editable inline. User confirms or adjusts before starting.',purpose:'→ Answers: "What rules will it follow?"'},
+    {n:'5',name:'Pause Preference',desc:'If an agent gets stuck — keep others running or pause everything? User decides upfront. This is the agentic contract.',purpose:'→ Answers: "What happens if something goes wrong?"'},
+    {n:'6',name:'Actions',desc:'Three options always in this fixed order: Edit parameters (left) — Cancel (centre) — Start (right).',purpose:'→ Answers: "Can I stop it if I need to?"'},
+  ],
+  variants:[
+    {tag:'A',name:'Full',desc:'All elements visible. Full agent descriptions. Use for first-time users or high-stakes tasks.',use:'First-time users, irreversible actions, unfamiliar task types.'},
+    {tag:'B',name:'Compact',desc:'Agent names shown as pills. Parameters collapsed by default. Faster for returning users.',use:'Returning users running familiar task types.'},
+    {tag:'C',name:'Warning',desc:'Red header. Warning banner. Confirmation checkbox required. Start disabled until checked.',use:'Any time task involves publishing, sending, deleting, or writing to live systems.'},
+  ],
+  states:[
+    {label:'Default',color:'var(--blue)',desc:'All elements visible. Start button active. Parameters showing current values.'},
+    {label:'Editing',color:'var(--purple)',desc:'Parameter expanded inline. Start disabled until edit confirmed or cancelled.'},
+    {label:'Loading',color:'var(--text3)',desc:'Fetching parameters or checking agents. Skeleton loaders. Start disabled.'},
+    {label:'Error',color:'var(--red)',desc:'Agent or resource unavailable. Specific error shown. Start disabled.'},
+    {label:'Confirmed',color:'var(--green)',desc:'User clicked Start. Brief confirmation shown before transitioning to Status Grid.'},
+    {label:'Warning',color:'var(--amber)',desc:'Irreversible action in plan. Checkbox required. Start disabled until checked.'},
+  ],
+  contentGuide:[
+    {label:'Goal confirmation label',do:'"Your instruction"',dont:'"Input received" or "Query" — always humanise'},
+    {label:'Agent descriptions',do:'"Generates one 30-second product video per item using your brand guidelines"',dont:'"pipeline_executor_v2 running task type VIDEO_GEN" — never technical names'},
+    {label:'Time estimate',do:'"4–6 minutes"',dont:'"5 minutes exactly" — never promise precision you cannot guarantee'},
+    {label:'Start button',do:'"Start agents →"',dont:'"Submit" or "OK" — always signal autonomous action is beginning'},
+  ],
+  rules:{
+    do:['Always show Pre-flight Plan before any multi-agent task — no exceptions','Mark every irreversible step with ⚠ before user approves','Show Cancel in the middle — always accessible','Use time ranges not precise times','Write agent descriptions in plain language','Use Warning variant when any irreversible action is in the plan'],
+    dont:['Skip this screen for "experienced" users — familiarity does not remove risk','Auto-start agents without showing this plan','Hide the publishing step in small text','Use technical agent names','Show a precise time you cannot guarantee','Disable Cancel at any point'],
+  },
+  trust:[
+    {name:'Full transparency',desc:'Every agent, every step, every parameter shown before anything starts. No hidden actions.'},
+    {name:'Explicit consent',desc:'User must click Start. There is no auto-start. The contract is the click.'},
+    {name:'Irreversibility warning',desc:'Any step that cannot be undone is marked ⚠ before the user approves. Never discovered after the fact.'},
+    {name:'Editable parameters',desc:'User can change any input before starting. They are not locked into defaults.'},
+  ],
+  relationships:{prev:'P-000',next:'P-002',paired:'P-007',never:'Auto-start behaviour'},
+  metrics:[
+    {label:'Approval rate',value:'>80%',desc:'Users who click Start after seeing the plan.',flag:'Red flag if below 60%',flagDesc:'Agents are being given wrong instructions'},
+    {label:'Edit rate',value:'<20%',desc:'Users who change parameters before starting.',flag:'Red flag if above 40%',flagDesc:'Default parameters are consistently wrong'},
+    {label:'Time on screen',value:'8–20s',desc:'Time user spends reading before approving.',flag:'Red flag if under 5s',flagDesc:'User not reading — trust will break later'},
+  ],
+  generalExample:{title:'Any agentic product',items:['✅ Before sending emails to 500 customers: Show email agent plan, scope (500 recipients), parameters (template, send time), and a ⚠ on the send step. User approves explicitly.','❌ System starts processing 500 customer records without showing what it will do. User discovers unexpected emails were sent.']},
+  retailExample:{title:'Retail — Product content run',items:['User approves plan showing 4 agents, 10 products, 40 tasks, 4–6 minutes. Publishing step marked ⚠ with note: "Will pause for your review before publishing anything live."','Pause preference set: "Keep other agents running if one gets stuck." This becomes the rule for P-003 and P-004.']},
+},
+{
+  id:'P-002', num:2, icon:'📊',
+  name:'Item Status Grid',
+  question:'How do you show progress across all products and all agents while running?',
+  category:'Progress Patterns', container:'Full Page',
+  color:'blue', accent:'#3B82F6', accentL:'rgba(59,130,246,0.1)',
+  status:'Approved', version:'1.0',
+  oneliner:'Real-time visibility across every item and every agent stage — with stuck items impossible to miss.',
+  whyAgentic:'In standard UX there is no concept of monitoring — the user triggered an action and it either worked or didn\'t. In agentic systems 4 agents are running simultaneously across 100 products. The user cannot watch everything. This pattern is their window into autonomous activity.',
+  anatomy:[
+    {n:'1',name:'Project List (Screen 1)',desc:'Overview of all projects. Progress bars + counts per agent. Issues sort to top. Stuck projects show red left border.',purpose:'→ Answers: "Which project needs me?"'},
+    {n:'2',name:'Stuck Alert',desc:'Always shown at top of detail page when any item is stuck. Never hidden. Fix button always visible.',purpose:'→ Answers: "What needs me right now?"'},
+    {n:'3',name:'Agent State Language',desc:'Five states shared across all patterns: Running, Done, Stuck, Waiting, Pending. Colors never change.',purpose:'→ The universal visual language of the library'},
+    {n:'4',name:'Detail View Variants',desc:'Four variants for different scales: Table (10–100 items), Cards (6–20 items), Grouped by Status (triage), Grouped by Agent (bottleneck detection).',purpose:'→ Answers: "Where exactly is everything?"'},
+    {n:'5',name:'Inline Actions',desc:'Fix button on stuck rows. Review button on waiting rows. No action needed on running or done rows.',purpose:'→ Answers: "What can I do about it?"'},
+  ],
+  variants:[
+    {tag:'A',name:'Table View',desc:'One row per item, one column per agent. Sortable. Most information density. Stuck rows always sort to top.',use:'10–100 products. Power users. Most common default.'},
+    {tag:'B',name:'Card View',desc:'One card per product showing all agent stages. Stuck cards first. Action button appears only when needed.',use:'6–20 products. More visual. Better for seeing stage at a glance.'},
+    {tag:'C',name:'Grouped by Status',desc:'Stuck → Waiting → Running → Done. Fixed order. Fastest for triage. All stuck items together.',use:'User returning after being away. Urgency-first view.'},
+    {tag:'D',name:'Grouped by Agent',desc:'One column per agent showing all product statuses. Agent with most issues gets red header.',use:'Diagnosing bottlenecks. Which agent is causing the most problems?'},
+  ],
+  states:[
+    {label:'Running',color:'var(--blue)',desc:'Agents active. Progress bars animating. No action needed from user.'},
+    {label:'Stuck',color:'var(--red)',desc:'One or more items stuck. Red alert at top. Fix button visible. Never hidden.'},
+    {label:'Waiting',color:'var(--amber)',desc:'Agents paused at pre-declared boundary. Awaiting user approval.'},
+    {label:'Completed',color:'var(--green)',desc:'All agents finished. Summary stats shown. Publishing awaiting approval.'},
+    {label:'Mixed',color:'var(--text2)',desc:'Some done, some running, some stuck. Priority order: Stuck > Waiting > Running > Done.'},
+    {label:'Empty',color:'var(--text4)',desc:'No runs active. Call to action to start a new run.'},
+  ],
+  contentGuide:[
+    {label:'Stuck indicator',do:'"⚠ 2 stuck" — always count + label',dont:'"Issues found" — too vague'},
+    {label:'Progress count',do:'"8/10" — always show denominator',dont:'"80%" only — percentage without context is confusing'},
+    {label:'Waiting state',do:'"⏸ Awaiting publish approval"',dont:'"Paused" — user needs to know WHY it is waiting'},
+    {label:'Fix button',do:'"Fix →" — direct action label',dont:'"More info" or "Details" — must be an action not a link'},
+  ],
+  rules:{
+    do:['Always show stuck items first — never buried','Always show the stuck alert banner at top when any item is stuck','Always show a Fix button directly on the stuck item','Always use the 5 shared agent states — never invent new ones','Always show which agent caused the stuck state','Always sort project list by urgency — stuck projects first'],
+    dont:['Never hide stuck items — always visible without filtering','Never use a different color for Stuck — always red','Never show only a count — always show which product is stuck','Never show Fix button without explaining what needs fixing','Never sort alphabetically by default','Never collapse the stuck section'],
+  },
+  trust:[
+    {name:'Continuous visibility',desc:'User can see exactly what agents are doing at any moment without needing to ask. Reduces anxiety about autonomous activity.'},
+    {name:'Urgency clarity',desc:'What needs the user is always shown first. They never have to search for problems.'},
+    {name:'Agent state language',desc:'Five states are fixed and consistent across every product in the organisation. Designers cannot change them.'},
+    {name:'No silent failures',desc:'Every stuck or failed item surfaces immediately. Nothing is hidden in logs.'},
+  ],
+  relationships:{prev:'P-001',next:'P-003',paired:'P-003, P-004, P-005',never:'Auto-resolving stuck items without user'},
+  metrics:[
+    {label:'Time to notice stuck',value:'<10s',desc:'How long to identify a stuck item after opening the page.',flag:'Red flag if over 30s',flagDesc:'Stuck items not prominent enough'},
+    {label:'Time to resolve stuck',value:'<2min',desc:'From opening page to completing the fix action.',flag:'Red flag if over 5 min',flagDesc:'Fix flow too complex or unclear'},
+    {label:'Variant D dominance',value:'Watch',desc:'If users consistently prefer Grouped by Agent view.',flag:'Red flag if D dominant',flagDesc:'Users troubleshooting — systemic agent quality problem'},
+  ],
+  generalExample:{title:'Any agentic product',items:['✅ HR system running onboarding agents for 50 new starters. Table view shows each starter × each agent stage. Two starters show ⚠ Stuck with "Fix →" button. All others show ✓ Done or Running.','❌ Progress shown only as a single overall percentage bar. User cannot tell which item is stuck or which agent caused it.']},
+  retailExample:{title:'Retail — Product content run',items:['Summer Collection 2026. Video: 8/10 ✓. Description: 10/10 ✓. QA: ⚠ 6/10 · 2 stuck. Publish: 0/10 ⏸.','Jordan 1 Retro row shows ⚠ Stuck at Description Agent. Air Max Lite shows ⚠ Stuck at QA Agent. Both sort to top automatically.']},
+},
+{
+  id:'P-003', num:3, icon:'⏸',
+  name:'Graceful Handoff',
+  question:'How do you pass control back to the human when an agent reaches its limit?',
+  category:'Collaboration Patterns', container:'Drawer',
+  color:'amber', accent:'#F59E0B', accentL:'rgba(245,158,11,0.1)',
+  status:'Approved', version:'1.0',
+  oneliner:'Agent pauses deliberately at its decision limit — hands over full context — user decides — agent resumes exactly where it left off.',
+  whyAgentic:'Standard UX has no concept of a machine that knows it needs help and asks for it. Graceful Handoff is what happens when an autonomous agent reaches a decision it cannot make alone — and passes control back without losing the thread.',
+  anatomy:[
+    {n:'1',name:'Header',desc:'Which agent stopped, on which item, at which stage. Always specific — never just "Agent needs input".',purpose:'→ Answers: "Where am I in the process?"'},
+    {n:'2',name:'Context',desc:'Three lines maximum. Item, threshold, finding. Enough to understand the situation. No noise.',purpose:'→ Answers: "What happened?"'},
+    {n:'3',name:'Evidence',desc:'Only scores or data directly relevant to the decision. Never full audit logs. Link to full detail if needed.',purpose:'→ Answers: "How significant is this?"'},
+    {n:'4',name:'The Question',desc:'One clear, specific question in plain language. Never vague. Never multiple questions at once.',purpose:'→ Answers: "What exactly do you need from me?"'},
+    {n:'5',name:'Agent Recommendation',desc:'Agent\'s best guess at the right answer. Clearly labelled as recommendation — never as a decision.',purpose:'→ Answers: "What would you do?"'},
+    {n:'6',name:'Pause Status',desc:'What other agents are doing while user decides. Matches preference set in Pre-flight Plan.',purpose:'→ Answers: "Is everything waiting for me?"'},
+  ],
+  variants:[
+    {tag:'A',name:'Borderline',desc:'Agent uncertain but not blocked. All three actions available. Recommendation shown. Amber treatment.',use:'Score just below threshold. Agent could go either way. Low stakes.'},
+    {tag:'B',name:'Hard Block',desc:'Agent cannot continue at all. No recommendation — only fix options. Red treatment.',use:'Missing file, broken dependency, missing permission. Must be fixed before chain continues.'},
+    {tag:'C',name:'Scope Exceeded',desc:'Agent found something outside original brief. Permission needed. Purple treatment.',use:'Agent discovered work outside the original scope. Not an error — a scope question.'},
+  ],
+  states:[
+    {label:'Open',color:'var(--amber)',desc:'Drawer visible. User reviewing context and evidence. All actions available.'},
+    {label:'Decided',color:'var(--green)',desc:'User made a decision. Brief confirmation shown. Drawer closing.'},
+    {label:'Resuming',color:'var(--blue)',desc:'Agent picking up from decision point. Chain continuing.'},
+    {label:'Hard Block',color:'var(--red)',desc:'Agent blocked completely. Fix required before any action is available.'},
+    {label:'Scope',color:'var(--purple)',desc:'Scope question. Different actions than normal handoff.'},
+    {label:'Multiple',color:'var(--text2)',desc:'Multiple items need handoff. Shown as queue in Item Status Grid.'},
+  ],
+  contentGuide:[
+    {label:'Header',do:'"QA Agent · Air Max Lite · Stage 3 of 4"',dont:'"Agent needs input" — always specific'},
+    {label:'The question',do:'"Should I approve at 84%, or regenerate the video to meet the 85% threshold?"',dont:'"What would you like to do?" — too vague'},
+    {label:'Recommendation',do:'"Agent recommendation: Approving is low risk. The difference is minimal."',dont:'"I recommend approving" — label it as recommendation not decision'},
+    {label:'Pause status',do:'"Other agents continuing on remaining 9 products"',dont:'No mention of other agents — user always needs to know this'},
+  ],
+  rules:{
+    do:['Always name the specific agent, item, and stage in the header','Always ask one specific question — never multiple','Always show the pause status — user must know what other agents are doing','Always show resume confirmation — never silently continue','Always preserve chain state — user never loses work when they decide','Always label the recommendation as a recommendation'],
+    dont:['Never auto-resolve — agent must always wait for the human','Never show a generic "Agent failed" message','Never dump full logs in the handoff card','Never use Borderline style for a Hard Block','Never restart the agent from the beginning after user decides','Never skip the resume confirmation'],
+  },
+  trust:[
+    {name:'Agent knows its limits',desc:'Agent stops when it reaches its decision boundary — not when it fails. This communicates that the system is calibrated and self-aware.'},
+    {name:'Context not commands',desc:'Handoff gives user enough to decide, not a list of options to click blindly. User is making an informed choice.'},
+    {name:'Recommendation transparency',desc:'Agent shares its recommendation but labels it clearly. User knows they are overriding an AI suggestion when they choose differently.'},
+    {name:'Seamless resumption',desc:'Agent picks up exactly where it left off. User\'s decision is honoured immediately. Chain state is never lost.'},
+  ],
+  relationships:{prev:'P-002',next:'P-002',paired:'P-001 (pause preference)',never:'Auto-resolution'},
+  metrics:[
+    {label:'Time to decide',value:'<45s',desc:'From handoff appearing to user making a decision.',flag:'Red flag if over 3 min',flagDesc:'User does not understand what is being asked'},
+    {label:'Override rate',value:'<30%',desc:'How often users ignore agent recommendation.',flag:'Red flag if over 60%',flagDesc:'Agent recommendations not calibrated to user values'},
+    {label:'Handoff frequency',value:'Watch',desc:'How often agents trigger a handoff per 100 items processed.',flag:'Red flag if rising over time',flagDesc:'Agent thresholds need calibration'},
+  ],
+  generalExample:{title:'Any agentic product',items:['✅ Legal review agent is 90% confident a contract clause is acceptable but flagged it as borderline. Drawer: "Clause 7.3 falls within acceptable range (90% confidence) but references a jurisdiction I\'m not fully trained on. Approve as-is or escalate to legal team?"','❌ Agent silently approves borderline cases without telling user. Issues discovered after contracts are signed.']},
+  retailExample:{title:'Retail — QA Agent on Air Max Lite',items:['QA Agent scored Air Max Lite at 84%. Threshold is 85%. Drawer slides in over Status Grid. Shows score breakdown. Asks: "Approve at 84% or regenerate?" Recommends approving. User approves. Drawer closes. Agent resumes on product 8.','Other 9 agents continue running on remaining products while user decides — as set in Pre-flight Plan.']},
+},
+{
+  id:'P-004', num:4, icon:'💥',
+  name:'Error Recovery',
+  question:'How do you recover when an agent fails unexpectedly mid-chain?',
+  category:'Recovery Patterns', container:'Inline / Drawer',
+  color:'red', accent:'#EF4444', accentL:'rgba(239,68,68,0.1)',
+  status:'Approved', version:'1.0',
+  oneliner:'Agent breaks unexpectedly. Preserve all completed work. Explain what failed and why. Fix the cause. Resume from the exact failure point.',
+  whyAgentic:'Standard UX has retry buttons. Agentic systems have chains of agents that have already done work. The design challenge is not just fixing the error — it is preserving what was already done, explaining what broke, and resuming from exactly the right point without losing the completed work.',
+  anatomy:[
+    {n:'1',name:'What\'s Safe',desc:'Always shown first. Users fear losing everything. Immediately reassure them about preserved work before explaining what failed.',purpose:'→ Answers: "Did I lose everything?"'},
+    {n:'2',name:'What Failed',desc:'Plain language. Never raw error codes. Translate technical cause into what user can understand and act on.',purpose:'→ Answers: "What went wrong?"'},
+    {n:'3',name:'What\'s Blocked',desc:'Which downstream agents cannot run until this is fixed. Shows the full impact clearly.',purpose:'→ Answers: "What else is affected?"'},
+    {n:'4',name:'Root Cause',desc:'The specific reason for failure in one sentence. Not a log — a human-readable explanation.',purpose:'→ Answers: "Why did it fail?"'},
+    {n:'5',name:'Fix Steps',desc:'Numbered steps. Specific actions. Not "try again" — exactly what to do. Always actionable.',purpose:'→ Answers: "How do I fix it?"'},
+    {n:'6',name:'Resume',desc:'Resume always means from failure point — never from scratch. Explicitly stated.',purpose:'→ Answers: "Do I lose all the progress?"'},
+  ],
+  variants:[
+    {tag:'A',name:'Resource Missing',desc:'File, data, or connection not found. Red treatment. Specific resource named in error.',use:'Source file moved, API key expired, database connection broken.'},
+    {tag:'B',name:'Quality Failure',desc:'Output generated but below threshold. Red treatment. Scores shown. User can lower threshold or regenerate.',use:'QA score below minimum. Output exists but is not good enough.'},
+    {tag:'C',name:'System Failure',desc:'Agent crashed — not user error. Purple treatment. Reassuring tone. "Not your fault."',use:'Infrastructure issue, timeout, external service failure. Never blame the user.'},
+  ],
+  states:[
+    {label:'Single failure',color:'var(--red)',desc:'One item failed. Inline expansion on the row in Status Grid.'},
+    {label:'Multiple failures',color:'var(--red)',desc:'More than one item failed. Drawer instead of inline. Shows all failed items.'},
+    {label:'Critical failure',color:'var(--red)',desc:'Agent failed on all items or blocked irreversible step. Urgent notification. All agents pause.'},
+    {label:'Fixing',color:'var(--blue)',desc:'User is following fix steps. Progress indicator.'},
+    {label:'Resuming',color:'var(--green)',desc:'Fix complete. Agent resuming from failure point.'},
+    {label:'Skipped',color:'var(--text3)',desc:'User skipped the failed item. Logged in completion summary.'},
+  ],
+  contentGuide:[
+    {label:'What\'s safe section',do:'"✓ Video output preserved from Video Agent"',dont:'Skip this section — always show it first'},
+    {label:'Error description',do:'"Product data file not found — file was moved or renamed after the run started"',dont:'"Error code: FILE_NOT_FOUND_404" — never raw codes'},
+    {label:'Resume button',do:'"Resume from here →"',dont:'"Try again" or "Retry" — implies starting over'},
+    {label:'System failure',do:'"This is a system issue, not a problem with your product data"',dont:'"An error occurred" — always distinguish system vs user error'},
+  ],
+  rules:{
+    do:['Always show what\'s safe before showing what failed','Always translate errors into plain language','Always show what\'s blocked downstream','Always resume from the failure point — never from scratch','Always distinguish system errors (purple) from user errors (red)','Always give numbered fix steps'],
+    dont:['Never show raw error codes or stack traces','Never roll back completed work from prior agents','Never use urgent notification for a single product failure','Never imply user error when it was a system failure','Never offer only "Start over"','Never silently retry without telling the user'],
+  },
+  trust:[
+    {name:'Work preservation',desc:'Completed agent outputs are never discarded. This is the most important trust signal in the entire pattern. State it explicitly.'},
+    {name:'Honest failure',desc:'System acknowledges what broke without hiding it. User deserves to know what happened.'},
+    {name:'User vs system error',desc:'Purple for system failures, red for user-caused issues. Never make the user feel blamed for an infrastructure failure.'},
+    {name:'Precise resumption',desc:'Resume from failure point — not from start. Respects the user\'s time and the work already done.'},
+  ],
+  relationships:{prev:'P-002',next:'P-002',paired:'P-002 (surfaces error), P-001 (notification setting)',never:'Rolling back completed work'},
+  metrics:[
+    {label:'Time to resolve',value:'<3min',desc:'From error card opening to resume button clicked.',flag:'Red flag if over 10 min',flagDesc:'User cannot understand how to fix it'},
+    {label:'Skip rate',value:'<15%',desc:'How often users skip a failed item instead of fixing it.',flag:'Red flag if over 40%',flagDesc:'Fix steps too hard — users giving up'},
+    {label:'Error frequency',value:'Track',desc:'Which agent fails most often. Rising frequency on one agent signals infrastructure problem.',flag:'Red flag if same agent every time',flagDesc:'Engineering issue, not UX issue'},
+  ],
+  generalExample:{title:'Any agentic product',items:['✅ Email agent failed on 3 recipients — invalid email addresses. Error card: "✓ 47 emails sent successfully. ✕ 3 failed — invalid email format. ⊘ Follow-up agent blocked. Fix: update email addresses, then resume."','❌ System shows "3 errors occurred" with a Retry button that restarts the entire 50-email run, discarding 47 already sent.']},
+  retailExample:{title:'Retail — Description Agent failure',items:['Jordan 1 Retro: Description Agent failed — product data file not found. Video Agent output preserved. QA and Publish blocked. Fix steps: restore file → resume. Agent picks up at Description stage for this product only.','Notification: Passive (1 product failure). Urgent if Description Agent fails on all 10 products.']},
+},
+{
+  id:'P-005', num:5, icon:'⏸',
+  name:'Interruption & Pause',
+  question:'How do you let the user stop agents mid-run without losing work?',
+  category:'Control Patterns', container:'Modal',
+  color:'amber', accent:'#F59E0B', accentL:'rgba(245,158,11,0.1)',
+  status:'Approved', version:'1.0',
+  oneliner:'User decides to stop agents mid-run. System finishes current tasks, then pauses cleanly. State held indefinitely. Three options: resume, update and resume, or cancel.',
+  whyAgentic:'Standard UX the user is always in control — nothing to interrupt. In agentic systems agents are running autonomously. The user has to actively reach in and stop them. This requires a designed safe-stop mechanism that preserves all work.',
+  anatomy:[
+    {n:'1',name:'Pause Button',desc:'Always visible in toolbar while agents are running. Never hidden. One click to trigger. Confirmation required before agents actually stop.',purpose:'→ User must always be able to stop'},
+    {n:'2',name:'Finishing State',desc:'Between pause clicked and fully paused. Shows which agents are still finishing vs already paused. Never a generic spinner.',purpose:'→ Answers: "Did it hear me?"'},
+    {n:'3',name:'Paused Snapshot',desc:'Where every agent stopped, after how many items. Exact positions — not approximations.',purpose:'→ Answers: "Where did everything stop?"'},
+    {n:'4',name:'Editable Parameters',desc:'User can update parameters while paused. Updated values apply only to remaining items — completed items are not re-run.',purpose:'→ Answers: "Can I change something before continuing?"'},
+    {n:'5',name:'Three Options',desc:'Resume (from exact point), Update and Resume (with changed parameters), Cancel (stop entirely but keep completed work).',purpose:'→ Answers: "What can I do now?"'},
+  ],
+  variants:[
+    {tag:'A',name:'Standard Pause',desc:'Clean stop. All agents finish current task. Snapshot shown. Three options.',use:'Default. User wants to pause for any reason.'},
+    {tag:'B',name:'Pause with Update',desc:'User edits parameters in paused state. Resume button changes to "Resume with updates". Only remaining items affected.',use:'User spotted a wrong parameter mid-run. Pause, fix, continue.'},
+    {tag:'C',name:'Cancel',desc:'User chooses to cancel entirely. Completed outputs preserved. Completion summary shown with what was done.',use:'User decides run is no longer needed. All completed work is kept.'},
+  ],
+  states:[
+    {label:'Finishing',color:'var(--amber)',desc:'Agents finishing current tasks. Estimated time to full pause shown.'},
+    {label:'Fully paused',color:'var(--amber)',desc:'All agents stopped. Snapshot visible. Parameters editable. Three options active.'},
+    {label:'Resuming',color:'var(--blue)',desc:'User clicked resume. Agents picking up from next pending task.'},
+    {label:'Updating',color:'var(--purple)',desc:'User editing a parameter in paused state. Resume button shows "with updates".'},
+    {label:'Cancelled',color:'var(--text3)',desc:'Run cancelled. Transition to completion summary with partial results.'},
+    {label:'Confirmation',color:'var(--text2)',desc:'User clicked pause button. Confirmation dialog before agents actually stop.'},
+  ],
+  contentGuide:[
+    {label:'Pause button',do:'"⏸ Pause agents"',dont:'"Stop" — pause is recoverable, stop implies permanent'},
+    {label:'Finishing state',do:'"Finishing current tasks — pausing soon"',dont:'"Stopping..." — user needs to know why it is not instant'},
+    {label:'Snapshot label',do:'"Snapshot — where everything paused"',dont:'"Current status" — the word "snapshot" signals state preservation'},
+    {label:'Resume with updates',do:'"Resume with updates →"',dont:'"Resume" — user must know their changes will take effect'},
+  ],
+  rules:{
+    do:['Always show pause button while agents are running','Always require confirmation before stopping','Always finish current task before pausing — never cut mid-output','Always show the finishing state','Always show a snapshot of where everything paused','Always preserve completed work even if run is cancelled'],
+    dont:['Never cut agents mid-output — corrupts work','Never auto-resume — user must explicitly choose to resume','Never delete completed outputs when run is cancelled','Never show a generic spinner during finishing state','Never re-run completed items when resuming with updated parameters','Never hide the pause button inside a dropdown'],
+  },
+  trust:[
+    {name:'Safe stop guarantee',desc:'User is always told that agents will finish their current task before stopping. No corrupted outputs.'},
+    {name:'Work preservation',desc:'Even on full cancellation, completed work is preserved. The user never loses output by choosing to stop.'},
+    {name:'Exact resumption',desc:'Resume picks up from the next pending task — not from the beginning. User\'s completed work is never repeated.'},
+    {name:'Parameter transparency',desc:'When resuming with updated parameters, user is told explicitly that only remaining items will be affected.'},
+  ],
+  relationships:{prev:'P-002',next:'P-002',paired:'P-002 (pause button lives here)',never:'Auto-resume without user action'},
+  metrics:[
+    {label:'Time to resume',value:'<5min',desc:'From fully paused to user clicking resume.',flag:'Red flag if over 20 min',flagDesc:'Users not confident resuming is safe'},
+    {label:'Cancel rate',value:'<20%',desc:'How often users cancel entirely instead of resuming.',flag:'Red flag if over 50%',flagDesc:'Users pausing because something went wrong'},
+    {label:'Parameter edit rate',value:'Track',desc:'How often users update parameters before resuming.',flag:'Red flag if always same parameter',flagDesc:'Pre-flight defaults need fixing'},
+  ],
+  generalExample:{title:'Any agentic product',items:['✅ Data migration agent paused mid-run by user who noticed wrong target environment. Snapshot shows 847/2000 records migrated. User updates environment parameter. Resumes from record 848. No records re-migrated.','❌ Pause button hidden in "Advanced options" menu. User cannot find it. Agent overwrites production data before user can stop it.']},
+  retailExample:{title:'Retail — Pausing mid-run',items:['User spots wrong brand guidelines while Video Agent is on product 7. Clicks Pause. Video Agent finishes product 7 then stops. Snapshot: Video 7/10, Description 5/10, QA 3/10. User updates Brand Kit from v3 to v4. Resumes. Products 8-10 use new brand kit.','Products 1-7 are not regenerated. User would need to start a new run for those if needed.']},
+},
+{
+  id:'P-006', num:6, icon:'👋',
+  name:'Re-engagement',
+  question:'How do you re-orient a user who returns after agents ran without them?',
+  category:'Re-entry Patterns', container:'Banner / Full Page',
+  color:'green', accent:'#10B981', accentL:'rgba(16,185,129,0.1)',
+  status:'Approved', version:'1.0',
+  oneliner:'User left while agents were running. They return. A structured briefing — most important first — tells them what happened and what needs them.',
+  whyAgentic:'Standard UX has no concept of "coming back." In agentic systems agents act without the user watching. When they return the world has changed. Re-engagement is the designed re-entry point into an autonomous workflow that continued without them.',
+  anatomy:[
+    {n:'1',name:'Away Time',desc:'How long the user was away. Always shown. Gives temporal context without which "while you were away" is meaningless.',purpose:'→ Anchors the user in time'},
+    {n:'2',name:'Summary Strip',desc:'Four numbers: needs you now, awaiting approval, completed, still running. Instant orientation in under 5 seconds.',purpose:'→ Answers: "What is the state of things?"'},
+    {n:'3',name:'Priority Sections',desc:'Fixed order always: Needs you now → Awaiting approval → What happened → Completed. Never reordered.',purpose:'→ User always sees what needs them before what succeeded'},
+    {n:'4',name:'Timeline',desc:'Key events while user was away. Most recent first. Not a full log — only the events that matter.',purpose:'→ Answers: "What changed while I was gone?"'},
+    {n:'5',name:'Primary CTA',desc:'One clear action button — always the most urgent thing for the user to do next.',purpose:'→ Never leaves user uncertain about what to do'},
+  ],
+  variants:[
+    {tag:'A',name:'All done',desc:'Everything completed, no issues. Green treatment. Straight to approval. Most positive return state.',use:'Agents finished everything successfully while user was away.'},
+    {tag:'B',name:'Mixed results',desc:'Some done, some need attention. Default treatment. Issues first. Direct CTA.',use:'Normal return state. Some issues, some successes.'},
+    {tag:'C',name:'Still running',desc:'User returned before agents finished. Blue treatment. No urgent action. Estimate shown.',use:'User came back early. Agents still working. Nothing needs them yet.'},
+  ],
+  states:[
+    {label:'Banner',color:'var(--green)',desc:'User is already in app on another screen. Thin strip at top. Dismissible after acting.'},
+    {label:'Full page',color:'var(--green)',desc:'First thing user sees on opening app. Full briefing page.'},
+    {label:'All done',color:'var(--green)',desc:'Everything completed. Green treatment. Approval CTA.'},
+    {label:'Mixed',color:'var(--text2)',desc:'Some issues. Default treatment. Issues shown first.'},
+    {label:'Still running',color:'var(--blue)',desc:'Agents continuing. Blue treatment. No urgent action needed.'},
+    {label:'Critical',color:'var(--red)',desc:'Critical failure while user was away. Urgent notification regardless of entry point.'},
+  ],
+  contentGuide:[
+    {label:'Away time',do:'"Away 47 min"',dont:'No time shown — "while you were away" without context is useless'},
+    {label:'Needs you now',do:'"2 products need your attention" + specific product names',dont:'"Issues found" — always specific'},
+    {label:'All done variant',do:'"All done while you were away"',dont:'"Completed" — celebrate the good outcome'},
+    {label:'Still running',do:'"Agents still working — est. 4 more minutes"',dont:'"Running..." — always give an estimate'},
+  ],
+  rules:{
+    do:['Always show how long user was away','Always show issues first — never bury below good news','Always show the 4-number summary strip','Always show what changed in chronological order — newest first','Always provide a direct action CTA','Use green treatment when everything went well'],
+    dont:['Never show completed items before issues','Never dump a full log — key events only','Never require user to navigate elsewhere to see what happened','Never show same treatment regardless of outcome','Never omit the away time','Never show re-engagement card if agents still running and nothing needs user — use Variant C'],
+  },
+  trust:[
+    {name:'Time transparency',desc:'Always showing how long the user was away respects their mental model. They need to recalibrate.'},
+    {name:'Priority honesty',desc:'Showing issues before successes is harder to design but more honest. A good assistant tells you the problems first.'},
+    {name:'Good outcomes celebrated',desc:'When agents completed everything successfully — say so clearly and positively. The system earned that moment.'},
+    {name:'No surprise scope',desc:'Timeline shows exactly what agents did without the user. Nothing is hidden.'},
+  ],
+  relationships:{prev:null,next:'P-002',paired:'P-002, P-007',never:'Showing good news before urgent issues'},
+  metrics:[
+    {label:'Time to first action',value:'<30s',desc:'From re-engagement card to first user action.',flag:'Red flag if over 2 min',flagDesc:'Briefing not clear — user spending time reading not acting'},
+    {label:'Correct first action',value:'>80%',desc:'How often first action is the highest priority one.',flag:'Red flag if under 50%',flagDesc:'Priority order not clear enough visually'},
+    {label:'Variant A satisfaction',value:'Track',desc:'When everything went right — do users feel good? Survey after Variant A completions.',flag:'Red flag if low despite success',flagDesc:'Good outcomes not celebrated enough'},
+  ],
+  generalExample:{title:'Any agentic product',items:['✅ User returns to document processing system after lunch. Banner: "Welcome back — Away 1hr 12min. 3 documents need review. 47 processed successfully." CTA: "Review documents →"','❌ User returns to find a generic dashboard with no indication of what happened. Must manually check each queue to find issues.']},
+  retailExample:{title:'Retail — Returning to Status Grid',items:['User returns after 47 minutes. Banner: "Welcome back — 2 products need attention (QA stuck), 3 awaiting publish approval, 5 completed." Timeline: Description Agent failed 31 min ago, QA paused 38 min ago. CTA: "Fix issues first →"','Green variant: User returns to find all 10 products completed and awaiting publish approval. "All done while you were away — 10 products ready to publish."']},
+},
+{
+  id:'P-007', num:7, icon:'⏸',
+  name:'Decision Checkpoint',
+  question:'How do you pause an agent at an irreversible boundary and get human sign-off?',
+  category:'Control Patterns', container:'Side Panel',
+  color:'teal', accent:'#0D9488', accentL:'rgba(13,148,136,0.1)',
+  status:'Approved', version:'1.0',
+  oneliner:'Agent hits a pre-declared irreversible boundary — stops exactly as agreed in Pre-flight Plan — user reviews all items — agent continues only on approved items.',
+  whyAgentic:'This is not a failure. Not a request for help. It is the agentic contract being honoured. The agent knew this moment was coming from the start. It ran autonomously until it reached the agreed boundary — then stopped. The design tone is a handover, not an alert.',
+  anatomy:[
+    {n:'1',name:'Checkpoint Banner',desc:'Teal — not red. "As agreed in Pre-flight Plan." Agent is working correctly. This is the planned moment.',purpose:'→ Sets the tone: this is expected, not wrong'},
+    {n:'2',name:'Summary Counts',desc:'Approved, editing, rejected, pending. Four numbers. User always knows where they are in the review.',purpose:'→ Answers: "How far through am I?"'},
+    {n:'3',name:'Product List (Left)',desc:'All items with QA score and current status. Selected item highlighted. User never loses their place.',purpose:'→ Answers: "What do I still need to review?"'},
+    {n:'4',name:'Detail Preview (Right)',desc:'Full preview as it will appear live — video, description, QA scores. Enough to decide without opening another tab.',purpose:'→ Answers: "Is this good enough to publish?"'},
+    {n:'5',name:'Navigation',desc:'Prev/Next arrows in detail view. User moves through all items without returning to list.',purpose:'→ Keeps review flow fast and linear'},
+    {n:'6',name:'Three Actions',desc:'Approve (publish), Request edit (agent fixes specific thing and returns), Reject (discard). Clear and irreversible.',purpose:'→ Every item gets an explicit decision'},
+  ],
+  variants:[
+    {tag:'A',name:'All pending',desc:'User just arrived. All items pending. Default state. List on left, first item auto-selected.',use:'Entry state. Normal first view.'},
+    {tag:'B',name:'Partial review',desc:'User has reviewed some items. Mix of approved/editing/rejected/pending in list.',use:'Mid-review. User returning after a break.'},
+    {tag:'C',name:'All reviewed',desc:'Every item has a decision. Publish button activates. Summary shown.',use:'Ready to publish. User completed review.'},
+  ],
+  states:[
+    {label:'Pending',color:'var(--text3)',desc:'Item not yet reviewed. Shown in list with QA score and pending badge.'},
+    {label:'Approved',color:'var(--green)',desc:'Item approved. Will be published when user clicks publish.'},
+    {label:'Editing',color:'var(--amber)',desc:'Edit requested. Agent is fixing. Item will return to checkpoint for re-review.'},
+    {label:'Rejected',color:'var(--red)',desc:'Item rejected. Will not be published. Logged in completion summary.'},
+    {label:'Re-review',color:'var(--amber)',desc:'Edited item returned for second review. Shown with edit note visible.'},
+    {label:'Published',color:'var(--green)',desc:'Approved items published. Run complete.'},
+  ],
+  contentGuide:[
+    {label:'Checkpoint banner',do:'"As agreed in your Pre-flight Plan — Publishing Agent paused"',dont:'"Publishing Agent stopped" — implies failure, not agreement'},
+    {label:'Approve button',do:'"✓ Approve"',dont:'"Publish" — agent publishes after review, user approves at this step'},
+    {label:'Request edit',do:'"↻ Request edit"',dont:'"Edit" — must signal agent will do the editing, not the user'},
+    {label:'Reject',do:'"✕ Reject"',dont:'"Delete" or "Skip" — reject means the agent output was not acceptable'},
+  ],
+  rules:{
+    do:['Always show checkpoint as planned positive moment — teal not red','Always show all items at a glance before drill-in','Always show QA score per item','Always provide navigation arrows in detail view','Always fix only the specific element on request edit — never re-run full chain','Always reference Pre-flight Plan agreement'],
+    dont:['Never style this like an error — agent succeeded','Never allow Publishing Agent to bypass this checkpoint','Never make bulk approve the default — user must consciously choose','Never re-run all agents when user requests an edit','Never publish without explicit user approval','Never show this pattern if Publishing Agent not declared in Pre-flight Plan'],
+  },
+  trust:[
+    {name:'Contract fulfilment',desc:'Agent stopped because it was told to stop. Not because it failed. The user\'s Pre-flight Plan instruction is being honoured exactly.'},
+    {name:'Nothing published without approval',desc:'Absolute guarantee. Every item requires an explicit approve action. There is no default publish.'},
+    {name:'Edit without re-run',desc:'Request edit fixes only the specific element. The user\'s time investment in the rest of the run is preserved.'},
+    {name:'Full visibility before decision',desc:'Preview shows exactly how content will appear live. No surprises after publishing.'},
+  ],
+  relationships:{prev:'P-002',next:'Completion',paired:'P-001 (checkpoint declared here)',never:'Auto-publishing without explicit user approval'},
+  metrics:[
+    {label:'Approval rate',value:'>80%',desc:'How often items are approved without edits or rejection.',flag:'Red flag if under 50%',flagDesc:'Agent output not meeting expectations'},
+    {label:'Edit vs reject rate',value:'Track',desc:'High edit = output close but not right. High reject = fundamentally wrong.',flag:'Red flag if reject rate rising',flagDesc:'Agent instructions drifting from user intent'},
+    {label:'Review completion time',value:'<5min',desc:'From checkpoint appearing to all items decided. For 10 products.',flag:'Red flag if over 15 min',flagDesc:'Preview not giving enough signal'},
+  ],
+  generalExample:{title:'Any agentic product',items:['✅ Contract generation agent produces 15 contracts. Decision Checkpoint: side panel, contracts listed left, preview right. Legal reviews each. Approves 13, requests edit on 2 (change jurisdiction clause). Agent fixes and returns for re-review.','❌ System emails all 15 contracts to clients automatically after generation. Legal discovers errors after clients have already received them.']},
+  retailExample:{title:'Retail — Publishing 10 products',items:['QA passed on all 10. Publishing Agent hits boundary. Side panel: 10 products listed left, Air Max 2026 auto-selected right. QA scores shown. User approves 8, requests shorter description on 1, rejects 1. Agent fixes description, returns. User approves. 9 products published.','Teal treatment throughout. Banner: "As agreed in your Pre-flight Plan." This is not an interruption — it is the planned final step.']},
+},
+];
+
+// ══════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════
+
+function renderSidebar(){
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = `<div class="sidebar-item active" onclick="showIndex()" id="sb-index">
+    <span class="sidebar-pid" style="color:var(--text3)">⬡</span>
+    <div><div class="sidebar-name" style="color:var(--text2)">Library Index</div><div class="sidebar-cat">All patterns</div></div>
+  </div>` +
+  patterns.map(p=>`<div class="sidebar-item" onclick="showPattern(${p.num})" id="sb-${p.num}">
+    <span class="sidebar-pid">${p.id}</span>
+    <div><div class="sidebar-name">${p.name}</div><div class="sidebar-cat">${p.category}</div></div>
+  </div>`).join('');
+}
+
+function renderIndex(){
+  const grid = document.getElementById('index-grid');
+  grid.innerHTML = patterns.map(p=>`
+    <div class="pattern-card pc-${p.num}" onclick="showPattern(${p.num})">
+      <div class="pc-top">
+        <div>
+          <div class="pc-pid">${p.id}</div>
+        </div>
+        <div class="pc-cat">${p.category}</div>
+      </div>
+      <div class="pc-title">${p.name}</div>
+      <div class="pc-question">${p.question}</div>
+      <div class="pc-footer">
+        <span class="pc-container">${p.container}</span>
+        <span class="pc-arrow">→</span>
+      </div>
+    </div>`).join('');
+}
+
+function renderPatternPage(p){
+  const accentStyle = `color:${p.accent}`;
+  const bgStyle = `background:${p.accentL};border-color:${p.accent}40`;
+
+  return `<div class="pattern-page" id="view-${p.num}">
+    <!-- Hero -->
+    <div class="pattern-hero" style="border-bottom:1px solid ${p.accent}25">
+      <div class="pattern-hero-top">
+        <div style="width:52px;height:52px;border-radius:14px;background:${p.accentL};border:1.5px solid ${p.accent}40;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${p.icon}</div>
+        <div>
+          <div class="pattern-hero-pid" style="${bgStyle};${accentStyle}">${p.id} · ${p.category}</div>
+          <div class="pattern-hero-title">${p.name}</div>
+        </div>
+      </div>
+      <div class="pattern-hero-question">${p.question}</div>
+      <div style="background:${p.accentL};border:1px solid ${p.accent}30;border-radius:10px;padding:12px 16px;margin-bottom:20px;max-width:640px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;${accentStyle};margin-bottom:4px">One-liner</div>
+        <div style="font-size:14px;color:var(--text2);line-height:1.5">${p.oneliner}</div>
+      </div>
+      <div class="pattern-meta-row">
+        <div class="pattern-meta-item"><div class="pattern-meta-label">Pattern ID</div><div class="pattern-meta-value">${p.id}</div></div>
+        <div class="pattern-meta-item"><div class="pattern-meta-label">Container</div><div class="pattern-meta-value">${p.container}</div></div>
+        <div class="pattern-meta-item"><div class="pattern-meta-label">Category</div><div class="pattern-meta-value">${p.category}</div></div>
+        <div class="pattern-meta-item"><div class="pattern-meta-label">Version</div><div class="pattern-meta-value">${p.version}</div></div>
+        <div class="pattern-meta-item"><div class="pattern-meta-label">Status</div><div class="pattern-meta-value green">● ${p.status}</div></div>
+      </div>
+    </div>
+
+    <!-- Why agentic -->
+    <div class="psec">
+      <div class="psec-label" style="${accentStyle}">01 — Why This Is Agentic</div>
+      <div class="psec-title">This problem only exists because AI acts autonomously</div>
+      <div style="background:var(--surface2);border-left:3px solid ${p.accent};border-radius:0 8px 8px 0;padding:14px 18px;max-width:680px">
+        <div style="font-size:13px;color:var(--text2);line-height:1.7">${p.whyAgentic}</div>
+      </div>
+    </div>
+
+    <!-- Anatomy -->
+    <div class="psec">
+      <div class="psec-label" style="${accentStyle}">02 — Anatomy</div>
+      <div class="psec-title">What's inside this pattern</div>
+      <div class="psec-desc">Every element and why it exists. Engineers need all of these to build correctly.</div>
+      ${p.anatomy.map(a=>`<div class="anatomy-item">
+        <div class="anatomy-num" style="background:${p.accentL};color:${p.accent}">${a.n}</div>
+        <div>
+          <div class="anatomy-name">${a.name}</div>
+          <div class="anatomy-desc">${a.desc}</div>
+          <div class="anatomy-purpose" style="${accentStyle}">${a.purpose}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+
+    <!-- Variants -->
+    <div class="psec">
+      <div class="psec-label" style="${accentStyle}">03 — Variants</div>
+      <div class="psec-title">${p.variants.length} versions for different contexts</div>
+      <div class="psec-desc">Same pattern structure. Different level of detail, urgency, or user context.</div>
+      <div class="variant-grid">
+        ${p.variants.map(v=>`<div class="variant-card">
+          <span class="variant-tag" style="background:${p.accentL};color:${p.accent}">Variant ${v.tag}</span>
+          <div class="variant-name">${v.name}</div>
+          <div class="variant-desc">${v.desc}</div>
+          <div class="variant-use" style="padding-top:8px;border-top:1px solid var(--border);margin-top:8px;font-size:11px;color:var(--text4)">Use when: ${v.use}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- States -->
+    <div class="psec">
+      <div class="psec-label" style="${accentStyle}">04 — States</div>
+      <div class="psec-title">Every condition must be designed</div>
+      <div class="psec-desc">Engineers need all states to build correctly. Missing states become bugs.</div>
+      <div class="state-grid">
+        ${p.states.map(s=>`<div class="state-card">
+          <div class="state-label" style="color:${s.color}">${s.label}</div>
+          <div class="state-desc">${s.desc}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Content guide -->
+    <div class="psec">
+      <div class="psec-label" style="${accentStyle}">05 — Content Guidelines</div>
+      <div class="psec-title">Exact copy standards</div>
+      <div class="psec-desc">What to write. What never to write. Consistent language builds consistent trust.</div>
+      ${p.contentGuide.map(c=>`<div class="content-guide-item">
+        <div class="cg-label">${c.label}</div>
+        <div class="cg-do"><span style="color:var(--green);flex-shrink:0">✓</span> ${c.do}</div>
+        <div class="cg-dont"><span style="color:var(--red);flex-shrink:0">✗</span> ${c.dont}</div>
+      </div>`).join('')}
+    </div>
+
+    <!-- Rules -->
+    <div class="psec">
+      <div class="psec-label" style="${accentStyle}">06 — Rules</div>
+      <div class="psec-title">Do's and Don'ts</div>
+      <div class="psec-desc">Non-negotiable standards. Any designer using this pattern must follow these.</div>
+      <div class="rules-2col">
+        <div class="rule-card">
+          <div class="rule-card-header" style="background:var(--green-l);color:var(--green)">✅ Always do this</div>
+          <div class="rule-card-body">${p.rules.do.map(r=>`<div class="rule-item"><span style="color:var(--green);flex-shrink:0">✓</span>${r}</div>`).join('')}</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-card-header" style="background:var(--red-l);color:var(--red)">❌ Never do this</div>
+          <div class="rule-card-body">${p.rules.dont.map(r=>`<div class="rule-item"><span style="color:var(--red);flex-shrink:0">✗</span>${r}</div>`).join('')}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trust layer -->
+    <div class="psec">
+      <div class="psec-label" style="${accentStyle}">07 — Trust & Ethics</div>
+      <div class="psec-title">How this pattern builds user trust</div>
+      <div class="psec-desc">Every agentic pattern must actively maintain trust. These are the specific trust signals this pattern provides.</div>
+      <div class="trust-grid">
+        ${p.trust.map(t=>`<div class="trust-item">
+          <div class="trust-name" style="${accentStyle}">⬡ ${t.name}</div>
+          <div class="trust-desc">${t.desc}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Relationships -->
+    <div class="psec">
+      <div class="psec-label" style="${accentStyle}">08 — Pattern Relationships</div>
+      <div class="psec-title">How this connects to other patterns</div>
+      <div class="psec-desc">Patterns don't exist in isolation. This shows where ${p.name} sits in the full agent workflow.</div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:12px">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          ${p.relationships.prev ? `<div class="rel-node"><div class="rel-box other" onclick="showPattern(${patterns.findIndex(x=>x.id===p.relationships.prev)})" style="cursor:pointer">${p.relationships.prev}</div><div class="rel-box-label">Before</div></div><span class="rel-arrow">→</span>` : ''}
+          <div class="rel-node"><div class="rel-box current">${p.id}</div><div class="rel-box-label" style="${accentStyle}">You are here</div></div>
+          ${p.relationships.next ? `<span class="rel-arrow">→</span><div class="rel-node"><div class="rel-box other" onclick="showPattern(${patterns.findIndex(x=>x.id===p.relationships.next)})" style="cursor:pointer">${p.relationships.next}</div><div class="rel-box-label">After</div></div>` : ''}
+        </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text3)">
+          <span style="font-weight:600;color:var(--text2)">Paired with:</span> ${p.relationships.paired} &nbsp;·&nbsp;
+          <span style="color:var(--red);font-weight:600">Never combine with:</span> ${p.relationships.never}
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="psec">
+      <div class="psec-label" style="${accentStyle}">09 — Metrics</div>
+      <div class="psec-title">How you know this pattern is working</div>
+      <div class="psec-desc">Measure these after the pattern ships. Red flags tell you something is wrong before users complain.</div>
+      <div class="metrics-3">
+        ${p.metrics.map(m=>`<div class="metric-card">
+          <div class="metric-label" style="${accentStyle}">${m.label}</div>
+          <div class="metric-value">${m.value}</div>
+          <div class="metric-desc">${m.desc}</div>
+          <div class="metric-flag">🚨 ${m.flag}</div>
+          <div class="metric-flag-desc">${m.flagDesc}</div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Examples split -->
+    <div class="psec" style="border-bottom:none">
+      <div class="psec-label" style="${accentStyle}">10 — Usage Examples</div>
+      <div class="psec-title">General pattern · Retail scenario</div>
+      <div class="psec-desc">Left: how this pattern applies to any agentic product. Right: how it applies to our retail scenario.</div>
+      <div class="example-split">
+        <div class="example-panel">
+          <div class="example-panel-header">
+            <div class="example-panel-dot" style="background:var(--blue)"></div>
+            <span class="example-panel-label" style="color:var(--text3)">General Pattern — Any product</span>
+          </div>
+          <div class="example-panel-body">
+            ${p.generalExample.items.map(i=>`<div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)">${i}</div>`).join('')}
+          </div>
+        </div>
+        <div class="example-panel" style="border-color:${p.accent}40">
+          <div class="example-panel-header" style="background:${p.accentL}">
+            <div class="example-panel-dot" style="background:${p.accent}"></div>
+            <span class="example-panel-label" style="${accentStyle}">Retail Scenario — ${p.retailExample.title}</span>
+          </div>
+          <div class="example-panel-body">
+            ${p.retailExample.items.map(i=>`<div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border)">${i}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation footer -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:32px;padding-top:24px;border-top:1px solid var(--border)">
+        ${p.num > 0 ? `<button class="btn btn-ghost" onclick="showPattern(${p.num-1})">← ${patterns[p.num-1].id} · ${patterns[p.num-1].name}</button>` : '<div></div>'}
+        <button class="btn btn-ghost" onclick="showIndex()">↑ Library Index</button>
+        ${p.num < patterns.length-1 ? `<button class="btn" style="background:${p.accentL};color:${p.accent};border:1px solid ${p.accent}40" onclick="showPattern(${p.num+1})">${patterns[p.num+1].id} · ${patterns[p.num+1].name} →</button>` : '<div></div>'}
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderPatternViews(){
+  const container = document.getElementById('pattern-views');
+  container.innerHTML = patterns.map(p=>`<div class="view" id="view-${p.num}">${renderPatternPage(p)}</div>`).join('');
+}
+
+// ══════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════
+let currentView = 'index';
+
+function showIndex(){
+  document.querySelectorAll('.view').forEach(v=>v.style.display='none');
+  document.getElementById('view-index').style.display='block';
+  document.getElementById('back-btn').classList.remove('visible');
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  document.getElementById('sb-index').classList.add('active');
+  document.querySelector('.content').scrollTop = 0;
+  currentView = 'index';
+}
+
+function showPattern(n){
+  document.querySelectorAll('.view').forEach(v=>v.style.display='none');
+  const view = document.getElementById('view-'+n);
+  if(view){ view.style.display='block'; }
+  document.getElementById('back-btn').classList.add('visible');
+  document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+  const sb = document.getElementById('sb-'+n);
+  if(sb) sb.classList.add('active');
+  document.querySelector('.content').scrollTop = 0;
+  currentView = n;
+}
+
+// Keyboard
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') showIndex();
+  if(e.key==='ArrowRight' && typeof currentView==='number' && currentView < patterns.length-1) showPattern(currentView+1);
+  if(e.key==='ArrowLeft' && typeof currentView==='number' && currentView > 0) showPattern(currentView-1);
+});
+
+// ── Init ──
+renderSidebar();
+renderIndex();
+renderPatternViews();
+// Show all views as block initially then hide non-active
+document.querySelectorAll('.view').forEach(v=>{ if(!v.classList.contains('active')) v.style.display='none'; });
+document.getElementById('view-index').style.display='block';
+</script>
+</body>
+</html>

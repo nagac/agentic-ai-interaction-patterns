@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pattern Interaction Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2D6BE4;--blue-light:#EEF4FF;--blue-mid:#AECBFA;
+  --amber:#F59E0B;--amber-light:#FEF3C7;--amber-dark:#92400E;
+  --green:#10B981;--green-light:#ECFDF5;--green-dark:#065F46;
+  --red:#EF4444;--red-light:#FEF2F2;--red-dark:#991B1B;
+  --purple:#7C3AED;--purple-light:#F5F0FF;
+  --teal:#0D9488;--teal-light:#F0FDFA;
+  --gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;
+  --gray-400:#9CA3AF;--gray-500:#6B7280;
+  --gray-700:#374151;--gray-900:#111827;
+}
+body{font-family:'DM Sans',sans-serif;background:#0F172A;min-height:100vh}
+
+/* ── Header ── */
+.page-header{padding:48px 64px 40px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.tag{display:inline-flex;align-items:center;gap:6px;background:rgba(45,107,228,0.2);color:#AECBFA;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:100px;margin-bottom:16px}
+.page-header h1{font-size:36px;font-weight:700;color:#F8FAFC;letter-spacing:-0.02em;margin-bottom:8px}
+.page-header p{font-size:15px;color:var(--gray-400);max-width:600px;line-height:1.6}
+
+/* ── Legend ── */
+.legend{display:flex;flex-wrap:wrap;gap:10px;padding:24px 64px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.legend-item{display:flex;align-items:center;gap:7px;padding:5px 12px;border-radius:8px;background:rgba(255,255,255,0.05)}
+.legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.legend-label{font-size:11px;font-weight:600;color:#94A3B8;letter-spacing:0.04em}
+
+/* ── Main flow canvas ── */
+.canvas{padding:48px 64px;overflow-x:auto}
+.flow-container{min-width:900px;position:relative}
+
+/* ── Pattern node ── */
+.pattern-node{border-radius:14px;overflow:hidden;border:1.5px solid transparent;transition:all 0.2s;cursor:default}
+.pattern-node:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.06)}
+
+.node-header{padding:12px 16px;display:flex;align-items:center;gap:10px}
+.node-pid{font-size:10px;font-weight:700;font-family:'DM Mono',monospace;opacity:0.7}
+.node-title{font-size:13px;font-weight:700;flex:1}
+.node-container-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:0.06em;text-transform:uppercase;flex-shrink:0}
+
+.node-body{padding:10px 16px 14px;background:rgba(255,255,255,0.05)}
+.node-question{font-size:12px;line-height:1.5;opacity:0.85;margin-bottom:8px}
+.node-container-explain{font-size:11px;opacity:0.65;line-height:1.4;padding:8px 10px;background:rgba(255,255,255,0.06);border-radius:6px}
+
+/* Container type colors */
+.type-fullpage{border-color:rgba(45,107,228,0.5);background:linear-gradient(135deg,rgba(45,107,228,0.12),rgba(45,107,228,0.06))}
+.type-fullpage .node-header{background:rgba(45,107,228,0.2)}
+.type-fullpage .node-pid,.type-fullpage .node-title{color:#93C5FD}
+.type-fullpage .node-container-badge{background:rgba(45,107,228,0.3);color:#93C5FD}
+.type-fullpage .node-question{color:#BFDBFE}
+
+.type-modal{border-color:rgba(124,58,237,0.5);background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(124,58,237,0.06))}
+.type-modal .node-header{background:rgba(124,58,237,0.2)}
+.type-modal .node-pid,.type-modal .node-title{color:#C4B5FD}
+.type-modal .node-container-badge{background:rgba(124,58,237,0.3);color:#C4B5FD}
+.type-modal .node-question{color:#DDD6FE}
+
+.type-drawer{border-color:rgba(245,158,11,0.5);background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(245,158,11,0.06))}
+.type-drawer .node-header{background:rgba(245,158,11,0.2)}
+.type-drawer .node-pid,.type-drawer .node-title{color:#FDE68A}
+.type-drawer .node-container-badge{background:rgba(245,158,11,0.3);color:#FDE68A}
+.type-drawer .node-question{color:#FEF3C7}
+
+.type-inline{border-color:rgba(239,68,68,0.5);background:linear-gradient(135deg,rgba(239,68,68,0.12),rgba(239,68,68,0.06))}
+.type-inline .node-header{background:rgba(239,68,68,0.2)}
+.type-inline .node-pid,.type-inline .node-title{color:#FCA5A5}
+.type-inline .node-container-badge{background:rgba(239,68,68,0.3);color:#FCA5A5}
+.type-inline .node-question{color:#FEE2E2}
+
+.type-sidepanel{border-color:rgba(13,148,136,0.5);background:linear-gradient(135deg,rgba(13,148,136,0.12),rgba(13,148,136,0.06))}
+.type-sidepanel .node-header{background:rgba(13,148,136,0.2)}
+.type-sidepanel .node-pid,.type-sidepanel .node-title{color:#5EEAD4}
+.type-sidepanel .node-container-badge{background:rgba(13,148,136,0.3);color:#5EEAD4}
+.type-sidepanel .node-question{color:#CCFBF1}
+
+.type-banner{border-color:rgba(16,185,129,0.5);background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(16,185,129,0.06))}
+.type-banner .node-header{background:rgba(16,185,129,0.2)}
+.type-banner .node-pid,.type-banner .node-title{color:#6EE7B7}
+.type-banner .node-container-badge{background:rgba(16,185,129,0.3);color:#6EE7B7}
+.type-banner .node-question{color:#D1FAE5}
+
+/* ── Main linear flow ── */
+.main-flow{display:flex;flex-direction:column;gap:0;position:relative}
+
+.flow-row{display:grid;gap:20px;align-items:start;margin-bottom:0}
+.flow-row-1{grid-template-columns:1fr}
+.flow-row-2{grid-template-columns:1fr 1fr}
+.flow-row-3{grid-template-columns:1fr 1fr 1fr}
+
+/* Connectors */
+.connector-down{display:flex;justify-content:center;align-items:center;height:40px;position:relative}
+.connector-down::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;background:rgba(255,255,255,0.1)}
+.connector-arrow{width:24px;height:24px;background:rgba(255,255,255,0.08);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(255,255,255,0.4);z-index:1;position:relative}
+
+.connector-label{font-size:10px;font-weight:600;color:rgba(255,255,255,0.05);letter-spacing:0.06em;text-transform:uppercase;text-align:center;margin-bottom:4px}
+
+/* Branch connectors */
+.branch-container{position:relative;padding:20px 0}
+.branch-line{position:absolute;top:0;left:50%;right:0;height:2px;background:rgba(255,255,255,0.08)}
+
+/* Trigger tags */
+.trigger-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.trigger{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600}
+.trigger-user{background:rgba(45,107,228,0.2);color:#93C5FD}
+.trigger-agent{background:rgba(245,158,11,0.2);color:#FDE68A}
+.trigger-system{background:rgba(239,68,68,0.2);color:#FCA5A5}
+.trigger-time{background:rgba(16,185,129,0.2);color:#6EE7B7}
+
+/* Returns */
+.returns-to{font-size:10px;font-weight:600;color:rgba(255,255,255,0.05);margin-top:6px;display:flex;align-items:center;gap:4px}
+
+/* Section dividers */
+.flow-section{margin-bottom:8px}
+.flow-section-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.15);margin-bottom:16px;padding:0 4px;border-left:2px solid rgba(255,255,255,0.1);padding-left:12px}
+
+/* ── Container showcase ── */
+.showcase{padding:48px 64px;border-top:1px solid rgba(255,255,255,0.06)}
+.showcase-title{font-size:22px;font-weight:700;color:#F8FAFC;letter-spacing:-0.01em;margin-bottom:8px}
+.showcase-desc{font-size:14px;color:var(--gray-400);margin-bottom:36px;line-height:1.6}
+.showcase-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.showcase-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;overflow:hidden}
+.showcase-card-header{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.showcase-card-type{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px}
+.showcase-card-title{font-size:14px;font-weight:600;color:#F1F5F9}
+.showcase-card-body{padding:14px 18px}
+.showcase-card-desc{font-size:12px;color:#94A3B8;line-height:1.5;margin-bottom:12px}
+.showcase-patterns{display:flex;flex-wrap:wrap;gap:6px}
+.showcase-pattern-tag{padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;font-family:'DM Mono',monospace}
+.showcase-rule{font-size:11px;color:#64748B;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.06);line-height:1.4}
+
+/* ── Wireframe sketches ── */
+.wireframes{padding:48px 64px;border-top:1px solid rgba(255,255,255,0.06)}
+.wireframes-title{font-size:22px;font-weight:700;color:#F8FAFC;letter-spacing:-0.01em;margin-bottom:8px}
+.wireframes-desc{font-size:14px;color:var(--gray-400);margin-bottom:36px;line-height:1.6}
+.wireframes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+
+.wf-device{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;overflow:hidden}
+.wf-device-label{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#64748B;display:flex;align-items:center;justify-content:space-between}
+.wf-screen{padding:12px;min-height:200px;position:relative}
+
+/* Wireframe chrome */
+.wf-chrome{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:6px;overflow:hidden;height:100%}
+.wf-nav{height:32px;background:rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;padding:0 10px;gap:6px}
+.wf-nav-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.12)}
+.wf-nav-bar{flex:1;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;margin:0 8px}
+.wf-content{padding:10px;position:relative}
+
+/* Wireframe elements */
+.wf-block{background:rgba(255,255,255,0.06);border-radius:4px;margin-bottom:6px}
+.wf-title-block{height:16px;width:60%}
+.wf-text-block{height:8px;width:100%}
+.wf-text-block.w80{width:80%}
+.wf-text-block.w60{width:60%}
+.wf-btn{height:24px;border-radius:4px;background:rgba(45,107,228,0.4)}
+.wf-btn.green{background:rgba(16,185,129,0.4)}
+
+/* Modal overlay */
+.wf-modal-overlay{position:absolute;inset:0;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;border-radius:6px}
+.wf-modal{background:#111827;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px;width:75%;box-shadow:0 8px 32px rgba(255,255,255,0.1)}
+.wf-modal-header{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.wf-modal-icon{width:20px;height:20px;background:rgba(124,58,237,0.4);border-radius:4px}
+.wf-modal-title{height:10px;flex:1;background:rgba(255,255,255,0.12);border-radius:2px}
+
+/* Drawer */
+.wf-drawer-overlay{position:absolute;inset:0;display:flex;border-radius:6px;overflow:hidden}
+.wf-main-dimmed{flex:1;background:rgba(0,0,0,0.06)}
+.wf-drawer{width:55%;background:#111827;border-left:1px solid rgba(255,255,255,0.1);padding:10px;box-shadow:-8px 0 32px rgba(255,255,255,0.1)}
+.wf-drawer-header{display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.06)}
+
+/* Inline expansion */
+.wf-table-row{height:24px;background:rgba(255,255,255,0.04);border-radius:3px;margin-bottom:4px;display:flex;align-items:center;padding:0 8px;gap:6px}
+.wf-table-row.expanded{height:auto;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:8px;flex-direction:column;align-items:stretch}
+.wf-row-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.wf-row-text{flex:1;height:6px;background:rgba(255,255,255,0.08);border-radius:2px}
+
+/* Side panel */
+.wf-sidepanel{position:absolute;inset:0;display:flex;border-radius:6px;overflow:hidden}
+.wf-list-pane{width:40%;background:rgba(255,255,255,0.03);border-right:1px solid rgba(255,255,255,0.06);padding:8px}
+.wf-detail-pane{flex:1;padding:8px}
+
+/* Banner */
+.wf-banner-strip{background:rgba(16,185,129,0.2);border-bottom:1px solid rgba(16,185,129,0.3);padding:6px 10px;display:flex;align-items:center;gap:6px}
+.wf-banner-dot{width:6px;height:6px;border-radius:50%;background:rgba(16,185,129,0.8);flex-shrink:0}
+.wf-banner-text{flex:1;height:6px;background:rgba(16,185,129,0.3);border-radius:2px}
+.wf-banner-btn{width:40px;height:14px;background:rgba(16,185,129,0.5);border-radius:3px;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="page-header">
+  <div class="tag">⬡ Agentic AI Pattern Library</div>
+  <h1>Pattern Interaction Flow</h1>
+  <p>How all 8 patterns connect — what container each one uses, what triggers it, where the user goes next, and what it looks like on screen.</p>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#3B82F6"></div><span class="legend-label">Full Page</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#8B5CF6"></div><span class="legend-label">Modal</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#F59E0B"></div><span class="legend-label">Drawer</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#EF4444"></div><span class="legend-label">Inline</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#0D9488"></div><span class="legend-label">Side Panel</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#10B981"></div><span class="legend-label">Banner</span></div>
+  <div class="legend-item" style="margin-left:auto"><div class="legend-dot" style="background:#3B82F6;opacity:0.4"></div><span class="legend-label" style="color:#64748B">User trigger</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#F59E0B;opacity:0.4"></div><span class="legend-label" style="color:#64748B">Agent trigger</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#EF4444;opacity:0.4"></div><span class="legend-label" style="color:#64748B">System trigger</span></div>
+  <div class="legend-item"><div class="legend-dot" style="background:#10B981;opacity:0.4"></div><span class="legend-label" style="color:#64748B">Time trigger</span></div>
+</div>
+
+<!-- Main flow -->
+<div class="canvas">
+  <div class="flow-container">
+
+    <!-- P-000 -->
+    <div class="flow-section">
+      <div class="flow-section-label">Entry</div>
+      <div class="pattern-node type-fullpage">
+        <div class="node-header">
+          <span class="node-pid">P-000</span>
+          <span class="node-title">Instruction Input</span>
+          <span class="node-container-badge">Full Page</span>
+        </div>
+        <div class="node-body">
+          <div class="node-question">How do you help the user write an instruction that agents can act on safely at scale?</div>
+          <div class="node-container-explain">Full page because the user navigated here intentionally. Not interrupting anything. Needs space for scope selector + instruction field + clarity check.</div>
+          <div class="trigger-row">
+            <span class="trigger trigger-user">👤 User navigates here</span>
+          </div>
+          <div class="returns-to">→ On submit: Clarity check inline → then Modal P-001</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector-down">
+      <div class="connector-label">Submit + clarity check passes</div>
+      <div class="connector-arrow">↓</div>
+    </div>
+
+    <!-- P-001 -->
+    <div class="flow-section">
+      <div class="pattern-node type-modal">
+        <div class="node-header">
+          <span class="node-pid">P-001</span>
+          <span class="node-title">Pre-flight Plan</span>
+          <span class="node-container-badge">Modal</span>
+        </div>
+        <div class="node-body">
+          <div class="node-question">How do you tell the user what agents will do before they start?</div>
+          <div class="node-container-explain">Modal because it's triggered immediately after submit. User is still on the instruction page. Blocking — must approve before anything starts. Not a new destination.</div>
+          <div class="trigger-row">
+            <span class="trigger trigger-system">⚙ System — after clarity check</span>
+          </div>
+          <div class="returns-to">→ On approve: Modal closes → Navigate to Full Page P-002</div>
+          <div class="returns-to">→ On cancel: Modal closes → Back to P-000</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="connector-down">
+      <div class="connector-label">User approves</div>
+      <div class="connector-arrow">↓</div>
+    </div>
+
+    <!-- P-002 — the hub -->
+    <div class="flow-section">
+      <div class="flow-section-label">The hub — everything connects here</div>
+      <div class="pattern-node type-fullpage" style="border-color:rgba(45,107,228,0.8);box-shadow:0 0 0 3px rgba(45,107,228,0.15)">
+        <div class="node-header">
+          <span class="node-pid">P-002</span>
+          <span class="node-title">Item Status Grid ★ Central hub</span>
+          <span class="node-container-badge">Full Page</span>
+        </div>
+        <div class="node-body">
+          <div class="node-question">How do you show progress across all products and all agents while running?</div>
+          <div class="node-container-explain">Full page because it's the main monitoring screen. User stays here while agents run. All other patterns branch from here and return here. This is home base.</div>
+          <div class="trigger-row">
+            <span class="trigger trigger-user">👤 User navigates here</span>
+            <span class="trigger trigger-agent">🤖 After Pre-flight approval</span>
+            <span class="trigger trigger-time">🕐 On return after being away</span>
+          </div>
+          <div style="margin-top:10px;padding:8px 10px;background:rgba(45,107,228,0.1);border-radius:6px;font-size:11px;color:#93C5FD;line-height:1.5">
+            ★ Three patterns branch off this page: P-003 (drawer), P-004 (inline), P-005 (modal). All return here when resolved.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Three branches from P-002 -->
+    <div style="margin:8px 0">
+      <div style="text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.15);margin-bottom:16px">Three things can happen while agents are running</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">
+
+        <!-- P-003 -->
+        <div class="pattern-node type-drawer">
+          <div class="node-header">
+            <span class="node-pid">P-003</span>
+            <span class="node-title">Graceful Handoff</span>
+            <span class="node-container-badge">Drawer</span>
+          </div>
+          <div class="node-body">
+            <div class="node-question">How do you pass control back to the human when an agent reaches its limit?</div>
+            <div class="node-container-explain">Drawer — slides in from the right over the Status Grid. User can still see which agents are running behind it. Context preserved. Closes when decided.</div>
+            <div class="trigger-row">
+              <span class="trigger trigger-agent">🤖 Agent reaches decision limit</span>
+            </div>
+            <div class="returns-to">→ On decide: Drawer closes → Back to P-002</div>
+          </div>
+        </div>
+
+        <!-- P-004 -->
+        <div class="pattern-node type-inline">
+          <div class="node-header">
+            <span class="node-pid">P-004</span>
+            <span class="node-title">Error Recovery</span>
+            <span class="node-container-badge">Inline</span>
+          </div>
+          <div class="node-body">
+            <div class="node-question">How do you recover when an agent fails unexpectedly mid-chain?</div>
+            <div class="node-container-explain">Inline — the failed product row in the Status Grid expands in place. No overlay, no navigation. User sees the error in context of the full run. For multiple failures → Drawer.</div>
+            <div class="trigger-row">
+              <span class="trigger trigger-system">⚙ Agent fails unexpectedly</span>
+            </div>
+            <div class="returns-to">→ On fix: Row collapses → Back to P-002 updated</div>
+            <div class="returns-to">→ Multiple failures: → Drawer instead</div>
+          </div>
+        </div>
+
+        <!-- P-005 -->
+        <div class="pattern-node type-modal">
+          <div class="node-header">
+            <span class="node-pid">P-005</span>
+            <span class="node-title">Interruption & Pause</span>
+            <span class="node-container-badge">Modal</span>
+          </div>
+          <div class="node-body">
+            <div class="node-question">How do you let the user stop agents mid-run without losing work?</div>
+            <div class="node-container-explain">Modal because the user triggered it intentionally via the Pause button. Blocking — they need to decide: resume or cancel. Small focused decision. Doesn't need full page.</div>
+            <div class="trigger-row">
+              <span class="trigger trigger-user">👤 User clicks Pause button</span>
+            </div>
+            <div class="returns-to">→ On resume: Modal closes → Back to P-002</div>
+            <div class="returns-to">→ On cancel: Modal closes → Summary screen</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="connector-down" style="margin-top:8px">
+      <div class="connector-label">Publishing Agent hits boundary declared in P-001</div>
+      <div class="connector-arrow">↓</div>
+    </div>
+
+    <!-- P-007 -->
+    <div class="flow-section">
+      <div class="pattern-node type-sidepanel">
+        <div class="node-header">
+          <span class="node-pid">P-007</span>
+          <span class="node-title">Decision Checkpoint</span>
+          <span class="node-container-badge">Side Panel</span>
+        </div>
+        <div class="node-body">
+          <div class="node-question">How do you pause an agent at an irreversible boundary and get human sign-off?</div>
+          <div class="node-container-explain">Side panel — product list on the left, full preview detail on the right. Both visible simultaneously. Faster to review 10 products than navigating in and out of a full page. User never loses their place in the list.</div>
+          <div class="trigger-row">
+            <span class="trigger trigger-agent">🤖 Publishing Agent hits pre-declared boundary</span>
+          </div>
+          <div class="returns-to">→ All approved: Navigate to Completion Summary</div>
+          <div class="returns-to">→ Request edit: Agent fixes → returns to P-007</div>
+          <div class="returns-to">→ Mixed: Continue reviewing remaining products</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:8px 0">
+
+      <!-- P-006 -->
+      <div>
+        <div style="text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.15);margin-bottom:16px">If user left and came back at any point</div>
+        <div class="pattern-node type-banner">
+          <div class="node-header">
+            <span class="node-pid">P-006</span>
+            <span class="node-title">Re-engagement</span>
+            <span class="node-container-badge">Banner / Full Page</span>
+          </div>
+          <div class="node-body">
+            <div class="node-question">How do you re-orient a user who returns after agents ran without them?</div>
+            <div class="node-container-explain">Banner if user returns to a screen mid-session — thin strip at top with summary + CTA. Full page if it's the first thing they see on opening the app. Match to entry context.</div>
+            <div class="trigger-row">
+              <span class="trigger trigger-time">🕐 User returns after being away</span>
+            </div>
+            <div class="returns-to">→ CTA takes user to most urgent pattern</div>
+            <div class="returns-to">→ Banner: dismisses after user acts</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Completion -->
+      <div>
+        <div style="text-align:center;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.15);margin-bottom:16px">End of run</div>
+        <div class="pattern-node type-fullpage">
+          <div class="node-header">
+            <span class="node-pid">—</span>
+            <span class="node-title">Completion Summary</span>
+            <span class="node-container-badge">Full Page</span>
+          </div>
+          <div class="node-body">
+            <div class="node-question">How do you close the loop on a completed agent run?</div>
+            <div class="node-container-explain">Full page. The run is over. User deserves a clear summary of what was completed, approved, rejected, and published. Starting point for the next run.</div>
+            <div class="trigger-row">
+              <span class="trigger trigger-system">⚙ All products decided at P-007</span>
+              <span class="trigger trigger-user">👤 User cancels run at P-005</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Container type showcase -->
+<div class="showcase">
+  <div class="showcase-title">Container Types — When to Use Each</div>
+  <div class="showcase-desc">The decision rule for every pattern in your library.</div>
+  <div class="showcase-grid">
+
+    <div class="showcase-card">
+      <div class="showcase-card-header"><div class="showcase-card-type" style="color:#3B82F6">Full Page</div><div class="showcase-card-title">User came here intentionally</div></div>
+      <div class="showcase-card-body">
+        <div class="showcase-card-desc">Replaces current screen. User navigated here on purpose. Needs full space. Not interrupting anything.</div>
+        <div class="showcase-patterns">
+          <span class="showcase-pattern-tag" style="background:rgba(45,107,228,0.15);color:#93C5FD">P-000</span>
+          <span class="showcase-pattern-tag" style="background:rgba(45,107,228,0.15);color:#93C5FD">P-002</span>
+          <span class="showcase-pattern-tag" style="background:rgba(45,107,228,0.15);color:#93C5FD">P-006*</span>
+          <span class="showcase-pattern-tag" style="background:rgba(45,107,228,0.15);color:#93C5FD">Completion</span>
+        </div>
+        <div class="showcase-rule">Use when: user has a clear destination in mind and needs maximum space to work.</div>
+      </div>
+    </div>
+
+    <div class="showcase-card">
+      <div class="showcase-card-header"><div class="showcase-card-type" style="color:#8B5CF6">Modal</div><div class="showcase-card-title">Blocking decision needed now</div></div>
+      <div class="showcase-card-body">
+        <div class="showcase-card-desc">Overlay on current screen. Blocks everything behind it. User must decide before continuing. Small to medium content.</div>
+        <div class="showcase-patterns">
+          <span class="showcase-pattern-tag" style="background:rgba(124,58,237,0.15);color:#C4B5FD">P-001</span>
+          <span class="showcase-pattern-tag" style="background:rgba(124,58,237,0.15);color:#C4B5FD">P-005</span>
+        </div>
+        <div class="showcase-rule">Use when: user triggered this intentionally or system needs a decision before anything else can happen.</div>
+      </div>
+    </div>
+
+    <div class="showcase-card">
+      <div class="showcase-card-header"><div class="showcase-card-type" style="color:#F59E0B">Drawer</div><div class="showcase-card-title">Context must stay visible</div></div>
+      <div class="showcase-card-body">
+        <div class="showcase-card-desc">Slides in from side. Current screen visible behind. User keeps context of what's running while handling the interruption.</div>
+        <div class="showcase-patterns">
+          <span class="showcase-pattern-tag" style="background:rgba(245,158,11,0.15);color:#FDE68A">P-003</span>
+          <span class="showcase-pattern-tag" style="background:rgba(245,158,11,0.15);color:#FDE68A">P-004*</span>
+        </div>
+        <div class="showcase-rule">Use when: agent interrupted the user mid-run and user needs to see the rest of the run while deciding.</div>
+      </div>
+    </div>
+
+    <div class="showcase-card">
+      <div class="showcase-card-header"><div class="showcase-card-type" style="color:#EF4444">Inline</div><div class="showcase-card-title">Single item needs attention</div></div>
+      <div class="showcase-card-body">
+        <div class="showcase-card-desc">Content expands in place. No overlay. No navigation. The failed item row expands with full error detail. Everything else stays visible.</div>
+        <div class="showcase-patterns">
+          <span class="showcase-pattern-tag" style="background:rgba(239,68,68,0.15);color:#FCA5A5">P-004 single</span>
+        </div>
+        <div class="showcase-rule">Use when: one specific item has an error. Multiple errors → switch to Drawer instead.</div>
+      </div>
+    </div>
+
+    <div class="showcase-card">
+      <div class="showcase-card-header"><div class="showcase-card-type" style="color:#0D9488">Side Panel</div><div class="showcase-card-title">List + detail simultaneously</div></div>
+      <div class="showcase-card-body">
+        <div class="showcase-card-desc">Two panes visible at once. List on left, detail on right. User moves through items without losing their place in the list.</div>
+        <div class="showcase-patterns">
+          <span class="showcase-pattern-tag" style="background:rgba(13,148,136,0.15);color:#5EEAD4">P-007</span>
+        </div>
+        <div class="showcase-rule">Use when: user needs to review multiple items sequentially and compare detail against the full list.</div>
+      </div>
+    </div>
+
+    <div class="showcase-card">
+      <div class="showcase-card-header"><div class="showcase-card-type" style="color:#10B981">Banner</div><div class="showcase-card-title">Non-blocking awareness</div></div>
+      <div class="showcase-card-body">
+        <div class="showcase-card-desc">Thin strip at top of screen. User can see it and dismiss or act. Doesn't block current work. Used for passive notifications.</div>
+        <div class="showcase-patterns">
+          <span class="showcase-pattern-tag" style="background:rgba(16,185,129,0.15);color:#6EE7B7">P-006 mid-session</span>
+        </div>
+        <div class="showcase-rule">Use when: user is already in the app and agents finished while they were on another screen.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Wireframe sketches -->
+<div class="wireframes">
+  <div class="wireframes-title">What Each Container Looks Like</div>
+  <div class="wireframes-desc">Schematic wireframes showing the visual structure of each container type in context.</div>
+  <div class="wireframes-grid">
+
+    <!-- Full page -->
+    <div class="wf-device">
+      <div class="wf-device-label"><span style="color:#3B82F6">Full Page</span><span>P-000 · P-002 · P-007 end</span></div>
+      <div class="wf-screen">
+        <div class="wf-chrome">
+          <div class="wf-nav"><div class="wf-nav-dot"></div><div class="wf-nav-dot"></div><div class="wf-nav-dot"></div><div class="wf-nav-bar"></div></div>
+          <div class="wf-content">
+            <div class="wf-block wf-title-block" style="margin-bottom:10px"></div>
+            <div class="wf-block wf-text-block" style="margin-bottom:4px"></div>
+            <div class="wf-block wf-text-block w80" style="margin-bottom:4px"></div>
+            <div class="wf-block wf-text-block w60" style="margin-bottom:12px"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
+              <div class="wf-block" style="height:40px;border-radius:4px"></div>
+              <div class="wf-block" style="height:40px;border-radius:4px"></div>
+              <div class="wf-block" style="height:40px;border-radius:4px"></div>
+            </div>
+            <div class="wf-block" style="height:50px;border-radius:4px;margin-bottom:8px"></div>
+            <div class="wf-btn" style="width:80px;height:20px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="wf-device">
+      <div class="wf-device-label"><span style="color:#8B5CF6">Modal</span><span>P-001 · P-005</span></div>
+      <div class="wf-screen">
+        <div class="wf-chrome" style="position:relative">
+          <div class="wf-nav"><div class="wf-nav-dot"></div><div class="wf-nav-dot"></div><div class="wf-nav-dot"></div><div class="wf-nav-bar"></div></div>
+          <div class="wf-content">
+            <div class="wf-block wf-text-block" style="margin-bottom:4px;opacity:0.3"></div>
+            <div class="wf-block wf-text-block w80" style="margin-bottom:4px;opacity:0.3"></div>
+            <div class="wf-block wf-text-block w60" style="opacity:0.3"></div>
+          </div>
+          <div class="wf-modal-overlay">
+            <div class="wf-modal">
+              <div class="wf-modal-header"><div class="wf-modal-icon"></div><div class="wf-modal-title"></div></div>
+              <div class="wf-block wf-text-block" style="margin-bottom:4px"></div>
+              <div class="wf-block wf-text-block w80" style="margin-bottom:4px"></div>
+              <div class="wf-block wf-text-block w60" style="margin-bottom:8px"></div>
+              <div style="display:flex;gap:6px">
+                <div class="wf-btn" style="flex:1;height:18px"></div>
+                <div class="wf-btn green" style="flex:1;height:18px"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Drawer -->
+    <div class="wf-device">
+      <div class="wf-device-label"><span style="color:#F59E0B">Drawer</span><span>P-003 · P-004 multiple</span></div>
+      <div class="wf-screen">
+        <div class="wf-chrome" style="position:relative">
+          <div class="wf-nav"><div class="wf-nav-dot"></div><div class="wf-nav-dot"></div><div class="wf-nav-dot"></div><div class="wf-nav-bar"></div></div>
+          <div class="wf-content" style="opacity:0.4">
+            <div class="wf-block wf-text-block" style="margin-bottom:4px"></div>
+            <div class="wf-block wf-text-block w80" style="margin-bottom:4px"></div>
+          </div>
+          <div class="wf-drawer-overlay">
+            <div class="wf-main-dimmed"></div>
+            <div class="wf-drawer">
+              <div class="wf-drawer-header">
+                <div style="width:16px;height:16px;background:rgba(245,158,11,0.4);border-radius:3px"></div>
+                <div style="flex:1;height:8px;background:rgba(255,255,255,0.12);border-radius:2px;margin-left:6px"></div>
+              </div>
+              <div class="wf-block wf-text-block" style="margin-bottom:4px"></div>
+              <div class="wf-block wf-text-block w80" style="margin-bottom:4px"></div>
+              <div class="wf-block" style="height:32px;margin-bottom:8px;border-radius:4px"></div>
+              <div style="display:flex;gap:4px">
+                <div class="wf-btn green" style="flex:1;height:16px"></div>
+                <div class="wf-btn" style="flex:1;height:16px;background:rgba(239,68,68,0.4)"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inline -->
+    <div class="wf-device">
+      <div class="wf-device-label"><span style="color:#EF4444">Inline</span><span>P-004 single item</span></div>
+      <div class="wf-screen">
+        <div class="wf-chrome">
+          <div class="wf-nav"><div class="wf-nav-dot"></div><div class="wf-nav-dot"></div><div class="wf-nav-dot"></div><div class="wf-nav-bar"></div></div>
+          <div class="wf-content">
+            <div class="wf-block wf-title-block" style="margin-bottom:8px;height:10px"></div>
+            <div class="wf-table-row"><div class="wf-row-dot" style="background:rgba(16,185,129,0.6)"></div><div class="wf-row-text"></div></div>
+            <div class="wf-table-row expanded">
+              <div style="display:flex;align-items:center;gap:4px;margin-bottom:6px"><div style="width:12px;height:12px;background:rgba(239,68,68,0.5);border-radius:2px"></div><div style="height:8px;flex:1;background:rgba(255,255,255,0.15);border-radius:2px"></div></div>
+              <div class="wf-block wf-text-block" style="margin-bottom:3px"></div>
+              <div class="wf-block wf-text-block w60" style="margin-bottom:6px"></div>
+              <div style="display:flex;gap:4px">
+                <div class="wf-btn green" style="flex:1;height:14px"></div>
+                <div class="wf-btn" style="flex:1;height:14px;background:rgba(239,68,68,0.3)"></div>
+              </div>
+            </div>
+            <div class="wf-table-row"><div class="wf-row-dot" style="background:rgba(16,185,129,0.6)"></div><div class="wf-row-text"></div></div>
+            <div class="wf-table-row"><div class="wf-row-dot" style="background:rgba(45,107,228,0.6)"></div><div class="wf-row-text"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side panel -->
+    <div class="wf-device">
+      <div class="wf-device-label"><span style="color:#0D9488">Side Panel</span><span>P-007</span></div>
+      <div class="wf-screen">
+        <div class="wf-chrome" style="position:relative;overflow:hidden">
+          <div class="wf-nav"><div class="wf-nav-dot"></div><div class="wf-nav-dot"></div><div class="wf-nav-dot"></div><div class="wf-nav-bar"></div></div>
+          <div class="wf-sidepanel" style="position:relative;height:160px">
+            <div class="wf-list-pane">
+              <div style="height:8px;background:rgba(255,255,255,0.1);border-radius:2px;margin-bottom:8px"></div>
+              <div style="background:rgba(13,148,136,0.2);border:1px solid rgba(13,148,136,0.3);border-radius:3px;padding:4px 6px;margin-bottom:4px"><div style="height:6px;background:rgba(255,255,255,0.15);border-radius:2px"></div></div>
+              <div style="padding:4px 6px;margin-bottom:4px"><div style="height:6px;background:rgba(255,255,255,0.08);border-radius:2px"></div></div>
+              <div style="padding:4px 6px;margin-bottom:4px"><div style="height:6px;background:rgba(255,255,255,0.08);border-radius:2px"></div></div>
+              <div style="padding:4px 6px;margin-bottom:4px"><div style="height:6px;background:rgba(255,255,255,0.08);border-radius:2px"></div></div>
+              <div style="padding:4px 6px"><div style="height:6px;background:rgba(255,255,255,0.08);border-radius:2px"></div></div>
+            </div>
+            <div class="wf-detail-pane">
+              <div style="height:8px;background:rgba(255,255,255,0.12);border-radius:2px;margin-bottom:6px;width:70%"></div>
+              <div style="height:50px;background:rgba(255,255,255,0.05);border-radius:4px;margin-bottom:6px"></div>
+              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:3px"></div>
+              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:3px;width:80%"></div>
+              <div style="height:6px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:8px;width:60%"></div>
+              <div style="display:flex;gap:4px">
+                <div class="wf-btn green" style="flex:1;height:14px"></div>
+                <div class="wf-btn" style="flex:1;height:14px;background:rgba(245,158,11,0.4)"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Banner -->
+    <div class="wf-device">
+      <div class="wf-device-label"><span style="color:#10B981">Banner</span><span>P-006 mid-session</span></div>
+      <div class="wf-screen">
+        <div class="wf-chrome">
+          <div class="wf-nav"><div class="wf-nav-dot"></div><div class="wf-nav-dot"></div><div class="wf-nav-dot"></div><div class="wf-nav-bar"></div></div>
+          <div class="wf-banner-strip"><div class="wf-banner-dot"></div><div class="wf-banner-text"></div><div class="wf-banner-btn"></div></div>
+          <div class="wf-content">
+            <div class="wf-block wf-title-block" style="margin-bottom:8px;height:10px"></div>
+            <div class="wf-block wf-text-block" style="margin-bottom:4px"></div>
+            <div class="wf-block wf-text-block w80" style="margin-bottom:4px"></div>
+            <div class="wf-block wf-text-block w60" style="margin-bottom:10px"></div>
+            <div class="wf-block" style="height:40px;border-radius:4px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

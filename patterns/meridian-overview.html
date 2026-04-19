@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian — Overview</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0C0F14;--ink2:#2D3340;--ink3:#5A6170;--ink4:#9BA3AF;
+  --paper:#FAF9F7;--paper2:#F2F0EC;--paper3:#E8E4DD;
+  --blue:#1A56DB;--blue-l:#EBF0FF;--blue-mid:#B4C6FB;
+  --green:#0A7E5A;--green-l:#E8FAF3;
+  --red:#C8352A;--red-l:#FDF0EF;
+  --amber:#B45309;--amber-l:#FEF5E7;
+  --teal:#0D7377;--teal-l:#E6F5F5;
+  --purple:#6D28D9;--purple-l:#EDE9FE;
+  --border:#E2DDD6;--border2:#CFC9C0;
+  --accent:#1A56DB;
+}
+
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);line-height:1.6;overflow-x:hidden}
+
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:80px 80px 80px;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 60% 40%,rgba(26,86,219,0.04) 0%,transparent 70%),radial-gradient(ellipse 40% 40% at 20% 80%,rgba(109,40,217,0.03) 0%,transparent 60%);pointer-events:none}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:48px 48px;opacity:0.4;pointer-events:none}
+
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--ink4);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:32px}
+.hero-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--blue)}
+
+.hero-title{font-family:'Fraunces',serif;font-size:clamp(64px,8vw,120px);font-weight:700;color:var(--ink);letter-spacing:-0.03em;line-height:0.95;margin-bottom:24px}
+.hero-title em{font-style:italic;color:var(--blue)}
+
+.hero-sub{font-size:20px;color:var(--ink3);max-width:520px;line-height:1.6;margin-bottom:48px;font-weight:300}
+
+.hero-meta{display:flex;gap:32px;flex-wrap:wrap}
+.hero-meta-item{display:flex;flex-direction:column;gap:4px}
+.hero-meta-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink4)}
+.hero-meta-value{font-size:15px;font-weight:600;color:var(--ink2)}
+.hero-meta-value.live{color:var(--green);display:flex;align-items:center;gap:6px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(0.85)}}
+
+.hero-scroll{position:absolute;bottom:40px;left:80px;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink4);letter-spacing:0.05em}
+.hero-scroll-line{width:40px;height:1px;background:var(--border2)}
+
+/* ── NAV ── */
+.sticky-nav{position:sticky;top:0;z-index:100;background:rgba(250,249,247,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 80px;height:52px;display:flex;align-items:center;gap:0}
+.nav-logo{font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:var(--ink);margin-right:32px;letter-spacing:-0.02em}
+.nav-links{display:flex;gap:0;overflow-x:auto}
+.nav-link{padding:0 16px;height:52px;display:flex;align-items:center;font-size:12px;font-weight:500;color:var(--ink4);text-decoration:none;border-bottom:2px solid transparent;transition:all 0.15s;white-space:nowrap;cursor:pointer}
+.nav-link:hover{color:var(--ink2);border-bottom-color:var(--border2)}
+.nav-link.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* ── SECTIONS ── */
+.section{padding:96px 80px;border-bottom:1px solid var(--border)}
+.section:last-child{border-bottom:none}
+
+.section-eyebrow{font-family:'DM Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink4);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.section-eyebrow::after{content:'';flex:1;height:1px;background:var(--border)}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(36px,4vw,52px);font-weight:600;color:var(--ink);letter-spacing:-0.02em;line-height:1.1;margin-bottom:20px}
+.section-title em{font-style:italic;color:var(--blue)}
+.section-body{font-size:16px;color:var(--ink3);line-height:1.75;max-width:640px}
+.section-body p{margin-bottom:16px}
+.section-body p:last-child{margin-bottom:0}
+
+/* ── PROBLEM ── */
+.problem-split{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:48px;align-items:start}
+.problem-col-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink4);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.problem-stat{font-family:'Fraunces',serif;font-size:80px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:8px;letter-spacing:-0.04em}
+.problem-stat-sub{font-size:15px;color:var(--ink3);line-height:1.5;max-width:320px}
+.problem-list{display:flex;flex-direction:column;gap:12px}
+.problem-item{display:flex;gap:12px;padding:14px 16px;background:var(--paper2);border:1px solid var(--border);border-radius:10px}
+.problem-item-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.problem-item-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.problem-item-desc{font-size:12px;color:var(--ink3);line-height:1.4}
+
+/* ── PRINCIPLES ── */
+.principles-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:48px}
+.principle-item{background:var(--paper);padding:28px 32px}
+.principle-num{font-family:'DM Mono',monospace;font-size:11px;color:var(--ink4);margin-bottom:12px}
+.principle-title{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--ink);letter-spacing:-0.01em;margin-bottom:8px}
+.principle-desc{font-size:13px;color:var(--ink3);line-height:1.6}
+
+/* ── PATTERNS ── */
+.patterns-intro{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-bottom:48px;margin-top:48px}
+.patterns-table{border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.patterns-table-header{display:grid;grid-template-columns:80px 160px 1fr 120px;background:var(--ink);padding:12px 20px;gap:16px}
+.pth-cell{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.5)}
+.pattern-row{display:grid;grid-template-columns:80px 160px 1fr 120px;padding:16px 20px;gap:16px;border-top:1px solid var(--border);transition:background 0.15s;cursor:default;align-items:center}
+.pattern-row:hover{background:var(--paper2)}
+.pr-id{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--blue)}
+.pr-name{font-size:13px;font-weight:600;color:var(--ink)}
+.pr-question{font-size:12px;color:var(--ink3);line-height:1.4}
+.pr-container{font-size:11px;font-weight:600;padding:3px 8px;border-radius:5px;text-align:center;white-space:nowrap}
+
+/* ── AGENT STATES ── */
+.states-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:48px}
+.state-card{padding:24px 20px;border-right:1px solid var(--border);background:var(--paper)}
+.state-card:last-child{border-right:none}
+.state-indicator{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.state-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.state-name{font-size:13px;font-weight:700;color:var(--ink)}
+.state-hex{font-family:'DM Mono',monospace;font-size:10px;color:var(--ink4);margin-bottom:8px}
+.state-desc{font-size:11px;color:var(--ink3);line-height:1.5;margin-bottom:10px}
+.state-action{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.07em}
+.state-rule{margin-top:24px;padding:14px 20px;background:var(--amber-l);border-top:1px solid var(--border);grid-column:1/-1;font-size:12px;color:var(--amber);font-weight:500}
+
+/* ── CONTAINER HIERARCHY ── */
+.container-visual{margin-top:48px;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.container-row{display:grid;grid-template-columns:140px 180px 1fr 200px;border-bottom:1px solid var(--border);align-items:stretch}
+.container-row:last-child{border-bottom:none}
+.container-row.header{background:var(--ink)}
+.container-cell{padding:16px 20px}
+.container-cell.header{padding:10px 20px}
+.container-cell-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:rgba(255,255,255,0.5)}
+.container-type{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.container-level{font-family:'DM Mono',monospace;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;display:inline-block;margin-bottom:8px}
+.container-use{font-size:12px;color:var(--ink3);line-height:1.4}
+.container-pattern{font-size:12px;color:var(--blue);font-weight:500}
+.container-example{font-size:11px;color:var(--ink4);font-style:italic;line-height:1.4}
+.container-divider{width:1px;background:var(--border);align-self:stretch}
+
+.hierarchy-diagram{margin-top:32px;display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.h-row{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--border)}
+.h-row:last-child{border-bottom:none}
+.h-level{width:100px;padding:16px 20px;border-right:1px solid var(--border);font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink4);background:var(--paper2)}
+.h-name{padding:16px 20px;font-size:14px;font-weight:700;color:var(--ink);border-right:1px solid var(--border);min-width:140px}
+.h-desc{padding:16px 20px;font-size:12px;color:var(--ink3);line-height:1.5;flex:1;border-right:1px solid var(--border)}
+.h-when{padding:16px 20px;font-size:12px;color:var(--ink3);line-height:1.5;width:240px}
+
+/* ── DECISIONS ── */
+.decisions-list{display:flex;flex-direction:column;gap:16px;margin-top:48px}
+.decision-item{display:grid;grid-template-columns:200px 1fr 240px;gap:0;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.decision-date{padding:16px 20px;background:var(--paper2);border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:center}
+.decision-date-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink4);margin-bottom:4px}
+.decision-date-val{font-size:12px;font-weight:600;color:var(--ink3)}
+.decision-body{padding:16px 20px}
+.decision-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:5px}
+.decision-desc{font-size:12px;color:var(--ink3);line-height:1.5}
+.decision-outcome{padding:16px 20px;background:var(--blue-l);border-left:1px solid var(--border)}
+.decision-outcome-label{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--blue);margin-bottom:5px}
+.decision-outcome-val{font-size:12px;font-weight:600;color:var(--blue);line-height:1.4}
+
+/* ── HOW TO USE ── */
+.audiences{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+.audience-card{padding:28px;border:1px solid var(--border);border-radius:14px;background:var(--paper)}
+.audience-icon{font-size:28px;margin-bottom:16px}
+.audience-title{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:8px;font-family:'Fraunces',serif}
+.audience-role{font-size:12px;font-weight:600;color:var(--ink4);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:12px}
+.audience-steps{display:flex;flex-direction:column;gap:8px}
+.audience-step{display:flex;gap:10px;font-size:13px;color:var(--ink3);line-height:1.4}
+.audience-step-num{width:20px;height:20px;border-radius:50%;background:var(--paper3);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;color:var(--ink3)}
+
+/* ── ROADMAP ── */
+.roadmap{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-top:48px}
+.roadmap-col{padding:32px;border-right:1px solid var(--border)}
+.roadmap-col:last-child{border-right:none}
+.roadmap-phase{font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink4);margin-bottom:6px}
+.roadmap-title{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--ink);margin-bottom:4px;letter-spacing:-0.01em}
+.roadmap-timeline{font-size:12px;color:var(--ink4);margin-bottom:20px;font-style:italic}
+.roadmap-items{display:flex;flex-direction:column;gap:8px}
+.roadmap-item{display:flex;gap:8px;font-size:13px;color:var(--ink3);line-height:1.4}
+.roadmap-item-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.roadmap-status{margin-top:20px;padding:8px 12px;border-radius:7px;font-size:11px;font-weight:600}
+
+/* ── FOOTER ── */
+.footer{padding:48px 80px;background:var(--ink);color:white;display:flex;align-items:center;justify-content:space-between}
+.footer-logo{font-family:'Fraunces',serif;font-size:24px;font-weight:700;letter-spacing:-0.02em}
+.footer-tagline{font-size:13px;color:rgba(255,255,255,0.4);margin-top:4px}
+.footer-right{text-align:right;font-size:12px;color:rgba(255,255,255,0.4)}
+
+/* ── ANIMATIONS ── */
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-eyebrow"><div class="hero-eyebrow-dot"></div>Agentic AI Design System · v1.0</div>
+  <h1 class="hero-title">Meridian<br><em>The design language<br>for AI that acts.</em></h1>
+  <p class="hero-sub">8 patterns for the unique UX challenges that emerge when AI agents act autonomously — across multiple items, multiple steps, and irreversible actions.</p>
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">Patterns</span>
+      <span class="hero-meta-value">8 + 1 sub-pattern</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">Status</span>
+      <span class="hero-meta-value live"><span class="live-dot"></span>Approved v1.0</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">Source scenario</span>
+      <span class="hero-meta-value">Retail · 4 agents · 10–100 products</span>
+    </div>
+    <div class="hero-meta-item">
+      <span class="hero-meta-label">Design test</span>
+      <span class="hero-meta-value">Does this only exist because AI acts autonomously?</span>
+    </div>
+  </div>
+  <div class="hero-scroll"><div class="hero-scroll-line"></div>Scroll to explore</div>
+</section>
+
+<!-- NAV -->
+<nav class="sticky-nav">
+  <div class="nav-logo">Meridian</div>
+  <div class="nav-links">
+    <a class="nav-link" onclick="scrollTo('problem')">Problem</a>
+    <a class="nav-link" onclick="scrollTo('principles')">Principles</a>
+    <a class="nav-link" onclick="scrollTo('patterns')">Patterns</a>
+    <a class="nav-link" onclick="scrollTo('states')">Agent States</a>
+    <a class="nav-link" onclick="scrollTo('containers')">Containers</a>
+    <a class="nav-link" onclick="scrollTo('decisions')">Decisions</a>
+    <a class="nav-link" onclick="scrollTo('howto')">How to Use</a>
+    <a class="nav-link" onclick="scrollTo('roadmap')">Roadmap</a>
+  </div>
+</nav>
+
+<!-- 1. PROBLEM -->
+<section class="section fade-in" id="problem">
+  <div class="section-eyebrow">01 · Background</div>
+  <h2 class="section-title">30 designers.<br><em>30 different AI experiences.</em></h2>
+  <div class="section-body">
+    <p>Designers across 30 products were building AI features independently with no shared design language. Users moving between products encountered different visual treatments, different interaction patterns, and different trust signals for identical AI behaviour.</p>
+    <p>The deeper problem is that standard UX design patterns were built for interactions where the user is present and in control at every step. Agentic AI breaks this assumption entirely.</p>
+  </div>
+  <div class="problem-split">
+    <div>
+      <div class="problem-col-label">The number that started everything</div>
+      <div class="problem-stat">30</div>
+      <div class="problem-stat-sub">Designers building AI features independently across 30 products with no shared foundation.</div>
+    </div>
+    <div>
+      <div class="problem-col-label">Four challenges standard patterns cannot address</div>
+      <div class="problem-list">
+        <div class="problem-item">
+          <div class="problem-item-icon" style="background:#EBF0FF">👁️</div>
+          <div><div class="problem-item-title">Visibility</div><div class="problem-item-desc">Agents run without the user watching. How do they know what is happening across 40 simultaneous tasks?</div></div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-item-icon" style="background:#E8FAF3">⚖️</div>
+          <div><div class="problem-item-title">Trust at scale</div><div class="problem-item-desc">A wrong agent decision on 100 products causes 100× the damage of a wrong human decision on 1.</div></div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-item-icon" style="background:#FEF5E7">⏸</div>
+          <div><div class="problem-item-title">Interruption</div><div class="problem-item-desc">The user needs to stop agents mid-run. Standard cancel buttons were not designed for chains with partial completion.</div></div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-item-icon" style="background:#EDE9FE">👋</div>
+          <div><div class="problem-item-title">Re-entry</div><div class="problem-item-desc">The user left and came back. The world changed without them. Standard dashboards have no concept of this.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. PRINCIPLES -->
+<section class="section fade-in" id="principles">
+  <div class="section-eyebrow">02 · Design Principles</div>
+  <h2 class="section-title">Five principles that<br><em>govern every decision.</em></h2>
+  <div class="section-body">
+    <p>When two design options are in conflict — apply the principle with the lower number. These are not guidelines. They are constraints.</p>
+  </div>
+  <div class="principles-grid">
+    <div class="principle-item">
+      <div class="principle-num">01</div>
+      <div class="principle-title">Preserve completed work — always</div>
+      <div class="principle-desc">An agent failure never rolls back the work of prior agents. Completed outputs are always kept regardless of what happens next in the chain.</div>
+    </div>
+    <div class="principle-item">
+      <div class="principle-num">02</div>
+      <div class="principle-title">Transparency before autonomy</div>
+      <div class="principle-desc">Users must see what agents will do before they start. No exceptions. The approve click is the explicit consent moment.</div>
+    </div>
+    <div class="principle-item">
+      <div class="principle-num">03</div>
+      <div class="principle-title">One question at a time</div>
+      <div class="principle-desc">When agents need the user — one specific question. Never multiple decisions at once. Cognitive load at decision moments must be minimal.</div>
+    </div>
+    <div class="principle-item">
+      <div class="principle-num">04</div>
+      <div class="principle-title">Urgency first</div>
+      <div class="principle-desc">What needs the user is always shown before what succeeded. Good news waits. Issues are never buried below completions.</div>
+    </div>
+    <div class="principle-item" style="grid-column:1/-1;background:var(--blue-l);border-top:1px solid var(--border)">
+      <div class="principle-num" style="color:var(--blue)">05</div>
+      <div class="principle-title" style="color:var(--blue)">Contract over surprise</div>
+      <div class="principle-desc" style="color:var(--ink3)">Every agent boundary was declared upfront in Pre-flight Plan. The system honours exactly what was agreed. Users don't fear AI doing things — they fear AI doing things they didn't expect.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. PATTERNS -->
+<section class="section fade-in" id="patterns">
+  <div class="section-eyebrow">03 · The 8 Patterns</div>
+  <h2 class="section-title">One scenario.<br><em>Eight design problems.</em></h2>
+  <div class="section-body">
+    <p>All 8 patterns were derived from a single enterprise retail scenario: a user types one prompt that triggers 4 agents across 10 products simultaneously. Each pattern was tested against one question: does this problem only exist because AI acts autonomously?</p>
+  </div>
+  <div class="patterns-intro">
+    <div style="padding:24px;background:var(--paper2);border:1px solid var(--border);border-radius:12px">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink4);margin-bottom:12px">The anchor scenario</div>
+      <div style="font-size:14px;font-style:italic;color:var(--ink);line-height:1.6;margin-bottom:16px;font-family:'Fraunces',serif">"Generate videos, write descriptions, run QA and publish for all Summer Collection products"</div>
+      <div style="font-size:12px;color:var(--ink3);line-height:1.5">Triggers 4 agents across 10 products simultaneously. 40 tasks. Running autonomously. This one scenario exposed every design challenge in the library.</div>
+    </div>
+    <div style="padding:24px;background:var(--paper2);border:1px solid var(--border);border-radius:12px">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink4);margin-bottom:12px">The design test</div>
+      <div style="font-size:18px;font-weight:700;color:var(--ink);font-family:'Fraunces',serif;margin-bottom:12px">Does this problem only exist because AI acts autonomously?</div>
+      <div style="font-size:12px;color:var(--ink3);line-height:1.5">If the answer is no — the pattern was rejected. Standard UX patterns handle the rest. Only genuinely agentic problems are documented here.</div>
+    </div>
+  </div>
+
+  <div class="patterns-table">
+    <div class="patterns-table-header">
+      <div class="pth-cell">ID</div>
+      <div class="pth-cell">Pattern</div>
+      <div class="pth-cell">How do you...</div>
+      <div class="pth-cell">Container</div>
+    </div>
+    <div class="pattern-row"><span class="pr-id">P-000</span><span class="pr-name">Instruction Input</span><span class="pr-question">Help the user write an instruction that agents can act on safely at scale?</span><span class="pr-container" style="background:#EDE9FE;color:#6D28D9">Full Page</span></div>
+    <div class="pattern-row"><span class="pr-id">P-000a</span><span class="pr-name">Prompt Refinement</span><span class="pr-question">Help the user write a perfect prompt before they submit — in real time?</span><span class="pr-container" style="background:#EDE9FE;color:#6D28D9">Inline</span></div>
+    <div class="pattern-row"><span class="pr-id">P-001</span><span class="pr-name">Pre-flight Plan</span><span class="pr-question">Tell the user what agents will do before they start?</span><span class="pr-container" style="background:#EBF0FF;color:#1A56DB">Dialog</span></div>
+    <div class="pattern-row"><span class="pr-id">P-002</span><span class="pr-name">Item Status Grid</span><span class="pr-question">Show progress across all items and all agents while running?</span><span class="pr-container" style="background:#EBF0FF;color:#1A56DB">Full Page</span></div>
+    <div class="pattern-row"><span class="pr-id">P-003</span><span class="pr-name">Graceful Handoff</span><span class="pr-question">Pass control back to the human when an agent reaches its limit?</span><span class="pr-container" style="background:#FEF5E7;color:#B45309">Drawer</span></div>
+    <div class="pattern-row"><span class="pr-id">P-004</span><span class="pr-name">Error Recovery</span><span class="pr-question">Recover when an agent fails unexpectedly mid-chain?</span><span class="pr-container" style="background:#FDF0EF;color:#C8352A">Inline / Drawer</span></div>
+    <div class="pattern-row"><span class="pr-id">P-005</span><span class="pr-name">Interruption & Pause</span><span class="pr-question">Let the user stop agents mid-run without losing work?</span><span class="pr-container" style="background:#FEF5E7;color:#B45309">Dialog</span></div>
+    <div class="pattern-row"><span class="pr-id">P-006</span><span class="pr-name">Re-engagement</span><span class="pr-question">Re-orient a user who returns after agents ran without them?</span><span class="pr-container" style="background:#E8FAF3;color:#0A7E5A">Banner / Full Page</span></div>
+    <div class="pattern-row"><span class="pr-id">P-007</span><span class="pr-name">Decision Checkpoint</span><span class="pr-question">Pause an agent at an irreversible boundary and get human sign-off?</span><span class="pr-container" style="background:#E6F5F5;color:#0D7377">Side Panel</span></div>
+  </div>
+</section>
+
+<!-- 4. AGENT STATES -->
+<section class="section fade-in" id="states">
+  <div class="section-eyebrow">04 · Agent State Language</div>
+  <h2 class="section-title">Five states.<br><em>Used everywhere. Never changed.</em></h2>
+  <div class="section-body">
+    <p>The universal visual language shared across all 8 patterns and every product in the organisation. These are system tokens — not product choices. Designers cannot change these colors.</p>
+  </div>
+  <div class="states-grid">
+    <div class="state-card">
+      <div class="state-indicator"><div class="state-dot" style="background:#3B82F6"></div><span class="state-name">Running</span></div>
+      <div class="state-hex">#3B82F6 · Blue</div>
+      <div class="state-desc">Agent is actively working on this item right now. Progress is being made. No action needed from the user.</div>
+      <div class="state-action" style="color:#3B82F6">No action needed</div>
+    </div>
+    <div class="state-card">
+      <div class="state-indicator"><div class="state-dot" style="background:#10B981"></div><span class="state-name">Done</span></div>
+      <div class="state-hex">#10B981 · Green</div>
+      <div class="state-desc">Agent completed this stage successfully. Output is ready. Chain can proceed to next agent.</div>
+      <div class="state-action" style="color:#10B981">No action needed</div>
+    </div>
+    <div class="state-card" style="background:#FDF0EF">
+      <div class="state-indicator"><div class="state-dot" style="background:#EF4444"></div><span class="state-name">Stuck</span></div>
+      <div class="state-hex">#EF4444 · Red</div>
+      <div class="state-desc">Agent hit a problem it cannot resolve alone. Always surfaces at the top. Always has a Fix button. Never hidden.</div>
+      <div class="state-action" style="color:#EF4444">Fix required now</div>
+    </div>
+    <div class="state-card">
+      <div class="state-indicator"><div class="state-dot" style="background:#F59E0B"></div><span class="state-name">Waiting</span></div>
+      <div class="state-hex">#F59E0B · Amber</div>
+      <div class="state-desc">Agent paused at a pre-declared boundary. Awaiting user approval to continue. Not an error — an agreement being honoured.</div>
+      <div class="state-action" style="color:#F59E0B">Decision needed</div>
+    </div>
+    <div class="state-card">
+      <div class="state-indicator"><div class="state-dot" style="background:#9CA3AF"></div><span class="state-name">Pending</span></div>
+      <div class="state-hex">#9CA3AF · Grey</div>
+      <div class="state-desc">Stage has not started yet. Waiting on a prior agent in the chain to complete before this one can begin.</div>
+      <div class="state-action" style="color:#9CA3AF">No action needed</div>
+    </div>
+    <div style="grid-column:1/-1;padding:14px 20px;background:var(--amber-l);border-top:1px solid var(--border);font-size:12px;color:var(--amber);font-weight:500">
+      ⚠ Critical rule — These five states and their exact color tokens must never change across any product in the organisation. Treat them as immutable system tokens.
+    </div>
+  </div>
+</section>
+
+<!-- 5. CONTAINERS -->
+<section class="section fade-in" id="containers">
+  <div class="section-eyebrow">05 · Container Hierarchy</div>
+  <h2 class="section-title">Dialog. Sheet. Popover.<br><em>A three-level system.</em></h2>
+  <div class="section-body">
+    <p>The Pre-flight Plan decision established the container hierarchy for all primary decision moments in the library. Two questions determine the right container: Is the user in the middle of something? And how much space does the decision need?</p>
+  </div>
+
+  <div class="hierarchy-diagram" style="margin-top:48px">
+    <div class="h-row" style="background:var(--ink)">
+      <div class="h-level" style="background:var(--ink);color:rgba(255,255,255,0.4)">Level</div>
+      <div class="h-name" style="color:rgba(255,255,255,0.9)">Container</div>
+      <div class="h-desc" style="color:rgba(255,255,255,0.5)">Purpose</div>
+      <div class="h-when" style="color:rgba(255,255,255,0.5)">Used for</div>
+    </div>
+    <div class="h-row">
+      <div class="h-level">Primary</div>
+      <div class="h-name" style="color:var(--blue);font-size:16px">Dialog</div>
+      <div class="h-desc">Core consent and decision moments. Always centred. User must engage before anything starts. Cannot be ignored. The contract between user and agents.</div>
+      <div class="h-when">P-000 Instruction Input. P-001 Pre-flight Plan. P-005 Interruption and Pause.</div>
+    </div>
+    <div class="h-row" style="background:var(--paper2)">
+      <div class="h-level" style="background:var(--paper3)">Secondary</div>
+      <div class="h-name" style="color:var(--blue);font-size:16px">Sheet</div>
+      <div class="h-desc">Detail on demand. Slides up from the primary Dialog without replacing it. User can drill into agent workflow, full parameter list, or supporting information. Optional — not required to proceed.</div>
+      <div class="h-when">Full agent workflow detail. Complete parameter list. Extended briefing content that would crowd the primary Dialog.</div>
+    </div>
+    <div class="h-row">
+      <div class="h-level">Tertiary</div>
+      <div class="h-name" style="color:var(--blue);font-size:16px">Popover</div>
+      <div class="h-desc">Inline micro-edits. Appears next to the field being edited. Small, contextual, dismisses when done. Never stacks on top of another Popover.</div>
+      <div class="h-when">Editing a single parameter value. Updating one field before starting a run. Quick contextual actions that do not warrant a full Sheet.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:24px;padding:16px 20px;background:var(--blue-l);border:1px solid var(--blue-mid);border-radius:10px;display:flex;gap:12px">
+    <span style="font-size:18px">💡</span>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:var(--blue);margin-bottom:4px">Why not a Side Panel for Pre-flight?</div>
+      <div style="font-size:12px;color:var(--ink3);line-height:1.5">A side panel forces users to shift focus to the edge of the screen. On wide monitors this means turning their head. If agents are run frequently, this becomes genuinely disruptive. Dialog is always centred. Users do not have to move — the decision comes to them. The prose concern is solved by the Sheet, not by changing the primary container.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;padding:16px 20px;background:var(--paper2);border:1px solid var(--border);border-radius:10px">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink4);margin-bottom:12px">All container types in the library</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+      <div style="padding:12px 14px;background:white;border:1px solid var(--border);border-radius:8px"><div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px">Dialog</div><div style="font-size:11px;color:var(--ink4)">P-000, P-001, P-005</div></div>
+      <div style="padding:12px 14px;background:white;border:1px solid var(--border);border-radius:8px"><div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px">Full Page</div><div style="font-size:11px;color:var(--ink4)">P-002, Completion</div></div>
+      <div style="padding:12px 14px;background:white;border:1px solid var(--border);border-radius:8px"><div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px">Drawer</div><div style="font-size:11px;color:var(--ink4)">P-003, P-004 (multiple)</div></div>
+      <div style="padding:12px 14px;background:white;border:1px solid var(--border);border-radius:8px"><div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px">Inline</div><div style="font-size:11px;color:var(--ink4)">P-004 (single), P-000a</div></div>
+      <div style="padding:12px 14px;background:white;border:1px solid var(--border);border-radius:8px"><div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px">Side Panel</div><div style="font-size:11px;color:var(--ink4)">P-007</div></div>
+      <div style="padding:12px 14px;background:white;border:1px solid var(--border);border-radius:8px"><div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px">Banner</div><div style="font-size:11px;color:var(--ink4)">P-006 (mid-session)</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. KEY DECISIONS -->
+<section class="section fade-in" id="decisions">
+  <div class="section-eyebrow">06 · Key Design Decisions</div>
+  <h2 class="section-title">Decisions made.<br><em>Reasoning documented.</em></h2>
+  <div class="section-body">
+    <p>Every significant design decision made during the development of this library is logged here. Not just what was decided — but why, and what alternatives were considered.</p>
+  </div>
+  <div class="decisions-list">
+    <div class="decision-item">
+      <div class="decision-date"><div class="decision-date-label">Decision</div><div class="decision-date-val">P-001 Container</div></div>
+      <div class="decision-body"><div class="decision-title">Pre-flight Plan uses Dialog not Side Panel</div><div class="decision-desc">Side panel forces users on wide screens to shift focus to the edge of the screen and turn their head. For frequent users running agents regularly, this becomes disruptive. Dialog is always centred — the decision comes to the user, not the other way around. Prose concerns solved by Sheet on demand.</div></div>
+      <div class="decision-outcome"><div class="decision-outcome-label">Outcome</div><div class="decision-outcome-val">Dialog (primary) + Sheet (detail) + Popover (inline edits)</div></div>
+    </div>
+    <div class="decision-item">
+      <div class="decision-date"><div class="decision-date-label">Decision</div><div class="decision-date-val">P-000 Input field</div></div>
+      <div class="decision-body"><div class="decision-title">Instruction shown in Pre-flight as display element not disabled input</div><div class="decision-desc">A disabled input signals broken or locked — not confirmed. Disabled form elements are also skipped by screen readers, which means users relying on assistive technology would miss seeing their instruction reflected back to them. A read-only text block or callout is the correct component for displaying confirmed information.</div></div>
+      <div class="decision-outcome"><div class="decision-outcome-label">Outcome</div><div class="decision-outcome-val">Read-only display component. Not a form element.</div></div>
+    </div>
+    <div class="decision-item">
+      <div class="decision-date"><div class="decision-date-label">Decision</div><div class="decision-date-val">Users vs Steps</div></div>
+      <div class="decision-body"><div class="decision-title">Users see agents, not internal steps</div><div class="decision-desc">Agents can have many internal steps and those steps can get very complex. That complexity is real but it belongs to engineering, not to the user. The patterns operate at the agent level. Internal steps stay invisible unless the agent genuinely needs a human decision. This keeps the interface manageable no matter how complex the underlying system becomes.</div></div>
+      <div class="decision-outcome"><div class="decision-outcome-label">Outcome</div><div class="decision-outcome-val">Patterns surface agents. Steps are invisible by default.</div></div>
+    </div>
+    <div class="decision-item">
+      <div class="decision-date"><div class="decision-date-label">Decision</div><div class="decision-date-val">P-007 Visual tone</div></div>
+      <div class="decision-body"><div class="decision-title">Decision Checkpoint uses teal, not red</div><div class="decision-desc">The Publishing Agent stopping at the checkpoint is not a failure. It is the agentic contract being honoured exactly as agreed in Pre-flight Plan. Red would communicate failure or urgency. Teal communicates a planned, positive handover moment. The agent worked correctly — it stopped when it was supposed to.</div></div>
+      <div class="decision-outcome"><div class="decision-outcome-label">Outcome</div><div class="decision-outcome-val">Teal #0D9488 throughout P-007. Never red.</div></div>
+    </div>
+    <div class="decision-item">
+      <div class="decision-date"><div class="decision-date-label">Decision</div><div class="decision-date-val">P-003 vs P-004</div></div>
+      <div class="decision-body"><div class="decision-title">Graceful Handoff and Error Recovery are distinct patterns</div><div class="decision-desc">The test: did the agent choose to stop (P-003) or was it forced to stop (P-004)? Graceful Handoff is amber — agent is working correctly and recognising its own limits. Error Recovery is red for user-caused issues and purple for system failures. Never use the same visual treatment for both.</div></div>
+      <div class="decision-outcome"><div class="decision-outcome-label">Outcome</div><div class="decision-outcome-val">Two separate patterns. Different tone. Different color.</div></div>
+    </div>
+    <div class="decision-item">
+      <div class="decision-date"><div class="decision-date-label">Decision</div><div class="decision-date-val">P-000 Evolution</div></div>
+      <div class="decision-body"><div class="decision-title">Instruction Input supports 8 input types including Meta</div><div class="decision-desc">As prompting becomes more sophisticated, a single text box is insufficient. The pattern now supports Text, File, Template, History, Form, Voice, URL, and Meta. Meta supports goal-driven, block builder, and context assembler modes. The clarity check always runs regardless of input type.</div></div>
+      <div class="decision-outcome"><div class="decision-outcome-label">Outcome</div><div class="decision-outcome-val">8 input types. Meta is the 8th. Clarity check unchanged.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. HOW TO USE -->
+<section class="section fade-in" id="howto">
+  <div class="section-eyebrow">07 · How to Use This Library</div>
+  <h2 class="section-title">Different audiences.<br><em>Different entry points.</em></h2>
+  <div class="section-body">
+    <p>Meridian is designed to be used by designers, engineers, and product leaders. Each audience has a different entry point and a different way of working with the library.</p>
+  </div>
+  <div class="audiences">
+    <div class="audience-card">
+      <div class="audience-icon">🎨</div>
+      <div class="audience-role">For designers</div>
+      <div class="audience-title">Building new features</div>
+      <div class="audience-steps">
+        <div class="audience-step"><div class="audience-step-num">1</div>Start with the design test — does this problem only exist because AI acts autonomously?</div>
+        <div class="audience-step"><div class="audience-step-num">2</div>Find the pattern that matches your problem in the overview table.</div>
+        <div class="audience-step"><div class="audience-step-num">3</div>Read the full pattern documentation — anatomy, variants, states, rules.</div>
+        <div class="audience-step"><div class="audience-step-num">4</div>Use the Figma Make components. Do not recreate from scratch.</div>
+        <div class="audience-step"><div class="audience-step-num">5</div>Check the usage guidelines — when to use, when not to use, how to combine.</div>
+      </div>
+    </div>
+    <div class="audience-card">
+      <div class="audience-icon">⚙️</div>
+      <div class="audience-role">For engineers</div>
+      <div class="audience-title">Building the patterns</div>
+      <div class="audience-steps">
+        <div class="audience-step"><div class="audience-step-num">1</div>Read the anatomy table for every element and why it exists.</div>
+        <div class="audience-step"><div class="audience-step-num">2</div>Implement all states documented in Section 04. Missing states become bugs.</div>
+        <div class="audience-step"><div class="audience-step-num">3</div>Use the exact agent state color tokens. Never change them.</div>
+        <div class="audience-step"><div class="audience-step-num">4</div>Implement the content guidelines — exact copy standards are documented.</div>
+        <div class="audience-step"><div class="audience-step-num">5</div>Reference the Figma Make build guide for component structure and token mapping.</div>
+      </div>
+    </div>
+    <div class="audience-card">
+      <div class="audience-icon">📊</div>
+      <div class="audience-role">For product leaders</div>
+      <div class="audience-title">Making decisions</div>
+      <div class="audience-steps">
+        <div class="audience-step"><div class="audience-step-num">1</div>Start here — this overview document covers everything at the right level.</div>
+        <div class="audience-step"><div class="audience-step-num">2</div>Review the five design principles. These are the constraints the library operates within.</div>
+        <div class="audience-step"><div class="audience-step-num">3</div>Check the key decisions log before proposing changes to existing patterns.</div>
+        <div class="audience-step"><div class="audience-step-num">4</div>Use the metrics table in each pattern to measure whether patterns are working.</div>
+        <div class="audience-step"><div class="audience-step-num">5</div>Refer new AI feature requests to the design test before building.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;padding:24px 28px;background:var(--paper2);border:1px solid var(--border);border-radius:12px">
+    <div style="font-family:'DM Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink4);margin-bottom:16px">The four hard rules for all audiences</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="display:flex;gap:10px;font-size:13px;color:var(--ink3);line-height:1.5"><span style="color:var(--red);font-weight:700;flex-shrink:0">✕</span>Never change the 5 agent state colors. They are system tokens.</div>
+      <div style="display:flex;gap:10px;font-size:13px;color:var(--ink3);line-height:1.5"><span style="color:var(--red);font-weight:700;flex-shrink:0">✕</span>Never skip Pre-flight Plan before any multi-agent task starts.</div>
+      <div style="display:flex;gap:10px;font-size:13px;color:var(--ink3);line-height:1.5"><span style="color:var(--red);font-weight:700;flex-shrink:0">✕</span>Never roll back completed agent work on a failure.</div>
+      <div style="display:flex;gap:10px;font-size:13px;color:var(--ink3);line-height:1.5"><span style="color:var(--red);font-weight:700;flex-shrink:0">✕</span>Never auto-publish without explicit user approval at Decision Checkpoint.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. ROADMAP -->
+<section class="section fade-in" id="roadmap">
+  <div class="section-eyebrow">08 · What Comes Next</div>
+  <h2 class="section-title">v1.0 is approved.<br><em>The library is not finished.</em></h2>
+  <div class="section-body">
+    <p>Meridian is a living system. v1.0 covers the 8 core patterns derived from the anchor scenario. These phases define what comes next.</p>
+  </div>
+  <div class="roadmap">
+    <div class="roadmap-col">
+      <div class="roadmap-phase">Phase 1</div>
+      <div class="roadmap-title">Pilot</div>
+      <div class="roadmap-timeline">Now — Next sprint</div>
+      <div class="roadmap-items">
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--green)"></div>Apply all 8 patterns to one product end to end</div>
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--green)"></div>Working group of 4 designers — one per major product</div>
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--green)"></div>Build Figma Make components for P-000 through P-007</div>
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--green)"></div>Accessibility audit against all pattern states</div>
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--green)"></div>Engineer handoff using PRD v2</div>
+      </div>
+      <div class="roadmap-status" style="background:var(--green-l);color:var(--green)">● Ready to start</div>
+    </div>
+    <div class="roadmap-col" style="background:var(--paper2)">
+      <div class="roadmap-phase">Phase 2</div>
+      <div class="roadmap-title">Extend</div>
+      <div class="roadmap-timeline">Next quarter</div>
+      <div class="roadmap-items">
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--blue)"></div>Evolve P-000 instruction input — all 8 types in production</div>
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--blue)"></div>P-000a Prompt Refinement — live AI scoring on instructions</div>
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--blue)"></div>P-001 Sheet variant — full agent workflow detail on demand</div>
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--blue)"></div>Completion Summary pattern — what happened after a full run</div>
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--blue)"></div>Multi-run management — users running multiple parallel runs</div>
+      </div>
+      <div class="roadmap-status" style="background:var(--blue-l);color:var(--blue)">○ Planned</div>
+    </div>
+    <div class="roadmap-col">
+      <div class="roadmap-phase">Phase 3</div>
+      <div class="roadmap-title">Scale</div>
+      <div class="roadmap-timeline">Next half-year</div>
+      <div class="roadmap-items">
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--ink4)"></div>Rollout to all 30 products with a design audit framework</div>
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--ink4)"></div>Meta prompt patterns — goal-driven, block builder, context assembler</div>
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--ink4)"></div>Mobile-specific variants for all 8 patterns</div>
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--ink4)"></div>Pattern effectiveness metrics dashboard</div>
+        <div class="roadmap-item"><div class="roadmap-item-dot" style="background:var(--ink4)"></div>Open source the library for the wider design community</div>
+      </div>
+      <div class="roadmap-status" style="background:var(--paper3);color:var(--ink4)">○ Future state</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div>
+    <div class="footer-logo">Meridian</div>
+    <div class="footer-tagline">The design language for AI that acts.</div>
+  </div>
+  <div class="footer-right">
+    <div>Agentic AI Design Lead</div>
+    <div style="margin-top:4px">v1.0 · Approved</div>
+    <div style="margin-top:4px">8 patterns · 1 scenario · 30 products</div>
+  </div>
+</footer>
+
+<script>
+// Scroll nav
+function scrollTo(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Active nav
+var navLinks = document.querySelectorAll('.nav-link');
+var sections = ['problem','principles','patterns','states','containers','decisions','howto','roadmap'];
+window.addEventListener('scroll', function() {
+  var scrollY = window.scrollY + 100;
+  sections.forEach(function(id, i) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var next = sections[i + 1] ? document.getElementById(sections[i + 1]) : null;
+    if (scrollY >= el.offsetTop && (!next || scrollY < next.offsetTop)) {
+      navLinks.forEach(function(l) { l.classList.remove('active'); });
+      if (navLinks[i]) navLinks[i].classList.add('active');
+    }
+  });
+});
+
+// Fade in on scroll
+var fadeEls = document.querySelectorAll('.fade-in');
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(entry) {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+fadeEls.forEach(function(el) { observer.observe(el); });
+</script>
+</body>
+</html>
