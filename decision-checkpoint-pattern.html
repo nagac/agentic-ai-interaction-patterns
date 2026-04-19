@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decision Checkpoint — Pattern Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2D6BE4;--blue-dark:#1A4DB3;--blue-light:#EEF4FF;--blue-mid:#AECBFA;
+  --amber:#F59E0B;--amber-light:#FEF3C7;
+  --green:#10B981;--green-light:#ECFDF5;--green-dark:#065F46;
+  --red:#EF4444;--red-light:#FEF2F2;--red-dark:#991B1B;
+  --purple:#7C3AED;--purple-light:#F5F0FF;
+  --gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;
+  --gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;
+  --gray-700:#374151;--gray-900:#111827;--white:#FFFFFF;
+}
+body{font-family:'DM Sans',sans-serif;background:#0F172A;color:var(--gray-900)}
+
+/* ── Page header ── */
+.page-header{background:#0F172A;padding:48px 64px 40px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.tag{display:inline-flex;align-items:center;gap:6px;background:rgba(45,107,228,0.2);color:var(--blue-mid);font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:100px;margin-bottom:16px}
+.page-header h1{font-size:42px;font-weight:700;color:#F8FAFC;letter-spacing:-0.02em;margin-bottom:12px}
+.page-header p{font-size:16px;color:var(--gray-400);max-width:600px;line-height:1.6}
+.meta-row{display:flex;gap:32px;margin-top:28px}
+.meta-item{display:flex;flex-direction:column;gap:4px}
+.meta-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-500)}
+.meta-value{font-size:13px;font-weight:500;color:#CBD5E1}
+.meta-value.status{color:var(--green)}
+
+/* ── Sections ── */
+.section{padding:56px 64px;border-bottom:1px solid var(--gray-100);background:var(--white)}
+.section:nth-child(even){background:var(--gray-50)}
+.section-label{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--blue);margin-bottom:8px}
+.section-title{font-size:24px;font-weight:700;color:var(--gray-900);letter-spacing:-0.01em;margin-bottom:8px}
+.section-desc{font-size:14px;color:var(--gray-500);line-height:1.6;max-width:640px;margin-bottom:40px}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif}
+.btn-approve{background:var(--green);color:white}
+.btn-reject{background:var(--red);color:white}
+.btn-edit{background:white;color:var(--purple);border:1.5px solid var(--purple)}
+.btn-bulk{background:var(--blue);color:white}
+.btn-ghost{background:transparent;color:var(--gray-500);border:1px solid var(--gray-200)}
+
+/* ── Variant label ── */
+.variant-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.variant-tag{background:var(--blue);color:white;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase}
+.variant-name{font-size:16px;font-weight:700;color:var(--gray-900)}
+.variant-desc{font-size:13px;color:var(--gray-500)}
+
+/* ── QA score badge ── */
+.qa-score{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;font-size:12px;font-weight:700;font-family:'DM Mono',monospace}
+.qa-high{background:var(--green-light);color:var(--green-dark)}
+.qa-mid{background:var(--amber-light);color:#92400E}
+.qa-low{background:var(--red-light);color:var(--red-dark)}
+
+/* ── Status pill ── */
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600}
+.s-approved{background:var(--green-light);color:var(--green-dark)}
+.s-rejected{background:var(--red-light);color:var(--red-dark)}
+.s-edit{background:var(--purple-light);color:var(--purple)}
+.s-pending{background:var(--gray-100);color:var(--gray-500)}
+.s-waiting{background:var(--amber-light);color:#92400E}
+
+/* ── Review queue ── */
+.queue-bar{background:white;border:1px solid var(--gray-200);border-radius:12px;overflow:hidden;margin-bottom:32px}
+.queue-header{padding:14px 20px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between}
+.queue-title{font-size:14px;font-weight:600;color:var(--gray-900)}
+.queue-meta{font-size:12px;color:var(--gray-400)}
+.queue-row{padding:12px 20px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:16px;cursor:pointer}
+.queue-row:last-child{border-bottom:none}
+.queue-row:hover{background:var(--gray-50)}
+.queue-row.active{background:var(--blue-light);border-left:3px solid var(--blue)}
+.queue-thumb{width:48px;height:48px;border-radius:8px;background:var(--gray-200);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:20px}
+.queue-name{font-size:13px;font-weight:600;color:var(--gray-900);margin-bottom:3px}
+.queue-sub{font-size:11px;color:var(--gray-400)}
+.queue-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+
+/* ── Preview panel ── */
+.preview-shell{background:white;border:1px solid var(--gray-200);border-radius:12px;overflow:hidden}
+.preview-topbar{background:var(--gray-50);border-bottom:1px solid var(--gray-200);padding:10px 16px;display:flex;align-items:center;gap:10px}
+.browser-dots{display:flex;gap:5px}
+.browser-dot{width:10px;height:10px;border-radius:50%}
+.url-bar{flex:1;background:white;border:1px solid var(--gray-200);border-radius:6px;padding:4px 12px;font-size:11px;color:var(--gray-400);font-family:'DM Mono',monospace}
+.preview-body{padding:0}
+
+/* Fake product page */
+.fake-product{padding:24px}
+.fake-hero{background:linear-gradient(135deg,#1e293b,#334155);border-radius:10px;height:200px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;position:relative;overflow:hidden}
+.fake-hero-label{color:rgba(255,255,255,0.5);font-size:12px;letter-spacing:0.06em;text-transform:uppercase}
+.play-btn{position:absolute;width:48px;height:48px;background:rgba(255,255,255,0.9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
+.fake-product-name{font-size:22px;font-weight:700;color:var(--gray-900);margin-bottom:6px}
+.fake-product-price{font-size:18px;font-weight:600;color:var(--blue);margin-bottom:12px}
+.fake-product-desc{font-size:13px;color:var(--gray-500);line-height:1.6;margin-bottom:16px}
+.fake-cta{background:var(--gray-900);color:white;border:none;border-radius:8px;padding:12px 24px;font-size:13px;font-weight:600;width:100%;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+/* ── Action bar ── */
+.action-bar{padding:16px 20px;background:white;border-top:2px solid var(--gray-100);display:flex;align-items:center;gap:10px}
+.action-context{font-size:12px;color:var(--gray-500);margin-right:auto}
+.action-context strong{color:var(--gray-900)}
+
+/* ── Bulk review ── */
+.bulk-table{width:100%;border-collapse:collapse}
+.bulk-table th{padding:10px 16px;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray-400);text-align:left;background:var(--gray-50);border-bottom:1px solid var(--gray-200)}
+.bulk-table td{padding:12px 16px;font-size:13px;color:var(--gray-700);border-bottom:1px solid var(--gray-100);vertical-align:middle}
+.bulk-table tr:hover td{background:var(--gray-50)}
+.bulk-table tr.approved td{background:#F0FDF9}
+.bulk-table tr.rejected td{background:#FFF5F5}
+.bulk-table tr.edit-req td{background:var(--purple-light)}
+.checkbox{width:16px;height:16px;border:2px solid var(--gray-300);border-radius:4px;display:inline-block;cursor:pointer;flex-shrink:0}
+.checkbox.checked{background:var(--blue);border-color:var(--blue);display:flex;align-items:center;justify-content:center;color:white;font-size:10px}
+
+/* ── Edit request modal ── */
+.modal-overlay{background:rgba(0,0,0,0.4);border-radius:12px;padding:40px;display:flex;align-items:center;justify-content:center}
+.modal{background:white;border-radius:14px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.2)}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:12px}
+.modal-icon{width:36px;height:36px;background:var(--purple-light);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.modal-title{font-size:15px;font-weight:700;color:var(--gray-900)}
+.modal-sub{font-size:12px;color:var(--gray-400);margin-top:1px}
+.modal-body{padding:20px 24px}
+.field-label{font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+.field-select{width:100%;border:1.5px solid var(--gray-200);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--gray-700);font-family:'DM Sans',sans-serif;margin-bottom:14px}
+.field-textarea{width:100%;border:1.5px solid var(--purple);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--gray-700);font-family:'DM Sans',sans-serif;height:80px;resize:none;outline:none}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--gray-100);display:flex;gap:8px;justify-content:flex-end}
+
+/* ── Rules ── */
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.rules-card{border-radius:12px;overflow:hidden;border:1px solid var(--gray-200)}
+.rules-header{padding:12px 20px;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase}
+.rules-header.do{background:var(--green-light);color:#065F46}
+.rules-header.dont{background:var(--red-light);color:var(--red-dark)}
+.rules-body{padding:16px 20px;background:white}
+.rule-item{display:flex;gap:10px;margin-bottom:12px;font-size:13px;color:var(--gray-700);line-height:1.4}
+.rule-item:last-child{margin-bottom:0}
+
+/* ── States ── */
+.states-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.state-card{background:white;border:1px solid var(--gray-200);border-radius:12px;overflow:hidden}
+.state-label-bar{padding:9px 14px;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase}
+.sl-default{background:var(--blue-light);color:var(--blue)}
+.sl-approved{background:var(--green-light);color:var(--green-dark)}
+.sl-rejected{background:var(--red-light);color:var(--red-dark)}
+.sl-edit{background:var(--purple-light);color:var(--purple)}
+.sl-bulk{background:var(--gray-100);color:var(--gray-500)}
+.sl-complete{background:var(--amber-light);color:#92400E}
+.state-body{padding:14px}
+
+/* ── Metrics ── */
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.metric-card{background:white;border:1px solid var(--gray-200);border-radius:12px;padding:24px}
+.metric-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px}
+.metric-value{font-size:32px;font-weight:700;color:var(--gray-900);font-family:'DM Mono',monospace;margin-bottom:4px}
+.metric-desc{font-size:12px;color:var(--gray-500);line-height:1.4;margin-bottom:12px}
+
+/* ── Trust principle box ── */
+.principle-box{background:linear-gradient(135deg,#1e293b,#0F172A);border-radius:14px;padding:32px;color:white;margin-bottom:40px}
+.principle-quote{font-size:20px;font-weight:600;line-height:1.4;color:#F8FAFC;margin-bottom:12px}
+.principle-sub{font-size:13px;color:#94A3B8;line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- ── Page Header ── -->
+<div class="page-header">
+  <div class="tag">⬡ Agentic AI Pattern Library</div>
+  <h1>Decision Checkpoint</h1>
+  <p>Before the Publishing Agent runs, the user reviews every product and explicitly approves, rejects, or requests an edit. Nothing goes live without a human decision.</p>
+  <div class="meta-row">
+    <div class="meta-item"><span class="meta-label">Pattern ID</span><span class="meta-value">P-003</span></div>
+    <div class="meta-item"><span class="meta-label">Mode</span><span class="meta-value">Agent</span></div>
+    <div class="meta-item"><span class="meta-label">Category</span><span class="meta-value">Control Patterns</span></div>
+    <div class="meta-item"><span class="meta-label">Version</span><span class="meta-value">1.0</span></div>
+    <div class="meta-item"><span class="meta-label">Status</span><span class="meta-value status">● Approved</span></div>
+  </div>
+</div>
+
+<!-- ── Trust Principle ── -->
+<div class="section">
+  <div class="section-label">00 — Design Principle</div>
+  <div class="section-title">Why this pattern exists</div>
+
+  <div class="principle-box">
+    <div class="principle-quote">"Publishing is permanent. The user must own this moment — not the agent."</div>
+    <div class="principle-sub">The Decision Checkpoint is the most important pattern in the agentic library. Every other pattern builds trust gradually. This one is where trust is either confirmed or broken. If AI publishes something the user didn't approve, no amount of good design elsewhere will recover that trust.</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+    <div style="background:white;border:1px solid var(--gray-200);border-radius:12px;padding:20px">
+      <div style="font-size:24px;margin-bottom:10px">✓</div>
+      <div style="font-size:13px;font-weight:700;color:var(--gray-900);margin-bottom:6px">Full live preview</div>
+      <div style="font-size:12px;color:var(--gray-500);line-height:1.5">User sees exactly what will appear on the live page — not a summary, not a thumbnail. The real thing.</div>
+    </div>
+    <div style="background:white;border:1px solid var(--gray-200);border-radius:12px;padding:20px">
+      <div style="font-size:24px;margin-bottom:10px">⚖️</div>
+      <div style="font-size:13px;font-weight:700;color:var(--gray-900);margin-bottom:6px">Three actions, not two</div>
+      <div style="font-size:12px;color:var(--gray-500);line-height:1.5">Approve, Reject, or Request edit. Binary approve/reject forces bad decisions. Edit requests keep agents in the loop.</div>
+    </div>
+    <div style="background:white;border:1px solid var(--gray-200);border-radius:12px;padding:20px">
+      <div style="font-size:24px;margin-bottom:10px">⚡</div>
+      <div style="font-size:13px;font-weight:700;color:var(--gray-900);margin-bottom:6px">Bulk when confident</div>
+      <div style="font-size:12px;color:var(--gray-500);line-height:1.5">After reviewing a few, users gain confidence. Bulk approval for high-QA items respects their time without removing control.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Variant A: Single Review ── -->
+<div class="section">
+  <div class="section-label">01 — Variants</div>
+  <div class="section-title">How the Decision Checkpoint appears</div>
+  <div class="section-desc">Three variants. Same three actions across all of them. What changes is how many products the user is reviewing at once.</div>
+
+  <div style="margin-bottom:56px">
+    <div class="variant-header">
+      <span class="variant-tag">Variant A</span>
+      <div><div class="variant-name">Single Product Review</div><div class="variant-desc">User reviews one product at a time. Full live preview. Most thorough.</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:280px 1fr;gap:24px;align-items:start">
+
+      <!-- Queue sidebar -->
+      <div>
+        <div class="queue-bar">
+          <div class="queue-header">
+            <div>
+              <div class="queue-title">Review queue</div>
+              <div class="queue-meta">10 products · 3 reviewed</div>
+            </div>
+          </div>
+          <!-- Active item -->
+          <div class="queue-row active">
+            <div class="queue-thumb">👟</div>
+            <div style="flex:1">
+              <div class="queue-name">Air Max Lite</div>
+              <div class="queue-sub">QA <span style="color:var(--green);font-weight:600">94%</span> · Reviewing</div>
+            </div>
+          </div>
+          <!-- Approved -->
+          <div class="queue-row">
+            <div class="queue-thumb">👟</div>
+            <div style="flex:1">
+              <div class="queue-name">Air Max 2026</div>
+              <div class="queue-sub">QA 91%</div>
+            </div>
+            <span class="status-pill s-approved">✓ Approved</span>
+          </div>
+          <!-- Rejected -->
+          <div class="queue-row">
+            <div class="queue-thumb">👟</div>
+            <div style="flex:1">
+              <div class="queue-name">Jordan 1 Retro</div>
+              <div class="queue-sub">QA 72%</div>
+            </div>
+            <span class="status-pill s-rejected">✕ Rejected</span>
+          </div>
+          <!-- Edit requested -->
+          <div class="queue-row">
+            <div class="queue-thumb">👟</div>
+            <div style="flex:1">
+              <div class="queue-name">Dunk Low</div>
+              <div class="queue-sub">QA 88%</div>
+            </div>
+            <span class="status-pill s-edit">✎ Edit</span>
+          </div>
+          <!-- Pending items -->
+          <div class="queue-row" style="opacity:0.5">
+            <div class="queue-thumb" style="background:var(--gray-100)">···</div>
+            <div style="flex:1"><div class="queue-name" style="color:var(--gray-400)">6 more to review</div></div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div style="background:white;border:1px solid var(--gray-200);border-radius:10px;padding:14px 16px">
+          <div style="font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Review progress</div>
+          <div style="display:flex;gap:3px;margin-bottom:8px">
+            <div style="flex:1;height:6px;background:var(--green);border-radius:2px"></div>
+            <div style="flex:1;height:6px;background:var(--red);border-radius:2px"></div>
+            <div style="flex:1;height:6px;background:var(--purple);border-radius:2px"></div>
+            <div style="flex:1;height:6px;background:var(--gray-100);border-radius:2px"></div>
+            <div style="flex:1;height:6px;background:var(--gray-100);border-radius:2px"></div>
+            <div style="flex:1;height:6px;background:var(--gray-100);border-radius:2px"></div>
+            <div style="flex:1;height:6px;background:var(--gray-100);border-radius:2px"></div>
+            <div style="flex:1;height:6px;background:var(--gray-100);border-radius:2px"></div>
+            <div style="flex:1;height:6px;background:var(--gray-100);border-radius:2px"></div>
+            <div style="flex:1;height:6px;background:var(--gray-100);border-radius:2px"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--gray-400)">
+            <span>3 of 10 reviewed</span>
+            <span style="color:var(--blue);font-weight:600">1 ✓ · 1 ✕ · 1 ✎</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview panel -->
+      <div>
+        <!-- QA summary bar -->
+        <div style="background:white;border:1px solid var(--gray-200);border-radius:10px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;gap:16px">
+          <div>
+            <div style="font-size:11px;color:var(--gray-400);margin-bottom:2px">Reviewing</div>
+            <div style="font-size:14px;font-weight:700;color:var(--gray-900)">Air Max Lite</div>
+          </div>
+          <div style="width:1px;height:32px;background:var(--gray-200)"></div>
+          <div>
+            <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">QA Score</div>
+            <span class="qa-score qa-high">✓ 94%</span>
+          </div>
+          <div style="width:1px;height:32px;background:var(--gray-200)"></div>
+          <div>
+            <div style="font-size:11px;color:var(--gray-400);margin-bottom:2px">Agent notes</div>
+            <div style="font-size:12px;color:var(--gray-700)">Video 30s · Brand Kit v3 · Professional tone</div>
+          </div>
+          <div style="margin-left:auto;font-size:12px;color:var(--gray-400)">4 of 10 →</div>
+        </div>
+
+        <!-- Live preview -->
+        <div class="preview-shell" style="margin-bottom:12px">
+          <div class="preview-topbar">
+            <div class="browser-dots">
+              <div class="browser-dot" style="background:#EF4444"></div>
+              <div class="browser-dot" style="background:#F59E0B"></div>
+              <div class="browser-dot" style="background:#10B981"></div>
+            </div>
+            <div class="url-bar">yourstore.com/products/air-max-lite</div>
+            <div style="font-size:10px;font-weight:600;color:var(--amber);background:var(--amber-light);padding:3px 8px;border-radius:4px">PREVIEW — Not live yet</div>
+          </div>
+          <div class="fake-product">
+            <div class="fake-hero">
+              <div class="play-btn">▶</div>
+              <div style="position:absolute;bottom:10px;left:12px;font-size:10px;color:rgba(255,255,255,0.5)">Generated by Video Agent · 30s</div>
+            </div>
+            <div class="fake-product-name">Air Max Lite</div>
+            <div class="fake-product-price">$129.99</div>
+            <div class="fake-product-desc">Engineered for all-day comfort without compromising on style. The Air Max Lite features our latest cushioning technology, delivering a lightweight feel that keeps you moving from morning to night. Available in 6 colorways.</div>
+            <button class="fake-cta">Add to bag</button>
+          </div>
+        </div>
+
+        <!-- Action bar -->
+        <div class="action-bar" style="border:1px solid var(--gray-200);border-radius:10px">
+          <div class="action-context">Reviewing <strong>Air Max Lite</strong> — this will appear live exactly as shown above</div>
+          <button class="btn btn-edit">✎ Request edit</button>
+          <button class="btn btn-reject">✕ Reject</button>
+          <button class="btn btn-approve">✓ Approve & next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variant B: Bulk review -->
+  <div style="margin-bottom:56px">
+    <div class="variant-header">
+      <span class="variant-tag">Variant B</span>
+      <div><div class="variant-name">Bulk Review</div><div class="variant-desc">User reviews all products in a table and acts on many at once. Best when confident after reviewing individually.</div></div>
+    </div>
+
+    <div style="background:white;border:1px solid var(--gray-200);border-radius:12px;overflow:hidden">
+      <div style="padding:14px 20px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:12px">
+        <div class="checkbox checked">✓</div>
+        <div style="font-size:14px;font-weight:600;color:var(--gray-900)">Select all</div>
+        <div style="font-size:12px;color:var(--gray-400)">· 7 selected</div>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-edit" style="padding:7px 14px;font-size:12px">✎ Request edit (selected)</button>
+          <button class="btn btn-reject" style="padding:7px 14px;font-size:12px">✕ Reject selected</button>
+          <button class="btn btn-approve" style="padding:7px 14px;font-size:12px">✓ Approve selected</button>
+        </div>
+      </div>
+      <table class="bulk-table">
+        <thead>
+          <tr>
+            <th style="width:40px"></th>
+            <th>Product</th>
+            <th>QA Score</th>
+            <th>Video</th>
+            <th>Description preview</th>
+            <th>Decision</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="approved">
+            <td><div class="checkbox checked" style="background:var(--green);border-color:var(--green)">✓</div></td>
+            <td><div style="font-weight:600;color:var(--gray-900)">Air Max 2026</div><div style="font-size:11px;color:var(--gray-400);font-family:'DM Mono',monospace">SKU-0011</div></td>
+            <td><span class="qa-score qa-high">✓ 91%</span></td>
+            <td><span style="font-size:12px;color:var(--green)">✓ 30s</span></td>
+            <td><span style="font-size:12px;color:var(--gray-500)">"Lightweight cushioning for everyday wear..."</span></td>
+            <td><span class="status-pill s-approved">✓ Approved</span></td>
+            <td><a style="font-size:11px;color:var(--blue);cursor:pointer">Preview</a></td>
+          </tr>
+          <tr class="rejected">
+            <td><div class="checkbox" style="border-color:var(--red)"></div></td>
+            <td><div style="font-weight:600;color:var(--gray-900)">Jordan 1 Retro</div><div style="font-size:11px;color:var(--gray-400);font-family:'DM Mono',monospace">SKU-0078</div></td>
+            <td><span class="qa-score qa-low">✕ 72%</span></td>
+            <td><span style="font-size:12px;color:var(--amber)">⚠ 28s</span></td>
+            <td><span style="font-size:12px;color:var(--gray-500)">"Classic silhouette reimagined for modern..."</span></td>
+            <td><span class="status-pill s-rejected">✕ Rejected</span></td>
+            <td><a style="font-size:11px;color:var(--blue);cursor:pointer">Preview</a></td>
+          </tr>
+          <tr class="edit-req">
+            <td><div class="checkbox checked" style="background:var(--purple);border-color:var(--purple)">✓</div></td>
+            <td><div style="font-weight:600;color:var(--gray-900)">Dunk Low</div><div style="font-size:11px;color:var(--gray-400);font-family:'DM Mono',monospace">SKU-0033</div></td>
+            <td><span class="qa-score qa-mid">~ 88%</span></td>
+            <td><span style="font-size:12px;color:var(--green)">✓ 30s</span></td>
+            <td><span style="font-size:12px;color:var(--gray-500)">"Street-ready style with premium leather..."</span></td>
+            <td><span class="status-pill s-edit">✎ Edit req.</span></td>
+            <td><a style="font-size:11px;color:var(--blue);cursor:pointer">Preview</a></td>
+          </tr>
+          <tr>
+            <td><div class="checkbox checked">✓</div></td>
+            <td><div style="font-weight:600;color:var(--gray-900)">Air Force 1</div><div style="font-size:11px;color:var(--gray-400);font-family:'DM Mono',monospace">SKU-0019</div></td>
+            <td><span class="qa-score qa-high">✓ 96%</span></td>
+            <td><span style="font-size:12px;color:var(--green)">✓ 30s</span></td>
+            <td><span style="font-size:12px;color:var(--gray-500)">"The icon. Now available in 8 new..."</span></td>
+            <td><span class="status-pill s-pending">— Pending</span></td>
+            <td><a style="font-size:11px;color:var(--blue);cursor:pointer">Preview</a></td>
+          </tr>
+          <tr>
+            <td><div class="checkbox checked">✓</div></td>
+            <td><div style="font-weight:600;color:var(--gray-900)">Pegasus Trail</div><div style="font-size:11px;color:var(--gray-400);font-family:'DM Mono',monospace">SKU-0091</div></td>
+            <td><span class="qa-score qa-high">✓ 93%</span></td>
+            <td><span style="font-size:12px;color:var(--green)">✓ 30s</span></td>
+            <td><span style="font-size:12px;color:var(--gray-500)">"Built for trails, styled for streets..."</span></td>
+            <td><span class="status-pill s-pending">— Pending</span></td>
+            <td><a style="font-size:11px;color:var(--blue);cursor:pointer">Preview</a></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="padding:14px 20px;background:var(--gray-50);border-top:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:12px;color:var(--gray-400)">5 of 10 shown · <span style="color:var(--blue);cursor:pointer">View all</span></span>
+        <div style="display:flex;gap:8px">
+          <span style="font-size:12px;color:var(--green)">1 approved</span>
+          <span style="font-size:12px;color:var(--gray-300)">·</span>
+          <span style="font-size:12px;color:var(--red)">1 rejected</span>
+          <span style="font-size:12px;color:var(--gray-300)">·</span>
+          <span style="font-size:12px;color:var(--purple)">1 edit req.</span>
+          <span style="font-size:12px;color:var(--gray-300)">·</span>
+          <span style="font-size:12px;color:var(--gray-400)">7 pending</span>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:10px;font-size:12px;color:var(--gray-400)">Bulk actions apply only to selected items. Always show a count of what will be affected before confirming.</p>
+  </div>
+
+  <!-- Variant C: Edit request modal -->
+  <div>
+    <div class="variant-header">
+      <span class="variant-tag">Variant C</span>
+      <div><div class="variant-name">Edit Request Modal</div><div class="variant-desc">When user clicks Request Edit — they specify what to fix and the agent re-runs only that item.</div></div>
+    </div>
+
+    <div style="max-width:500px">
+      <div class="modal" style="box-shadow:0 8px 32px rgba(0,0,0,0.12)">
+        <div class="modal-header">
+          <div class="modal-icon">✎</div>
+          <div>
+            <div class="modal-title">Request edit — Air Max Lite</div>
+            <div class="modal-sub">The agent will re-run only the parts you specify</div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="field-label">What needs fixing?</div>
+          <select class="field-select">
+            <option>Video — wrong length or format</option>
+            <option>Description — wrong tone of voice</option>
+            <option>Description — factual error</option>
+            <option>Both video and description</option>
+            <option>Other — I'll explain below</option>
+          </select>
+          <div class="field-label">Tell the agent what to change</div>
+          <textarea class="field-textarea" placeholder="e.g. The description sounds too casual. Use a more professional tone and mention the cushioning technology specifically."></textarea>
+          <div style="margin-top:12px;background:var(--blue-light);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--blue)">
+            ✦ The Description Agent will re-run with your feedback. This takes approx. 30 seconds. You'll be notified when it's ready for review again.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" style="padding:8px 16px;font-size:12px">Cancel</button>
+          <button class="btn" style="background:var(--purple);color:white;padding:8px 16px;font-size:12px">Send to agent →</button>
+        </div>
+      </div>
+    </div>
+    <p style="margin-top:16px;font-size:12px;color:var(--gray-400)">Edit request routes back to the relevant agent only — not the full pipeline. User sees the item return to "Running" state in the Status Grid.</p>
+  </div>
+</div>
+
+<!-- ── States ── -->
+<div class="section">
+  <div class="section-label">02 — States</div>
+  <div class="section-title">All conditions of this pattern</div>
+  <div class="section-desc">Every state must be designed. Each one requires a different UI treatment.</div>
+
+  <div class="states-grid">
+    <div class="state-card">
+      <div class="state-label-bar sl-default">Default — reviewing</div>
+      <div class="state-body">
+        <div style="background:var(--gray-100);border-radius:8px;padding:12px;margin-bottom:10px;text-align:center;font-size:11px;color:var(--gray-500)">Full product preview visible</div>
+        <div style="display:flex;gap:6px;justify-content:center">
+          <div style="background:var(--purple-light);color:var(--purple);padding:4px 8px;border-radius:5px;font-size:10px;font-weight:600">✎ Edit</div>
+          <div style="background:var(--red-light);color:var(--red-dark);padding:4px 8px;border-radius:5px;font-size:10px;font-weight:600">✕ Reject</div>
+          <div style="background:var(--green-light);color:var(--green-dark);padding:4px 8px;border-radius:5px;font-size:10px;font-weight:600">✓ Approve</div>
+        </div>
+        <p style="font-size:11px;color:var(--gray-400);margin-top:10px;line-height:1.4">All three actions available. No default selection. User must make an active choice.</p>
+      </div>
+    </div>
+
+    <div class="state-card">
+      <div class="state-label-bar sl-approved">Approved</div>
+      <div class="state-body">
+        <div style="background:var(--green-light);border:1px solid var(--green);border-radius:8px;padding:12px;margin-bottom:10px;text-align:center">
+          <div style="font-size:20px;margin-bottom:4px">✓</div>
+          <div style="font-size:12px;font-weight:600;color:var(--green-dark)">Approved</div>
+          <div style="font-size:11px;color:var(--green-dark);opacity:0.7;margin-top:2px">Will publish when all reviewed</div>
+        </div>
+        <div style="display:flex;gap:6px;justify-content:center">
+          <div style="background:var(--gray-100);color:var(--gray-400);padding:4px 8px;border-radius:5px;font-size:10px">Undo</div>
+        </div>
+        <p style="font-size:11px;color:var(--gray-400);margin-top:10px;line-height:1.4">Approval confirmed. Undo available until all items are reviewed and publish is confirmed.</p>
+      </div>
+    </div>
+
+    <div class="state-card">
+      <div class="state-label-bar sl-rejected">Rejected</div>
+      <div class="state-body">
+        <div style="background:var(--red-light);border:1px solid var(--red);border-radius:8px;padding:12px;margin-bottom:10px;text-align:center">
+          <div style="font-size:20px;margin-bottom:4px">✕</div>
+          <div style="font-size:12px;font-weight:600;color:var(--red-dark)">Rejected</div>
+          <div style="font-size:11px;color:var(--red-dark);opacity:0.7;margin-top:2px">Will not publish. Agent pipeline ends here.</div>
+        </div>
+        <div style="display:flex;gap:6px;justify-content:center">
+          <div style="background:var(--gray-100);color:var(--gray-400);padding:4px 8px;border-radius:5px;font-size:10px">Undo</div>
+        </div>
+        <p style="font-size:11px;color:var(--gray-400);margin-top:10px;line-height:1.4">Rejection confirmed. Undo available. Item removed from publish queue permanently.</p>
+      </div>
+    </div>
+
+    <div class="state-card">
+      <div class="state-label-bar sl-edit">Edit Requested</div>
+      <div class="state-body">
+        <div style="background:var(--purple-light);border:1px solid var(--purple);border-radius:8px;padding:12px;margin-bottom:10px;text-align:center">
+          <div style="font-size:20px;margin-bottom:4px">✎</div>
+          <div style="font-size:12px;font-weight:600;color:var(--purple)">Sent to agent</div>
+          <div style="font-size:11px;color:var(--purple);opacity:0.7;margin-top:2px">Re-running · ~30 seconds</div>
+        </div>
+        <p style="font-size:11px;color:var(--gray-400);margin-top:10px;line-height:1.4">Item returns to Item Status Grid as Running. Returns to queue when agent completes the edit.</p>
+      </div>
+    </div>
+
+    <div class="state-card">
+      <div class="state-label-bar sl-bulk">Bulk confirm</div>
+      <div class="state-body">
+        <div style="background:var(--blue-light);border:1px solid var(--blue);border-radius:8px;padding:12px;margin-bottom:10px">
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px">Confirm bulk approval</div>
+          <div style="font-size:11px;color:var(--blue);line-height:1.4">You are about to approve <strong>7 products</strong> for publishing. This cannot be undone after confirmation.</div>
+        </div>
+        <div style="display:flex;gap:6px;justify-content:flex-end">
+          <div style="background:var(--gray-100);color:var(--gray-500);padding:4px 10px;border-radius:5px;font-size:10px;font-weight:600">Cancel</div>
+          <div style="background:var(--blue);color:white;padding:4px 10px;border-radius:5px;font-size:10px;font-weight:600">Confirm 7 →</div>
+        </div>
+        <p style="font-size:11px;color:var(--gray-400);margin-top:10px;line-height:1.4">Always show a count confirmation before bulk approve executes. Never bulk approve without this step.</p>
+      </div>
+    </div>
+
+    <div class="state-card">
+      <div class="state-label-bar sl-complete">All reviewed</div>
+      <div class="state-body">
+        <div style="text-align:center;padding:16px 0">
+          <div style="font-size:32px;margin-bottom:8px">🎉</div>
+          <div style="font-size:13px;font-weight:700;color:var(--gray-900);margin-bottom:4px">Review complete</div>
+          <div style="font-size:11px;color:var(--gray-500);margin-bottom:12px">8 approved · 1 rejected · 1 edit pending</div>
+          <div style="background:var(--green);color:white;border-radius:7px;padding:8px 16px;font-size:12px;font-weight:600;display:inline-block;cursor:pointer">Publish 8 products →</div>
+        </div>
+        <p style="font-size:11px;color:var(--gray-400);line-height:1.4">Transitions to Completion Summary after publish confirmed.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Rules ── -->
+<div class="section">
+  <div class="section-label">03 — Rules</div>
+  <div class="section-title">Do's and Don'ts</div>
+  <div class="section-desc">The most important rules in the entire library. This is the last line of human control.</div>
+  <div class="rules-grid">
+    <div class="rules-card">
+      <div class="rules-header do">✅ Always do this</div>
+      <div class="rules-body">
+        <div class="rule-item"><span>✓</span>Always show a full live preview — never a thumbnail or summary</div>
+        <div class="rule-item"><span>✓</span>Always offer all three actions: Approve, Reject, Request edit</div>
+        <div class="rule-item"><span>✓</span>Always show QA score on every product so user can calibrate trust</div>
+        <div class="rule-item"><span>✓</span>Always show "PREVIEW — Not live yet" label on the preview panel</div>
+        <div class="rule-item"><span>✓</span>Always show a count confirmation before bulk approve executes</div>
+        <div class="rule-item"><span>✓</span>Always allow undo until the final publish confirmation</div>
+        <div class="rule-item"><span>✓</span>Always route edit requests back to only the relevant agent</div>
+      </div>
+    </div>
+    <div class="rules-card">
+      <div class="rules-header dont">❌ Never do this</div>
+      <div class="rules-body">
+        <div class="rule-item"><span>✗</span>Never publish without explicit user approval — not even one product</div>
+        <div class="rule-item"><span>✗</span>Never pre-select Approve — user must make an active choice</div>
+        <div class="rule-item"><span>✗</span>Never hide the Reject option — it must always be equally visible</div>
+        <div class="rule-item"><span>✗</span>Never auto-approve high QA scores — QA is advisory, not decisive</div>
+        <div class="rule-item"><span>✗</span>Never execute bulk approval without the count confirmation step</div>
+        <div class="rule-item"><span>✗</span>Never send edit request without telling user which agent will re-run</div>
+        <div class="rule-item"><span>✗</span>Never skip this pattern for "efficiency" — it is non-negotiable</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Relationships ── -->
+<div class="section">
+  <div class="section-label">04 — Pattern Relationships</div>
+  <div class="section-title">Where this fits in the agent workflow</div>
+  <div style="background:white;border:1px solid var(--gray-200);border-radius:16px;padding:28px;display:flex;align-items:center;gap:0;overflow-x:auto">
+    <div style="text-align:center;min-width:110px">
+      <div style="background:var(--gray-100);border:2px solid var(--gray-200);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--gray-500)"><div style="font-size:16px;margin-bottom:4px">📊</div>Item Status Grid</div>
+      <div style="font-size:9px;color:var(--gray-400);margin-top:6px">Always before</div>
+    </div>
+    <div style="flex:1;height:2px;background:var(--gray-200);display:flex;align-items:center;justify-content:center"><span style="background:white;padding:0 6px;font-size:12px;color:var(--gray-300)">→</span></div>
+    <div style="text-align:center;min-width:140px">
+      <div style="background:var(--blue);border-radius:10px;padding:12px 14px;font-size:11px;color:white;font-weight:700;box-shadow:0 4px 16px rgba(45,107,228,0.3)"><div style="font-size:16px;margin-bottom:4px">⏸</div>Decision Checkpoint</div>
+      <div style="font-size:9px;color:var(--blue);margin-top:6px;font-weight:600">YOU ARE HERE</div>
+    </div>
+    <div style="flex:1;height:2px;background:var(--gray-200);display:flex;align-items:center;justify-content:center"><span style="background:white;padding:0 6px;font-size:12px;color:var(--gray-300)">→</span></div>
+    <div style="text-align:center;min-width:110px">
+      <div style="background:var(--purple-light);border:2px solid var(--purple);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--purple)"><div style="font-size:16px;margin-bottom:4px">✎</div>Agent re-runs</div>
+      <div style="font-size:9px;color:var(--gray-400);margin-top:6px">If edit requested</div>
+    </div>
+    <div style="flex:1;height:2px;background:var(--gray-200);display:flex;align-items:center;justify-content:center"><span style="background:white;padding:0 6px;font-size:12px;color:var(--gray-300)">→</span></div>
+    <div style="text-align:center;min-width:110px">
+      <div style="background:var(--green-light);border:2px solid var(--green);border-radius:10px;padding:12px 14px;font-size:11px;color:var(--green-dark)"><div style="font-size:16px;margin-bottom:4px">✓</div>Completion Summary</div>
+      <div style="font-size:9px;color:var(--gray-400);margin-top:6px">After approval</div>
+    </div>
+  </div>
+  <div style="margin-top:20px;background:var(--red-light);border:1px solid #FCA5A5;border-radius:10px;padding:14px 18px">
+    <div style="font-size:11px;font-weight:700;color:var(--red-dark);margin-bottom:4px">⚠ Never combine with</div>
+    <div style="font-size:13px;color:var(--red-dark)">Auto-approve behaviour of any kind. If the system approves anything without explicit user action, this pattern has been violated.</div>
+  </div>
+</div>
+
+<!-- ── Metrics ── -->
+<div class="section" style="border-bottom:none">
+  <div class="section-label">05 — Metrics</div>
+  <div class="section-title">How you know this pattern is working</div>
+  <div class="section-desc">Measure these after shipping.</div>
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label" style="color:var(--green)">Approval rate</div>
+      <div class="metric-value">70–90%</div>
+      <div class="metric-desc">Percentage of products approved at the checkpoint.</div>
+      <div style="font-size:11px;font-weight:600;color:var(--red)">🚨 Red flag if below 50%</div>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Agent quality is too low — fix upstream</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label" style="color:var(--purple)">Edit request rate</div>
+      <div class="metric-value">&lt;15%</div>
+      <div class="metric-desc">Percentage of products sent back to agents for editing.</div>
+      <div style="font-size:11px;font-weight:600;color:var(--red)">🚨 Red flag if above 30%</div>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Agent outputs consistently missing the mark</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label" style="color:var(--amber)">Time per review</div>
+      <div class="metric-value">15–45s</div>
+      <div class="metric-desc">Time spent reviewing each product before deciding.</div>
+      <div style="font-size:11px;font-weight:600;color:var(--red)">🚨 Red flag if under 5s</div>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:2px">User not actually reviewing — rubber stamping</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

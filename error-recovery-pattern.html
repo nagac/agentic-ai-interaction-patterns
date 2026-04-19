@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Error Recovery — Pattern Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2D6BE4;--blue-dark:#1A4DB3;--blue-light:#EEF4FF;--blue-mid:#AECBFA;
+  --amber:#F59E0B;--amber-light:#FEF3C7;--amber-dark:#92400E;
+  --green:#10B981;--green-light:#ECFDF5;--green-dark:#065F46;
+  --red:#EF4444;--red-light:#FEF2F2;--red-dark:#991B1B;
+  --purple:#7C3AED;--purple-light:#F5F0FF;
+  --orange:#F97316;--orange-light:#FFF7ED;
+  --gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;
+  --gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;
+  --gray-700:#374151;--gray-900:#111827;--white:#FFFFFF;
+}
+body{font-family:'DM Sans',sans-serif;background:#0F172A;color:var(--gray-900)}
+.page-header{background:#0F172A;padding:48px 64px 40px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.tag{display:inline-flex;align-items:center;gap:6px;background:rgba(239,68,68,0.2);color:#FCA5A5;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:100px;margin-bottom:16px}
+.page-header h1{font-size:42px;font-weight:700;color:#F8FAFC;letter-spacing:-0.02em;margin-bottom:12px}
+.page-header p{font-size:16px;color:var(--gray-400);max-width:620px;line-height:1.6}
+.meta-row{display:flex;gap:32px;margin-top:28px}
+.meta-item{display:flex;flex-direction:column;gap:4px}
+.meta-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-500)}
+.meta-value{font-size:13px;font-weight:500;color:#CBD5E1}
+.meta-value.status{color:var(--green)}
+.section{padding:56px 64px;border-bottom:1px solid var(--gray-100);background:var(--white)}
+.section:nth-child(even){background:var(--gray-50)}
+.section-label{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+.section-title{font-size:24px;font-weight:700;color:var(--gray-900);letter-spacing:-0.01em;margin-bottom:8px}
+.section-desc{font-size:14px;color:var(--gray-500);line-height:1.6;max-width:640px;margin-bottom:40px}
+
+/* State pills */
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;white-space:nowrap}
+.pill-done{background:var(--green-light);color:var(--green-dark)}
+.pill-failed{background:var(--red-light);color:var(--red-dark)}
+.pill-blocked{background:var(--orange-light);color:#9A3412}
+.pill-running{background:var(--blue-light);color:var(--blue)}
+.pill-pending{background:var(--gray-100);color:var(--gray-500)}
+.pulse{display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* Chain state diagram */
+.chain-row{display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:8px}
+.chain-agent{display:flex;flex-direction:column;align-items:center;min-width:110px}
+.chain-box{width:90px;height:72px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:2px solid transparent;position:relative}
+.chain-label{font-size:10px;font-weight:600;color:var(--gray-500);margin-top:6px;text-align:center}
+.chain-arrow{color:var(--gray-200);font-size:20px;padding:0 2px;flex-shrink:0;margin-bottom:20px}
+.chain-arrow.blocked{color:#FCA5A5}
+
+/* Error card */
+.error-card{background:var(--white);border:1.5px solid var(--red);border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(239,68,68,0.12);max-width:540px}
+.error-header{background:linear-gradient(135deg,#FEF2F2,#FFF5F5);padding:18px 24px;border-bottom:1px solid #FCA5A5;display:flex;align-items:center;gap:12px}
+.error-icon{width:36px;height:36px;background:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:white}
+.error-title{font-size:14px;font-weight:700;color:var(--red-dark)}
+.error-subtitle{font-size:12px;color:var(--red);margin-top:1px}
+.error-body{padding:18px 24px}
+.error-section-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);margin-bottom:10px}
+
+/* What's safe */
+.safe-block{background:var(--green-light);border:1px solid #A7F3D0;border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.safe-title{font-size:12px;font-weight:700;color:var(--green-dark);margin-bottom:8px}
+.safe-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px;color:var(--green-dark)}
+.safe-item:last-child{margin-bottom:0}
+
+/* What failed */
+.fail-block{background:var(--red-light);border:1px solid #FCA5A5;border-radius:10px;padding:14px 16px;margin-bottom:12px}
+.fail-title{font-size:12px;font-weight:700;color:var(--red-dark);margin-bottom:8px}
+.fail-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;font-size:12px;color:var(--red-dark);line-height:1.4}
+.fail-item:last-child{margin-bottom:0}
+
+/* What's blocked */
+.blocked-block{background:var(--orange-light);border:1px solid #FED7AA;border-radius:10px;padding:14px 16px;margin-bottom:16px}
+.blocked-title{font-size:12px;font-weight:700;color:#9A3412;margin-bottom:8px}
+.blocked-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px;color:#9A3412}
+.blocked-item:last-child{margin-bottom:0}
+
+/* Cause */
+.cause-block{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;padding:14px 16px;margin-bottom:16px}
+.cause-label{font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray-400);margin-bottom:6px}
+.cause-text{font-size:13px;font-weight:600;color:var(--gray-900);margin-bottom:4px}
+.cause-sub{font-size:12px;color:var(--gray-500);line-height:1.4}
+
+/* Fix steps */
+.fix-block{margin-bottom:16px}
+.fix-label{font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray-400);margin-bottom:10px}
+.fix-step{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px}
+.fix-step:last-child{margin-bottom:0}
+.fix-num{width:22px;height:22px;border-radius:50%;background:var(--blue);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.fix-text{font-size:12px;color:var(--gray-700);line-height:1.5}
+.fix-action{display:inline-block;margin-top:4px;font-size:11px;font-weight:600;color:var(--blue);cursor:pointer}
+
+/* Actions */
+.actions-block{padding:16px 24px;display:flex;gap:8px;border-top:1px solid var(--gray-100)}
+.btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif}
+.btn-primary{background:var(--blue);color:white}
+.btn-ghost{background:transparent;color:var(--gray-500);border:1px solid var(--gray-200)}
+.btn-danger{background:var(--red-light);color:var(--red-dark);border:1.5px solid #FCA5A5}
+
+/* Notification banner */
+.notif-urgent{background:var(--red-dark);color:white;padding:12px 20px;border-radius:10px;display:flex;align-items:center;gap:12px;margin-bottom:8px;box-shadow:0 4px 16px rgba(239,68,68,0.3)}
+.notif-passive{background:white;border:1px solid var(--gray-200);border-left:4px solid var(--red);padding:12px 20px;border-radius:10px;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.notif-icon{font-size:18px;flex-shrink:0}
+.notif-text{flex:1}
+.notif-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.notif-sub{font-size:12px;opacity:0.8}
+.notif-action{font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0}
+
+/* Severity table */
+.severity-table{width:100%;border-collapse:collapse}
+.severity-table th{padding:10px 16px;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray-400);text-align:left;background:var(--gray-50);border-bottom:1px solid var(--gray-200)}
+.severity-table td{padding:12px 16px;font-size:13px;color:var(--gray-700);border-bottom:1px solid var(--gray-100);vertical-align:top;line-height:1.4}
+.severity-table tr:last-child td{border-bottom:none}
+
+/* Rules */
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.rules-card{border-radius:12px;overflow:hidden;border:1px solid var(--gray-200)}
+.rules-header{padding:12px 20px;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase}
+.rules-header.do{background:var(--green-light);color:var(--green-dark)}
+.rules-header.dont{background:var(--red-light);color:var(--red-dark)}
+.rules-body{padding:16px 20px;background:white}
+.rule-item{display:flex;gap:10px;margin-bottom:12px;font-size:13px;color:var(--gray-700);line-height:1.4}
+.rule-item:last-child{margin-bottom:0}
+
+/* Variant label */
+.variant-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.variant-tag{background:var(--red);color:white;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase}
+.variant-name{font-size:16px;font-weight:700;color:var(--gray-900)}
+.variant-desc{font-size:13px;color:var(--gray-500)}
+
+/* Metrics */
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.metric-card{background:white;border:1px solid var(--gray-200);border-radius:12px;padding:24px}
+.metric-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px}
+.metric-value{font-size:32px;font-weight:700;color:var(--gray-900);font-family:'DM Mono',monospace;margin-bottom:4px}
+.metric-desc{font-size:12px;color:var(--gray-500);line-height:1.4;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="page-header">
+  <div class="tag">⬡ Agentic AI Pattern Library</div>
+  <h1>Error Recovery</h1>
+  <p>When an agent fails unexpectedly mid-chain — preserve all completed work, tell the user exactly what broke and why, then let them fix the cause and resume from the exact failure point.</p>
+  <div class="meta-row">
+    <div class="meta-item"><span class="meta-label">Pattern ID</span><span class="meta-value">P-004</span></div>
+    <div class="meta-item"><span class="meta-label">Mode</span><span class="meta-value">Agent</span></div>
+    <div class="meta-item"><span class="meta-label">Category</span><span class="meta-value">Recovery Patterns</span></div>
+    <div class="meta-item"><span class="meta-label">Version</span><span class="meta-value">1.0</span></div>
+    <div class="meta-item"><span class="meta-label">Status</span><span class="meta-value status">● Approved</span></div>
+  </div>
+</div>
+
+<!-- 00 Distinction from Graceful Handoff -->
+<div class="section">
+  <div class="section-label">00 — How This Differs From P-003</div>
+  <div class="section-title">Graceful Handoff vs Error Recovery</div>
+  <div class="section-desc">These two patterns look similar. They are fundamentally different. Every designer using this library must know the distinction.</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px">
+    <div style="background:var(--amber-light);border:1.5px solid var(--amber);border-radius:12px;padding:24px">
+      <div style="font-size:11px;font-weight:700;color:var(--amber-dark);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">P-003 — Graceful Handoff</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:10px;font-size:13px;color:var(--amber-dark)"><span style="flex-shrink:0">🧠</span>Agent <strong>knew</strong> it needed help. It paused deliberately.</div>
+        <div style="display:flex;gap:10px;font-size:13px;color:var(--amber-dark)"><span style="flex-shrink:0">❓</span>A decision is needed — not a fix. Agent is not broken.</div>
+        <div style="display:flex;gap:10px;font-size:13px;color:var(--amber-dark)"><span style="flex-shrink:0">▶</span>After user decides — agent resumes immediately. No repair needed.</div>
+        <div style="display:flex;gap:10px;font-size:13px;color:var(--amber-dark)"><span style="flex-shrink:0">😐</span>Tone: calm, collaborative. Agent asking for guidance.</div>
+      </div>
+    </div>
+    <div style="background:var(--red-light);border:1.5px solid var(--red);border-radius:12px;padding:24px">
+      <div style="font-size:11px;font-weight:700;color:var(--red-dark);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">P-004 — Error Recovery</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:10px;font-size:13px;color:var(--red-dark)"><span style="flex-shrink:0">💥</span>Agent <strong>didn't know</strong>. It broke. Something failed unexpectedly.</div>
+        <div style="display:flex;gap:10px;font-size:13px;color:var(--red-dark)"><span style="flex-shrink:0">🔧</span>A fix is needed — not just a decision. Agent cannot resume as-is.</div>
+        <div style="display:flex;gap:10px;font-size:13px;color:var(--red-dark)"><span style="flex-shrink:0">🔁</span>After user fixes the cause — agent resumes from failure point. Not from scratch.</div>
+        <div style="display:flex;gap:10px;font-size:13px;color:var(--red-dark)"><span style="flex-shrink:0">⚠️</span>Tone: clear, direct. Something went wrong. Here's what. Here's how to fix it.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:var(--gray-900);border-radius:10px;padding:16px 20px">
+    <div style="font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">The test to use the right pattern</div>
+    <div style="font-size:13px;color:#E2E8F0;line-height:1.6">Ask: <span style="color:#FCD34D;font-weight:600">"Could the agent have continued if it wanted to?"</span><br>Yes — use Graceful Handoff. The agent chose to stop and ask.<br>No — use Error Recovery. The agent could not continue regardless.</div>
+  </div>
+</div>
+
+<!-- 01 Chain State -->
+<div class="section">
+  <div class="section-label">01 — Chain State After Failure</div>
+  <div class="section-title">Completed work is always preserved. Always.</div>
+  <div class="section-desc">When Description Agent fails, Video Agent's work does not roll back. Each agent's completed output is independent. The UI must make this crystal clear — users fear they've lost everything.</div>
+
+  <div style="margin-bottom:32px">
+    <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:16px">Jordan 1 Retro — Description Agent failed at Stage 2</div>
+    <div class="chain-row">
+      <div class="chain-agent">
+        <div class="chain-box" style="background:var(--green-light);border-color:var(--green)">
+          <span style="font-size:20px">🎬</span>
+          <span style="font-size:10px;font-weight:700;color:var(--green-dark)">✓ Done</span>
+        </div>
+        <div class="chain-label">Video Agent<br><span style="color:var(--green);font-weight:700">Preserved</span></div>
+      </div>
+      <div class="chain-arrow blocked">→</div>
+      <div class="chain-agent">
+        <div class="chain-box" style="background:var(--red-light);border-color:var(--red)">
+          <span style="font-size:20px">✍️</span>
+          <span style="font-size:10px;font-weight:700;color:var(--red-dark)">✕ Failed</span>
+        </div>
+        <div class="chain-label">Description Agent<br><span style="color:var(--red);font-weight:700">Broke here</span></div>
+      </div>
+      <div class="chain-arrow blocked">→</div>
+      <div class="chain-agent">
+        <div class="chain-box" style="background:var(--orange-light);border-color:#FDBA74">
+          <span style="font-size:20px">✅</span>
+          <span style="font-size:10px;font-weight:700;color:#9A3412">⊘ Blocked</span>
+        </div>
+        <div class="chain-label">QA Agent<br><span style="color:#9A3412;font-weight:700">Waiting on fix</span></div>
+      </div>
+      <div class="chain-arrow blocked">→</div>
+      <div class="chain-agent">
+        <div class="chain-box" style="background:var(--orange-light);border-color:#FDBA74">
+          <span style="font-size:20px">🚀</span>
+          <span style="font-size:10px;font-weight:700;color:#9A3412">⊘ Blocked</span>
+        </div>
+        <div class="chain-label">Publish Agent<br><span style="color:#9A3412;font-weight:700">Waiting on fix</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+    <div style="background:var(--green-light);border:1px solid #A7F3D0;border-radius:10px;padding:16px">
+      <div style="font-size:11px;font-weight:700;color:var(--green-dark);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">✓ Safe — kept as-is</div>
+      <div style="font-size:13px;color:var(--green-dark);line-height:1.5">Everything Video Agent generated is stored and untouched. User can review it any time.</div>
+    </div>
+    <div style="background:var(--red-light);border:1px solid #FCA5A5;border-radius:10px;padding:16px">
+      <div style="font-size:11px;font-weight:700;color:var(--red-dark);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">✕ Failed — needs fix</div>
+      <div style="font-size:13px;color:var(--red-dark);line-height:1.5">Description Agent output is incomplete or corrupted. This is what needs to be fixed before chain can resume.</div>
+    </div>
+    <div style="background:var(--orange-light);border:1px solid #FED7AA;border-radius:10px;padding:16px">
+      <div style="font-size:11px;font-weight:700;color:#9A3412;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">⊘ Blocked — waiting</div>
+      <div style="font-size:13px;color:#9A3412;line-height:1.5">QA and Publish cannot run until Description Agent output exists. They are paused, not failed. Fix the cause and they resume automatically.</div>
+    </div>
+  </div>
+</div>
+
+<!-- 02 Notifications -->
+<div class="section">
+  <div class="section-label">02 — Notification System</div>
+  <div class="section-title">Passive by default. Urgent when it matters.</div>
+  <div class="section-desc">Not every failure requires interrupting the user. Severity determines how they're told. These thresholds are fixed — never adjust per product.</div>
+
+  <div style="margin-bottom:32px">
+    <div style="font-size:11px;font-weight:700;color:var(--red-dark);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Urgent — interrupt immediately</div>
+    <div class="notif-urgent">
+      <span class="notif-icon">🚨</span>
+      <div class="notif-text">
+        <div class="notif-title">All agents stopped — Description Agent failed on all 10 products</div>
+        <div class="notif-sub">Entire run is blocked. Your action is needed now.</div>
+      </div>
+      <span class="notif-action">Fix now →</span>
+    </div>
+    <div class="notif-urgent" style="background:#7C2D12">
+      <span class="notif-icon">⚠️</span>
+      <div class="notif-text">
+        <div class="notif-title">Critical failure — agent attempted to publish without QA approval</div>
+        <div class="notif-sub">Run halted immediately. No content was published. Review required.</div>
+      </div>
+      <span class="notif-action">Review →</span>
+    </div>
+  </div>
+
+  <div style="margin-bottom:32px">
+    <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px">Passive — visible when user returns to Item Status Grid</div>
+    <div class="notif-passive">
+      <span class="notif-icon" style="color:var(--red)">⚠</span>
+      <div class="notif-text">
+        <div class="notif-title" style="color:var(--gray-900);font-size:13px">Description Agent failed on 1 product — Jordan 1 Retro</div>
+        <div class="notif-sub" style="color:var(--gray-500)">Other agents continuing. Fix when ready.</div>
+      </div>
+      <span class="notif-action" style="color:var(--blue)">View →</span>
+    </div>
+    <div class="notif-passive">
+      <span class="notif-icon" style="color:var(--red)">⚠</span>
+      <div class="notif-text">
+        <div class="notif-title" style="color:var(--gray-900);font-size:13px">QA Agent failed on 2 products — Air Max Lite, Dunk Low</div>
+        <div class="notif-sub" style="color:var(--gray-500)">Remaining 8 products completed successfully.</div>
+      </div>
+      <span class="notif-action" style="color:var(--blue)">View →</span>
+    </div>
+  </div>
+
+  <div style="background:white;border:1px solid var(--gray-200);border-radius:12px;overflow:hidden">
+    <div style="padding:14px 20px;background:var(--gray-50);border-bottom:1px solid var(--gray-200)">
+      <div style="font-size:12px;font-weight:700;color:var(--gray-700)">Severity thresholds — when to use urgent vs passive</div>
+    </div>
+    <table class="severity-table">
+      <thead><tr><th>Failure type</th><th>Notification mode</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Single agent fails on 1 product</strong></td><td><span class="pill pill-running" style="font-size:11px">Passive</span></td><td>Run continues on others. Not urgent.</td></tr>
+        <tr><td><strong>Single agent fails on &gt;50% of products</strong></td><td><span class="pill pill-failed" style="font-size:11px">Urgent</span></td><td>Majority of run blocked. Needs immediate attention.</td></tr>
+        <tr><td><strong>Agent fails on all products</strong></td><td><span class="pill pill-failed" style="font-size:11px">Urgent</span></td><td>Entire run is blocked. Nothing can continue.</td></tr>
+        <tr><td><strong>Any agent attempts irreversible action without approval</strong></td><td><span class="pill pill-failed" style="font-size:11px">Urgent</span></td><td>Trust violation. Immediate halt required.</td></tr>
+        <tr><td><strong>Failure blocks a downstream irreversible step</strong></td><td><span class="pill pill-failed" style="font-size:11px">Urgent</span></td><td>If unresolved, publish could be delayed or corrupted.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- 03 Error Card Anatomy -->
+<div class="section">
+  <div class="section-label">03 — Error Card</div>
+  <div class="section-title">What the user sees when they open a failed item</div>
+  <div class="section-desc">Three sections. What's safe. What failed and why. How to fix it and resume. Never show a raw error log. Always translate to plain language.</div>
+
+  <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">The error card</div>
+      <div class="error-card">
+        <div class="error-header">
+          <div class="error-icon">✕</div>
+          <div>
+            <div class="error-title">Description Agent failed</div>
+            <div class="error-subtitle">Jordan 1 Retro · SKU-0078 · Stage 2 of 4</div>
+          </div>
+        </div>
+        <div class="error-body">
+          <div class="safe-block">
+            <div class="safe-title">✓ Work preserved from earlier stages</div>
+            <div class="safe-item"><span>🎬</span>Video Agent output saved — 30-second video ready</div>
+          </div>
+          <div class="fail-block">
+            <div class="fail-title">✕ What failed</div>
+            <div class="fail-item"><span style="flex-shrink:0">❌</span>Description Agent could not access the product data file. The file was moved or renamed since the run started.</div>
+          </div>
+          <div class="blocked-block">
+            <div class="blocked-title">⊘ Blocked until fixed</div>
+            <div class="blocked-item"><span>—</span>QA Agent — waiting on description</div>
+            <div class="blocked-item"><span>—</span>Publish Agent — waiting on QA</div>
+          </div>
+          <div class="cause-block">
+            <div class="cause-label">Root cause</div>
+            <div class="cause-text">Product data file not found</div>
+            <div class="cause-sub">Expected: <code style="font-family:'DM Mono',monospace;font-size:11px;background:var(--gray-100);padding:1px 5px;border-radius:3px">/products/jordan1_data.json</code><br>File was moved or renamed after the run started.</div>
+          </div>
+          <div class="fix-block">
+            <div class="fix-label">How to fix and resume</div>
+            <div class="fix-step">
+              <div class="fix-num">1</div>
+              <div class="fix-text">Restore or rename the product data file to its original location.<span class="fix-action">→ Open file manager</span></div>
+            </div>
+            <div class="fix-step">
+              <div class="fix-num">2</div>
+              <div class="fix-text">Confirm the file is accessible, then resume the Description Agent from this point.</div>
+            </div>
+          </div>
+        </div>
+        <div class="actions-block">
+          <button class="btn btn-primary">Resume from here →</button>
+          <button class="btn btn-ghost">Skip this product</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1;min-width:260px">
+      <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:16px">The three non-negotiable sections</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:white;border:1px solid var(--gray-200);border-radius:10px;padding:18px 20px">
+          <div style="font-size:12px;font-weight:700;color:var(--green-dark);margin-bottom:6px">1 — What's safe</div>
+          <div style="font-size:13px;color:var(--gray-700);line-height:1.5">Always shown first. Users fear losing everything. Immediately reassure them about what work was preserved before explaining what failed.</div>
+          <div style="font-size:11px;color:var(--green);font-weight:600;margin-top:6px">→ Never skip this section</div>
+        </div>
+        <div style="background:white;border:1px solid var(--gray-200);border-radius:10px;padding:18px 20px">
+          <div style="font-size:12px;font-weight:700;color:var(--red-dark);margin-bottom:6px">2 — What failed and why</div>
+          <div style="font-size:13px;color:var(--gray-700);line-height:1.5">Plain language. Never raw error codes. Translate the technical cause into what the user can actually understand and act on. Always include what's now blocked downstream.</div>
+          <div style="font-size:11px;color:var(--red);font-weight:600;margin-top:6px">→ Never show raw stack traces here</div>
+        </div>
+        <div style="background:white;border:1px solid var(--gray-200);border-radius:10px;padding:18px 20px">
+          <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px">3 — How to fix and resume</div>
+          <div style="font-size:13px;color:var(--gray-700);line-height:1.5">Numbered steps. Specific actions. Not "try again" — exactly what to do. Resume button picks up from failure point, never from scratch.</div>
+          <div style="font-size:11px;color:var(--blue);font-weight:600;margin-top:6px">→ Resume always means from failure point</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 04 Variants -->
+<div class="section">
+  <div class="section-label">04 — Variants</div>
+  <div class="section-title">Three failure types — three error card treatments</div>
+  <div class="section-desc">Same three-section structure. Different cause, different fix, different tone.</div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:28px;align-items:start">
+
+    <!-- Variant A: Resource missing -->
+    <div>
+      <div class="variant-header">
+        <span class="variant-tag">A</span>
+        <div><div class="variant-name">Resource Missing</div><div class="variant-desc">File, data, or connection not found</div></div>
+      </div>
+      <div class="error-card" style="max-width:100%">
+        <div class="error-header">
+          <div class="error-icon">🔍</div>
+          <div><div class="error-title">Resource not found</div><div class="error-subtitle">Description Agent · Jordan 1</div></div>
+        </div>
+        <div class="error-body">
+          <div class="safe-block" style="padding:10px 12px"><div class="safe-title" style="font-size:11px">✓ Video output preserved</div></div>
+          <div class="fail-block" style="padding:10px 12px;margin-bottom:8px"><div class="fail-title" style="font-size:11px">Product data file not found</div><div class="fail-item" style="font-size:11px"><span>—</span>File was moved after run started</div></div>
+          <div class="fix-block" style="margin-bottom:8px">
+            <div class="fix-step"><div class="fix-num" style="width:18px;height:18px;font-size:9px">1</div><div class="fix-text" style="font-size:11px">Restore file to original location</div></div>
+            <div class="fix-step"><div class="fix-num" style="width:18px;height:18px;font-size:9px">2</div><div class="fix-text" style="font-size:11px">Resume agent from this point</div></div>
+          </div>
+        </div>
+        <div class="actions-block" style="padding:12px 16px">
+          <button class="btn btn-primary" style="font-size:12px;padding:7px 12px">Resume →</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px">Skip</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variant B: Quality failure -->
+    <div>
+      <div class="variant-header">
+        <span class="variant-tag">B</span>
+        <div><div class="variant-name">Quality Failure</div><div class="variant-desc">Output generated but below threshold</div></div>
+      </div>
+      <div class="error-card" style="max-width:100%">
+        <div class="error-header">
+          <div class="error-icon">📉</div>
+          <div><div class="error-title">Output below threshold</div><div class="error-subtitle">QA Agent · Air Max Lite</div></div>
+        </div>
+        <div class="error-body">
+          <div class="safe-block" style="padding:10px 12px"><div class="safe-title" style="font-size:11px">✓ Video + description preserved</div></div>
+          <div class="fail-block" style="padding:10px 12px;margin-bottom:8px"><div class="fail-title" style="font-size:11px">QA score 61% — threshold is 85%</div><div class="fail-item" style="font-size:11px"><span>—</span>Video resolution 61% — significantly below standard</div></div>
+          <div class="fix-block" style="margin-bottom:8px">
+            <div class="fix-step"><div class="fix-num" style="width:18px;height:18px;font-size:9px">1</div><div class="fix-text" style="font-size:11px">Regenerate video with higher resolution setting</div></div>
+            <div class="fix-step"><div class="fix-num" style="width:18px;height:18px;font-size:9px">2</div><div class="fix-text" style="font-size:11px">Or lower QA threshold in parameters</div></div>
+          </div>
+        </div>
+        <div class="actions-block" style="padding:12px 16px">
+          <button class="btn btn-primary" style="font-size:12px;padding:7px 12px">Regenerate →</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px">Skip</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Variant C: System failure -->
+    <div>
+      <div class="variant-header">
+        <span class="variant-tag">C</span>
+        <div><div class="variant-name">System Failure</div><div class="variant-desc">Agent crashed — not a user error</div></div>
+      </div>
+      <div class="error-card" style="max-width:100%;border-color:var(--purple)">
+        <div class="error-header" style="background:linear-gradient(135deg,#F5F0FF,#FAF5FF);border-bottom-color:#DDD6FE">
+          <div class="error-icon" style="background:var(--purple)">⚡</div>
+          <div><div class="error-title" style="color:var(--purple)">System error — not your fault</div><div class="error-subtitle" style="color:var(--purple)">Video Agent · Pegasus Trail</div></div>
+        </div>
+        <div class="error-body">
+          <div class="safe-block" style="padding:10px 12px"><div class="safe-title" style="font-size:11px">✓ No output lost — agent crashed before saving</div></div>
+          <div style="background:var(--purple-light);border:1px solid #DDD6FE;border-radius:10px;padding:10px 12px;margin-bottom:8px">
+            <div style="font-size:11px;font-weight:700;color:var(--purple);margin-bottom:4px">What happened</div>
+            <div style="font-size:11px;color:var(--purple);line-height:1.4">Video generation service timed out. This is a system issue, not a problem with your product data.</div>
+          </div>
+          <div class="fix-block" style="margin-bottom:8px">
+            <div class="fix-step"><div class="fix-num" style="width:18px;height:18px;font-size:9px;background:var(--purple)">1</div><div class="fix-text" style="font-size:11px">Wait 2 minutes for service to recover, then retry</div></div>
+          </div>
+        </div>
+        <div class="actions-block" style="padding:12px 16px">
+          <button class="btn" style="background:var(--purple-light);color:var(--purple);border:1.5px solid #DDD6FE;font-size:12px;padding:7px 12px">Retry now →</button>
+          <button class="btn btn-ghost" style="font-size:12px;padding:7px 12px">Skip</button>
+        </div>
+      </div>
+      <p style="margin-top:10px;font-size:12px;color:var(--gray-400);line-height:1.4">Purple variant — system error, not user error. Tone must be reassuring not alarming. Never imply the user did something wrong.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 05 Rules -->
+<div class="section">
+  <div class="section-label">05 — Rules</div>
+  <div class="section-title">Do's and Don'ts</div>
+  <div class="section-desc">These rules protect user trust when the system breaks. Trust is hardest to rebuild after unexpected failures.</div>
+  <div class="rules-grid">
+    <div class="rules-card">
+      <div class="rules-header do">✅ Always do this</div>
+      <div class="rules-body">
+        <div class="rule-item"><span>✓</span>Always show what's safe and preserved before showing what failed</div>
+        <div class="rule-item"><span>✓</span>Always translate technical errors into plain language the user understands</div>
+        <div class="rule-item"><span>✓</span>Always show what's blocked downstream — not just what failed</div>
+        <div class="rule-item"><span>✓</span>Always resume from the failure point — never restart from scratch</div>
+        <div class="rule-item"><span>✓</span>Always distinguish system errors (purple) from user-caused errors (red)</div>
+        <div class="rule-item"><span>✓</span>Always give numbered fix steps — never just "try again"</div>
+      </div>
+    </div>
+    <div class="rules-card">
+      <div class="rules-header dont">❌ Never do this</div>
+      <div class="rules-body">
+        <div class="rule-item"><span>✗</span>Never show raw error codes or stack traces in the error card</div>
+        <div class="rule-item"><span>✗</span>Never roll back completed work from prior agents</div>
+        <div class="rule-item"><span>✗</span>Never use urgent notification for a single product failure</div>
+        <div class="rule-item"><span>✗</span>Never imply user error when it was a system failure</div>
+        <div class="rule-item"><span>✗</span>Never offer only "Start over" — always offer "Resume from here"</div>
+        <div class="rule-item"><span>✗</span>Never silently retry without telling the user</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 06 Metrics -->
+<div class="section" style="border-bottom:none">
+  <div class="section-label">06 — Metrics</div>
+  <div class="section-title">How you know this pattern is working</div>
+  <div class="section-desc">Error Recovery is working when users resolve failures quickly and trust hasn't broken down.</div>
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label" style="color:var(--green)">Time to resolve</div>
+      <div class="metric-value">&lt;3min</div>
+      <div class="metric-desc">From error card opening to resume button clicked. Longer means fix steps are unclear.</div>
+      <div style="font-size:11px;font-weight:600;color:var(--red)">🚨 Red flag if over 10 min</div>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:2px">User cannot understand how to fix it</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label" style="color:var(--amber)">Skip rate</div>
+      <div class="metric-value">&lt;15%</div>
+      <div class="metric-desc">How often users skip a failed product instead of fixing it.</div>
+      <div style="font-size:11px;font-weight:600;color:var(--red)">🚨 Red flag if over 40%</div>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Fix steps are too hard — users giving up</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label" style="color:var(--blue)">Error frequency by agent</div>
+      <div class="metric-value">Track</div>
+      <div class="metric-desc">Which agent fails most often? Rising frequency on one agent signals a calibration or infrastructure problem.</div>
+      <div style="font-size:11px;font-weight:600;color:var(--red)">🚨 Red flag if same agent every time</div>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Engineering issue, not a UX issue</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

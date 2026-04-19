@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P-007 Decision Checkpoint</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2D6BE4;--blue-dark:#1A4DB3;--blue-light:#EEF4FF;--blue-mid:#AECBFA;
+  --amber:#F59E0B;--amber-light:#FEF3C7;--amber-dark:#92400E;
+  --green:#10B981;--green-light:#ECFDF5;--green-dark:#065F46;
+  --red:#EF4444;--red-light:#FEF2F2;--red-dark:#991B1B;
+  --purple:#7C3AED;--purple-light:#F5F0FF;
+  --teal:#0D9488;--teal-light:#F0FDFA;
+  --gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;
+  --gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;
+  --gray-700:#374151;--gray-900:#111827;--white:#FFFFFF;
+}
+body{font-family:'DM Sans',sans-serif;background:#0F172A;color:var(--gray-900)}
+.page-header{background:#0F172A;padding:48px 64px 40px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.tag{display:inline-flex;align-items:center;gap:6px;background:rgba(13,148,136,0.2);color:#5EEAD4;font-size:11px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:100px;margin-bottom:16px}
+.page-header h1{font-size:42px;font-weight:700;color:#F8FAFC;letter-spacing:-0.02em;margin-bottom:12px}
+.page-header p{font-size:16px;color:var(--gray-400);max-width:620px;line-height:1.6}
+.meta-row{display:flex;gap:32px;margin-top:28px;flex-wrap:wrap}
+.meta-item{display:flex;flex-direction:column;gap:4px}
+.meta-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-500)}
+.meta-value{font-size:13px;font-weight:500;color:#CBD5E1}
+.meta-value.status{color:var(--green)}
+.section{padding:56px 64px;border-bottom:1px solid var(--gray-100);background:var(--white)}
+.section:nth-child(even){background:var(--gray-50)}
+.section-label{font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+.section-title{font-size:24px;font-weight:700;color:var(--gray-900);letter-spacing:-0.01em;margin-bottom:8px}
+.section-desc{font-size:14px;color:var(--gray-500);line-height:1.6;max-width:640px;margin-bottom:40px}
+
+/* Checkpoint banner */
+.checkpoint-banner{background:linear-gradient(135deg,#F0FDFA,#ECFDF5);border:1.5px solid var(--teal);border-radius:14px;padding:20px 24px;margin-bottom:32px;display:flex;align-items:center;gap:16px;max-width:640px}
+.checkpoint-banner-icon{width:44px;height:44px;background:var(--teal);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;color:white;flex-shrink:0}
+.checkpoint-banner-title{font-size:15px;font-weight:700;color:var(--teal);margin-bottom:4px}
+.checkpoint-banner-sub{font-size:13px;color:var(--gray-500);line-height:1.4}
+
+/* Overview grid */
+.overview-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.overview-stat{background:white;border:1px solid var(--gray-200);border-radius:10px;padding:16px;text-align:center}
+.overview-num{font-size:28px;font-weight:700;font-family:'DM Mono',monospace;margin-bottom:4px}
+.overview-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-400)}
+
+/* Product review table */
+.review-table{width:100%;border-collapse:collapse}
+.review-table th{padding:10px 16px;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gray-400);text-align:left;background:var(--gray-50);border-bottom:1px solid var(--gray-200)}
+.review-table td{padding:12px 16px;font-size:13px;color:var(--gray-700);border-bottom:1px solid var(--gray-100);vertical-align:middle}
+.review-table tr:hover td{background:var(--gray-50);cursor:pointer}
+.product-name{font-weight:600;color:var(--gray-900)}
+.product-id{font-size:11px;color:var(--gray-400);font-family:'DM Mono',monospace;margin-top:1px}
+.qa-bar{height:4px;background:var(--gray-100);border-radius:100px;margin-top:4px;width:80px}
+.qa-fill{height:100%;border-radius:100px;background:var(--green)}
+.action-btn{padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif}
+.btn-approve{background:var(--green-light);color:var(--green-dark);border:1.5px solid #A7F3D0}
+.btn-reject{background:var(--red-light);color:var(--red-dark);border:1.5px solid #FCA5A5}
+.btn-edit{background:var(--amber-light);color:var(--amber-dark);border:1.5px solid #FDE68A}
+.btn-review{background:var(--teal-light);color:var(--teal);border:1.5px solid #99F6E4}
+.status-approved{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:100px;font-size:11px;font-weight:600;background:var(--green-light);color:var(--green-dark)}
+.status-rejected{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:100px;font-size:11px;font-weight:600;background:var(--red-light);color:var(--red-dark)}
+.status-editing{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:100px;font-size:11px;font-weight:600;background:var(--amber-light);color:var(--amber-dark)}
+.status-pending{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:100px;font-size:11px;font-weight:600;background:var(--gray-100);color:var(--gray-500)}
+
+/* Bulk actions bar */
+.bulk-bar{background:var(--gray-900);border-radius:10px;padding:12px 20px;display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.bulk-selected{font-size:13px;font-weight:600;color:white}
+.bulk-btn{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif}
+
+/* Drill-in panel */
+.drill-panel{background:white;border:1.5px solid var(--teal);border-radius:14px;overflow:hidden;max-width:520px}
+.drill-header{padding:16px 20px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between}
+.drill-title{font-size:14px;font-weight:700;color:var(--gray-900)}
+.drill-id{font-size:11px;color:var(--gray-400);font-family:'DM Mono',monospace;margin-top:2px}
+.drill-nav{display:flex;align-items:center;gap:8px}
+.drill-nav-btn{padding:4px 10px;border:1px solid var(--gray-200);border-radius:6px;font-size:11px;color:var(--gray-500);cursor:pointer;background:white;font-family:'DM Sans',sans-serif}
+.drill-nav-count{font-size:11px;color:var(--gray-400);font-family:'DM Mono',monospace}
+.preview-block{padding:16px 20px;border-bottom:1px solid var(--gray-100)}
+.preview-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray-400);margin-bottom:10px}
+.preview-video{background:var(--gray-100);border-radius:8px;height:120px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.preview-desc{font-size:13px;color:var(--gray-700);line-height:1.5;padding:12px;background:var(--gray-50);border-radius:8px}
+.qa-scores{padding:14px 20px;border-bottom:1px solid var(--gray-100);background:var(--gray-50)}
+.qa-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.qa-row:last-child{margin-bottom:0}
+.qa-name{font-size:12px;color:var(--gray-500)}
+.qa-value{font-size:12px;font-weight:700;font-family:'DM Mono',monospace}
+.qa-value.pass{color:var(--green)}
+.qa-value.warn{color:var(--amber)}
+.edit-note-block{padding:14px 20px;border-bottom:1px solid var(--gray-100)}
+.edit-note-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--amber-dark);margin-bottom:8px}
+.edit-note-input{width:100%;border:1.5px solid var(--amber);border-radius:8px;padding:10px 12px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--gray-700);resize:none;outline:none}
+.drill-actions{padding:14px 20px;display:flex;gap:8px}
+.btn{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif}
+.btn-green{background:var(--green);color:white;flex:1}
+.btn-amber{background:var(--amber);color:white;flex:1}
+.btn-red{background:var(--red-light);color:var(--red-dark);border:1.5px solid #FCA5A5;flex:1}
+.btn-ghost{background:transparent;color:var(--gray-500);border:1px solid var(--gray-200)}
+
+/* Completion state */
+.completion-card{background:white;border:1.5px solid var(--green);border-radius:14px;overflow:hidden;max-width:480px;box-shadow:0 4px 20px rgba(16,185,129,0.1)}
+.completion-header{background:var(--green-light);padding:20px 24px;border-bottom:1px solid #A7F3D0;text-align:center}
+.completion-icon{width:48px;height:48px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:white;margin:0 auto 10px}
+.completion-title{font-size:16px;font-weight:700;color:var(--green-dark);margin-bottom:4px}
+.completion-sub{font-size:13px;color:var(--green)}
+.completion-body{padding:20px 24px}
+.completion-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gray-100)}
+.completion-row:last-child{border-bottom:none}
+.completion-label{font-size:13px;color:var(--gray-500)}
+.completion-value{font-size:13px;font-weight:700;font-family:'DM Mono',monospace;color:var(--gray-900)}
+.completion-actions{padding:16px 24px;border-top:1px solid var(--gray-100);display:flex;gap:8px}
+
+/* Variant label */
+.variant-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.variant-tag{background:var(--teal);color:white;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase}
+.variant-name{font-size:16px;font-weight:700;color:var(--gray-900)}
+.variant-desc{font-size:13px;color:var(--gray-500)}
+
+/* Distinction box */
+.distinction-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:32px}
+
+/* Rules */
+.rules-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.rules-card{border-radius:12px;overflow:hidden;border:1px solid var(--gray-200)}
+.rules-header{padding:12px 20px;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase}
+.rules-header.do{background:var(--green-light);color:var(--green-dark)}
+.rules-header.dont{background:var(--red-light);color:var(--red-dark)}
+.rules-body{padding:16px 20px;background:white}
+.rule-item{display:flex;gap:10px;margin-bottom:12px;font-size:13px;color:var(--gray-700);line-height:1.4}
+.rule-item:last-child{margin-bottom:0}
+
+/* Metrics */
+.metrics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.metric-card{background:white;border:1px solid var(--gray-200);border-radius:12px;padding:24px}
+.metric-label{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px}
+.metric-value{font-size:32px;font-weight:700;color:var(--gray-900);font-family:'DM Mono',monospace;margin-bottom:4px}
+.metric-desc{font-size:12px;color:var(--gray-500);line-height:1.4;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="tag">⬡ Agentic AI Pattern Library</div>
+  <h1>Decision Checkpoint</h1>
+  <p>An agent pauses at a pre-declared irreversible boundary and waits for human sign-off before crossing it. Not a failure. Not an error. A designed trust boundary — agreed in Pre-flight Plan, honoured mid-run.</p>
+  <div class="meta-row">
+    <div class="meta-item"><span class="meta-label">Pattern ID</span><span class="meta-value">P-007</span></div>
+    <div class="meta-item"><span class="meta-label">Mode</span><span class="meta-value">Agent</span></div>
+    <div class="meta-item"><span class="meta-label">Category</span><span class="meta-value">Control Patterns</span></div>
+    <div class="meta-item"><span class="meta-label">Version</span><span class="meta-value">1.0</span></div>
+    <div class="meta-item"><span class="meta-label">Status</span><span class="meta-value status">● Approved</span></div>
+  </div>
+</div>
+
+<!-- 00 Why agentic + distinction -->
+<div class="section">
+  <div class="section-label">00 — Why This Is Agentic</div>
+  <div class="section-title">A designed trust boundary in an autonomous chain</div>
+  <div class="section-desc">The agent didn't fail. It didn't get confused. It reached a point it was always told it would reach — and stopped exactly as agreed. This is the agentic contract being honoured. The tone is not alarming. It's a handover.</div>
+
+  <div class="distinction-grid">
+    <div style="background:var(--amber-light);border:1px solid var(--amber);border-radius:12px;padding:20px">
+      <div style="font-size:11px;font-weight:700;color:var(--amber-dark);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">P-003 Graceful Handoff</div>
+      <div style="font-size:13px;color:var(--amber-dark);line-height:1.5">Agent reached its <strong>decision limit</strong>. Uncertain. Asks for help mid-chain. Unplanned moment.</div>
+    </div>
+    <div style="background:var(--red-light);border:1px solid #FCA5A5;border-radius:12px;padding:20px">
+      <div style="font-size:11px;font-weight:700;color:var(--red-dark);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">P-004 Error Recovery</div>
+      <div style="font-size:13px;color:var(--red-dark);line-height:1.5">Agent <strong>broke unexpectedly</strong>. Something failed. User pulled back in to fix it. Unplanned moment.</div>
+    </div>
+    <div style="background:var(--teal-light);border:1.5px solid var(--teal);border-radius:12px;padding:20px">
+      <div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">P-007 Decision Checkpoint</div>
+      <div style="font-size:13px;color:var(--teal);line-height:1.5">Agent reached a <strong>pre-declared boundary</strong>. Working perfectly. Stopping as agreed. Planned moment.</div>
+    </div>
+  </div>
+
+  <div style="background:var(--gray-900);border-radius:12px;padding:20px">
+    <div style="font-size:12px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">The contract</div>
+    <div style="font-size:13px;color:#E2E8F0;line-height:1.6">In Pre-flight Plan, the user saw: <span style="color:#FDE68A;font-weight:600">"Publishing Agent — will pause for your review before publishing anything live."</span> That was the agreement. Decision Checkpoint is that agreement being kept. The agent ran autonomously — then stopped at exactly the right moment.</div>
+  </div>
+</div>
+
+<!-- 01 Overview screen -->
+<div class="section">
+  <div class="section-label">01 — Overview Screen</div>
+  <div class="section-title">See everything at a glance before drilling in</div>
+  <div class="section-desc">User lands here first. Four numbers — total ready, approved, rejected, editing. Then a table with one row per product. Status visible at a glance. User can act from the table or drill into any product for full detail.</div>
+
+  <div style="background:white;border:1px solid var(--gray-200);border-radius:14px;overflow:hidden;max-width:720px;box-shadow:0 4px 16px rgba(0,0,0,0.06)">
+
+    <!-- Checkpoint banner -->
+    <div style="padding:18px 24px;background:linear-gradient(135deg,#F0FDFA,#ECFDF5);border-bottom:1.5px solid var(--teal);display:flex;align-items:center;gap:14px">
+      <div style="width:40px;height:40px;background:var(--teal);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:white;flex-shrink:0">⏸</div>
+      <div>
+        <div style="font-size:14px;font-weight:700;color:var(--teal)">Decision Checkpoint — Publishing ready</div>
+        <div style="font-size:12px;color:var(--gray-500);margin-top:2px">As agreed in your Pre-flight Plan · Publishing Agent paused and waiting · Other agents continuing</div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-bottom:1px solid var(--gray-100)">
+      <div style="padding:16px 20px;text-align:center;border-right:1px solid var(--gray-100)"><div style="font-size:26px;font-weight:700;font-family:'DM Mono',monospace;color:var(--gray-900)">10</div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-400)">Ready to review</div></div>
+      <div style="padding:16px 20px;text-align:center;border-right:1px solid var(--gray-100)"><div style="font-size:26px;font-weight:700;font-family:'DM Mono',monospace;color:var(--green)">3</div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-400)">Approved</div></div>
+      <div style="padding:16px 20px;text-align:center;border-right:1px solid var(--gray-100)"><div style="font-size:26px;font-weight:700;font-family:'DM Mono',monospace;color:var(--amber)">1</div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-400)">Editing</div></div>
+      <div style="padding:16px 20px;text-align:center"><div style="font-size:26px;font-weight:700;font-family:'DM Mono',monospace;color:var(--gray-300)">6</div><div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-400)">Pending review</div></div>
+    </div>
+
+    <!-- Bulk bar -->
+    <div style="padding:12px 20px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:12px;color:var(--gray-500)">Select products to bulk approve or reject</div>
+      <div style="display:flex;gap:8px">
+        <button style="padding:6px 14px;background:var(--green-light);color:var(--green-dark);border:1.5px solid #A7F3D0;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">✓ Approve all pending</button>
+        <button style="padding:6px 14px;background:var(--red-light);color:var(--red-dark);border:1.5px solid #FCA5A5;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">✕ Reject all pending</button>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <table class="review-table">
+      <thead><tr><th>Product</th><th>QA Score</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr><td><div class="product-name">Air Max 2026</div><div class="product-id">SKU-0011</div></td><td><div style="font-size:12px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">94%</div><div class="qa-bar"><div class="qa-fill" style="width:94%"></div></div></td><td><span class="status-approved">✓ Approved</span></td><td><button class="action-btn btn-review">View →</button></td></tr>
+        <tr><td><div class="product-name">Air Force 1</div><div class="product-id">SKU-0019</div></td><td><div style="font-size:12px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">91%</div><div class="qa-bar"><div class="qa-fill" style="width:91%"></div></div></td><td><span class="status-approved">✓ Approved</span></td><td><button class="action-btn btn-review">View →</button></td></tr>
+        <tr><td><div class="product-name">Dunk Low</div><div class="product-id">SKU-0033</div></td><td><div style="font-size:12px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">88%</div><div class="qa-bar"><div class="qa-fill" style="width:88%"></div></div></td><td><span class="status-approved">✓ Approved</span></td><td><button class="action-btn btn-review">View →</button></td></tr>
+        <tr><td><div class="product-name">Jordan 1 Retro</div><div class="product-id">SKU-0078</div></td><td><div style="font-size:12px;font-weight:700;color:var(--amber);font-family:'DM Mono',monospace">86%</div><div class="qa-bar"><div class="qa-fill" style="width:86%;background:var(--amber)"></div></div></td><td><span class="status-editing">↻ Editing</span></td><td><button class="action-btn btn-review">View →</button></td></tr>
+        <tr style="background:#FAFFFE"><td><div class="product-name">Air Max Lite</div><div class="product-id">SKU-0042</div></td><td><div style="font-size:12px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">92%</div><div class="qa-bar"><div class="qa-fill" style="width:92%"></div></div></td><td><span class="status-pending">— Pending</span></td><td style="display:flex;gap:6px;padding:12px 16px"><button class="action-btn btn-approve">✓</button><button class="action-btn btn-edit">↻</button><button class="action-btn btn-reject">✕</button></td></tr>
+        <tr style="background:#FAFFFE"><td><div class="product-name">Pegasus Trail</div><div class="product-id">SKU-0091</div></td><td><div style="font-size:12px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">89%</div><div class="qa-bar"><div class="qa-fill" style="width:89%"></div></div></td><td><span class="status-pending">— Pending</span></td><td style="display:flex;gap:6px;padding:12px 16px"><button class="action-btn btn-approve">✓</button><button class="action-btn btn-edit">↻</button><button class="action-btn btn-reject">✕</button></td></tr>
+      </tbody>
+    </table>
+    <div style="padding:12px 20px;background:var(--gray-50);border-top:1px solid var(--gray-100);font-size:12px;color:var(--gray-400)">Showing 6 of 10 products · <span style="color:var(--blue);cursor:pointer">View all</span></div>
+  </div>
+  <p style="margin-top:12px;font-size:12px;color:var(--gray-400);line-height:1.4;max-width:640px">Pending products show all three action buttons inline. Decided products show status and a View button. Bulk approve/reject available at top for users who are confident after scanning QA scores.</p>
+</div>
+
+<!-- 02 Drill-in panel -->
+<div class="section">
+  <div class="section-label">02 — Drill-in Panel</div>
+  <div class="section-title">Full detail when user needs to inspect before deciding</div>
+  <div class="section-desc">User clicks into any product. Sees the full preview as it will appear live — video, description, QA scores. Three actions: Approve, Request edit, Reject. Navigation arrows to move through all products without returning to overview.</div>
+
+  <div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap">
+    <div class="drill-panel">
+      <div class="drill-header">
+        <div>
+          <div class="drill-title">Air Max Lite</div>
+          <div class="drill-id">SKU-0042 · QA 92%</div>
+        </div>
+        <div class="drill-nav">
+          <button class="drill-nav-btn">← Prev</button>
+          <span class="drill-nav-count">5 / 10</span>
+          <button class="drill-nav-btn">Next →</button>
+        </div>
+      </div>
+
+      <div class="preview-block">
+        <div class="preview-label">Preview — as it will appear live</div>
+        <div class="preview-video">
+          <div style="text-align:center">
+            <div style="font-size:32px;margin-bottom:6px">🎬</div>
+            <div style="font-size:12px;color:var(--gray-400)">30-second product video</div>
+          </div>
+        </div>
+        <div class="preview-desc">"The Air Max Lite delivers all-day comfort with a lightweight foam midsole and breathable upper. Available in 6 colourways. Perfect for everyday wear and light training."</div>
+      </div>
+
+      <div class="qa-scores">
+        <div class="preview-label" style="margin-bottom:10px">QA scores</div>
+        <div class="qa-row"><span class="qa-name">Video resolution</span><span class="qa-value pass">96%</span></div>
+        <div class="qa-row"><span class="qa-name">Brand voice match</span><span class="qa-value pass">94%</span></div>
+        <div class="qa-row"><span class="qa-name">Description accuracy</span><span class="qa-value pass">91%</span></div>
+        <div class="qa-row"><span class="qa-name">Overall QA</span><span class="qa-value pass">92%</span></div>
+      </div>
+
+      <div class="drill-actions">
+        <button class="btn btn-green">✓ Approve</button>
+        <button class="btn btn-amber">↻ Request edit</button>
+        <button class="btn btn-red">✕ Reject</button>
+      </div>
+    </div>
+
+    <!-- Request edit state -->
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--amber-dark);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">Request edit — user leaves a note</div>
+      <div class="drill-panel" style="max-width:380px">
+        <div class="drill-header">
+          <div><div class="drill-title">Jordan 1 Retro</div><div class="drill-id">SKU-0078 · QA 86%</div></div>
+        </div>
+        <div class="preview-block" style="padding:14px 20px">
+          <div class="preview-desc">"The Jordan 1 Retro brings back the iconic silhouette with premium leather upper and original colourway..."</div>
+        </div>
+        <div class="edit-note-block">
+          <div class="edit-note-label">What needs changing</div>
+          <textarea class="edit-note-input" rows="3" placeholder="Tell the agent exactly what to fix...">Shorten the description to 2 sentences max. Current version is too long for mobile display.</textarea>
+        </div>
+        <div style="padding:14px 20px;display:flex;gap:8px">
+          <button style="flex:1;padding:9px;background:var(--amber);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Send to agent →</button>
+          <button class="btn btn-ghost" style="font-size:12px">Cancel</button>
+        </div>
+      </div>
+      <p style="margin-top:10px;font-size:12px;color:var(--gray-400);line-height:1.4;max-width:320px">Agent fixes the specific issue and brings it back for re-review. No full re-run. No lost work from other agents.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 03 Completion state -->
+<div class="section">
+  <div class="section-label">03 — Completion State</div>
+  <div class="section-title">All products decided — Publishing Agent released</div>
+  <div class="section-desc">User has reviewed every product. Approved products are published. Rejected are discarded. Edited ones re-enter the agent for correction. Publishing Agent is released to complete its run.</div>
+
+  <div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap">
+    <div class="completion-card">
+      <div class="completion-header">
+        <div class="completion-icon">✓</div>
+        <div class="completion-title">Review complete — Publishing Agent released</div>
+        <div class="completion-sub">Approved products publishing now</div>
+      </div>
+      <div class="completion-body">
+        <div class="completion-row"><span class="completion-label">Approved & publishing</span><span class="completion-value" style="color:var(--green)">8 products</span></div>
+        <div class="completion-row"><span class="completion-label">Sent back for editing</span><span class="completion-value" style="color:var(--amber)">1 product</span></div>
+        <div class="completion-row"><span class="completion-label">Rejected</span><span class="completion-value" style="color:var(--red)">1 product</span></div>
+        <div class="completion-row"><span class="completion-label">Total reviewed</span><span class="completion-value">10 products</span></div>
+      </div>
+      <div class="completion-actions">
+        <button style="flex:1;padding:9px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Watch publishing →</button>
+        <button class="btn btn-ghost" style="font-size:12px">Done</button>
+      </div>
+    </div>
+
+    <div style="flex:1;min-width:240px">
+      <div style="font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px">What happens to each decision</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="background:var(--green-light);border:1px solid #A7F3D0;border-radius:10px;padding:14px 16px"><div style="font-size:13px;font-weight:700;color:var(--green-dark);margin-bottom:4px">✓ Approved</div><div style="font-size:12px;color:var(--green-dark);line-height:1.4">Publishing Agent publishes immediately. Product goes live. Appears in Completion Summary.</div></div>
+        <div style="background:var(--amber-light);border:1px solid var(--amber);border-radius:10px;padding:14px 16px"><div style="font-size:13px;font-weight:700;color:var(--amber-dark);margin-bottom:4px">↻ Request edit</div><div style="font-size:12px;color:var(--amber-dark);line-height:1.4">Agent fixes the specific note. Product returns to Decision Checkpoint for re-review. No full re-run — only the flagged element is fixed.</div></div>
+        <div style="background:var(--red-light);border:1px solid #FCA5A5;border-radius:10px;padding:14px 16px"><div style="font-size:13px;font-weight:700;color:var(--red-dark);margin-bottom:4px">✕ Rejected</div><div style="font-size:12px;color:var(--red-dark);line-height:1.4">Agent output discarded. Product not published. Logged in Completion Summary as rejected. User can start a new run for this product separately.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 04 Flow -->
+<div class="section">
+  <div class="section-label">04 — Pattern Relationships</div>
+  <div class="section-title">Where Decision Checkpoint sits in the full chain</div>
+  <div class="section-desc">The final human gate before anything goes live. Connects directly back to Pre-flight Plan where the checkpoint was declared.</div>
+
+  <div style="background:white;border:1px solid var(--gray-200);border-radius:16px;padding:32px;overflow-x:auto">
+    <div style="display:flex;align-items:center;min-width:780px;gap:4px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:100px">
+        <div style="border-radius:10px;padding:12px 14px;font-size:11px;font-weight:600;text-align:center;width:100%;background:var(--gray-100);border:2px solid var(--gray-200);color:var(--gray-500)"><div style="font-size:16px;margin-bottom:4px">✍️</div>P-000</div>
+        <div style="font-size:9px;color:var(--gray-400);text-align:center">Instruction Input</div>
+      </div>
+      <div style="color:var(--gray-300);font-size:20px;display:flex;align-items:center;padding:0 4px;margin-bottom:16px">→</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:100px">
+        <div style="border-radius:10px;padding:12px 14px;font-size:11px;font-weight:600;text-align:center;width:100%;background:var(--blue-light);border:2px solid var(--blue-mid);color:var(--blue)"><div style="font-size:16px;margin-bottom:4px">✦</div>P-001<br><span style="font-size:9px;opacity:0.8">Checkpoint declared</span></div>
+        <div style="font-size:9px;color:var(--gray-400);text-align:center">Pre-flight Plan</div>
+      </div>
+      <div style="color:var(--gray-300);font-size:20px;display:flex;align-items:center;padding:0 4px;margin-bottom:16px">→</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:100px">
+        <div style="border-radius:10px;padding:12px 14px;font-size:11px;font-weight:600;text-align:center;width:100%;background:var(--blue-light);border:2px solid var(--blue-mid);color:var(--blue)"><div style="font-size:16px;margin-bottom:4px">📊</div>P-002</div>
+        <div style="font-size:9px;color:var(--gray-400);text-align:center">Item Status Grid</div>
+      </div>
+      <div style="color:var(--gray-300);font-size:20px;display:flex;align-items:center;padding:0 4px;margin-bottom:16px">→</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:110px">
+        <div style="border-radius:10px;padding:12px 14px;font-size:11px;font-weight:700;text-align:center;width:100%;background:var(--teal);border:2px solid var(--teal);color:white;box-shadow:0 4px 16px rgba(13,148,136,0.3)"><div style="font-size:16px;margin-bottom:4px">⏸</div>P-007</div>
+        <div style="font-size:9px;color:var(--teal);text-align:center;font-weight:600">YOU ARE HERE</div>
+      </div>
+      <div style="color:var(--gray-300);font-size:20px;display:flex;align-items:center;padding:0 4px;margin-bottom:16px">→</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:100px">
+        <div style="border-radius:10px;padding:12px 14px;font-size:11px;font-weight:600;text-align:center;width:100%;background:var(--green-light);border:2px solid var(--green);color:var(--green-dark)"><div style="font-size:16px;margin-bottom:4px">✓</div>Complete</div>
+        <div style="font-size:9px;color:var(--gray-400);text-align:center">Completion Summary</div>
+      </div>
+    </div>
+    <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--gray-100);display:flex;gap:24px">
+      <div><div style="font-size:11px;color:var(--teal);font-weight:600;margin-bottom:4px">↑ Declared in P-001</div><div style="font-size:12px;color:var(--gray-500)">Pre-flight Plan is where the user agreed this checkpoint would happen. P-007 is the fulfilment of that agreement.</div></div>
+      <div><div style="font-size:11px;color:var(--amber);font-weight:600;margin-bottom:4px">↻ Request edit loops back</div><div style="font-size:12px;color:var(--gray-500)">Requested edits re-enter the agent and return to P-007 for re-review. Not back to P-001.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Rules -->
+<div class="section">
+  <div class="section-label">05 — Rules</div>
+  <div class="section-title">Do's and Don'ts</div>
+  <div class="rules-grid">
+    <div class="rules-card">
+      <div class="rules-header do">✅ Always do this</div>
+      <div class="rules-body">
+        <div class="rule-item"><span>✓</span>Always show the checkpoint as a planned, positive moment — not an alert or error</div>
+        <div class="rule-item"><span>✓</span>Always show all products at a glance before requiring drill-in</div>
+        <div class="rule-item"><span>✓</span>Always show QA score per product — user must be able to make informed decisions</div>
+        <div class="rule-item"><span>✓</span>Always provide navigation arrows in drill-in — user must move through all products without returning to overview</div>
+        <div class="rule-item"><span>✓</span>Always fix only the specific element on request edit — never re-run entire agent chain</div>
+        <div class="rule-item"><span>✓</span>Always reference the Pre-flight Plan agreement — "as agreed before you started"</div>
+      </div>
+    </div>
+    <div class="rules-card">
+      <div class="rules-header dont">❌ Never do this</div>
+      <div class="rules-body">
+        <div class="rule-item"><span>✗</span>Never style this like an error — teal not red. Agent succeeded.</div>
+        <div class="rule-item"><span>✗</span>Never allow Publishing Agent to bypass this checkpoint — even for returning users</div>
+        <div class="rule-item"><span>✗</span>Never make bulk approve the default — user must consciously choose it</div>
+        <div class="rule-item"><span>✗</span>Never re-run all agents when user requests an edit — only fix what was flagged</div>
+        <div class="rule-item"><span>✗</span>Never publish anything without explicit user approval on this screen</div>
+        <div class="rule-item"><span>✗</span>Never show this pattern if Publishing Agent was not declared in Pre-flight Plan</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Metrics -->
+<div class="section" style="border-bottom:none">
+  <div class="section-label">06 — Metrics</div>
+  <div class="section-title">How you know this pattern is working</div>
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label" style="color:var(--green)">Approval rate</div>
+      <div class="metric-value">&gt;80%</div>
+      <div class="metric-desc">How often products are approved at this checkpoint without edits or rejection.</div>
+      <div style="font-size:11px;font-weight:600;color:var(--red)">🚨 Red flag if under 50%</div>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Agent output quality not meeting user expectations</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label" style="color:var(--amber)">Edit rate vs reject rate</div>
+      <div class="metric-value">Track</div>
+      <div class="metric-desc">High edit rate = output close but not right. High reject rate = output fundamentally wrong. Different problems, different fixes.</div>
+      <div style="font-size:11px;font-weight:600;color:var(--red)">🚨 Red flag if reject rate rising</div>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Agent instructions drifting from user intent</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label" style="color:var(--blue)">Time to complete review</div>
+      <div class="metric-value">&lt;5min</div>
+      <div class="metric-desc">From checkpoint appearing to all products decided. For 10 products.</div>
+      <div style="font-size:11px;font-weight:600;color:var(--red)">🚨 Red flag if over 15 min</div>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:2px">Preview not giving enough signal — user spending too long deciding</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
